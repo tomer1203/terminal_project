@@ -58,6 +58,14 @@ void PIT_IRQHandler(){
 	}
 }
 
+void clear_string_buffer(){
+	int i = 0;
+	for (i = 0;i < MAX_STRING;i++){
+		string_buffer[i] = 1;
+	}
+	string_index = 0;
+}
+
 //-----------------------------------------------------------------
 //  UART0 - ISR
 //-----------------------------------------------------------------
@@ -67,8 +75,10 @@ void UART0_IRQHandler(){
 		
 	if(UART0_S1 & UART_S1_RDRF_MASK){ // RX buffer is full and ready for reading
 		if (UART0_D == '\n'){
-			// send input string and then reset it.
-			Print(string_buffer);
+			// send input string
+			Print(string_buffer); // TODO: multiple options should be available
+			// then reset it.
+			clear_string_buffer();
 		}
 		// building the string buffer
 		string_buffer[string_index] = UART0_D;
@@ -76,7 +86,7 @@ void UART0_IRQHandler(){
 		
 		
 		Temp = UART0_D ;
-		Temp -= '1';
+		Temp -= '0';
 		
 		menu_control(Temp);
 		

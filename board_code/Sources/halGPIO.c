@@ -25,7 +25,7 @@ void PORTD_IRQHandler(void){
 4. Clear all LEDs\r\n\
 5. Sleep\r\n";
         
-		UARTprintf(UART0_BASE_PTR,menu_s);
+		//UARTprintf(UART0_BASE_PTR,menu_s);
 		
 		RED_LED_TOGGLE;
 		scroll_down();

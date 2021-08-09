@@ -6,5 +6,5 @@ void InitUARTs();
 void UART0_IRQHandler();
 char uart_getchar (UART_MemMapPtr channel);
 void uart_putchar (UART_MemMapPtr channel, char ch);
-void UARTprintf(UART_MemMapPtr channel,char* str);
+void UARTprintf(UART_MemMapPtr channel,const char* str);
 #endif /* TFC_UART_H_ */

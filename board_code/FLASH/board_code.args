@@ -19,10 +19,10 @@
 -g3
 -gdwarf-2
 -gstrict-dwarf
--T"C:/Users/tomer/OneDrive/Documents/university/computer_structure/projects/terminal/board_code/Project_Settings/Linker_Files/MKL25Z128_flash.ld"
+-T"C:/Git Repositories/board_code/Project_Settings/Linker_Files/MKL25Z128_flash.ld"
 -Xlinker
 --gc-sections
--L"C:/Freescale/CW MCU v10.6/MCU/ARM_GCC_Support/ewl/lib/armv6-m"
+-L"C:/CodeWarrior/CW MCU v10.6/MCU/ARM_GCC_Support/ewl/lib/armv6-m"
 -Wl,-Map,board_code.map
 -n
 -specs=ewl_c.specs

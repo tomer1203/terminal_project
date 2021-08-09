@@ -198,7 +198,7 @@ int uart_getchar_present (UART_MemMapPtr channel)
  *  channel      UART channel to send to
  *  str			 string to send
  */ 
-void UARTprintf(UART_MemMapPtr channel,char* str){
+void UARTprintf(UART_MemMapPtr channel,const char* str){
 	volatile unsigned char i;
 	
 	for (i=0 ; str[i] ; i++){

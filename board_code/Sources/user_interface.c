@@ -7,11 +7,11 @@
 # include "TFC.h"
 const char* getChatLine(int line){
 	char chat_lines[5][20] =  {
-			 "hello",
-			 "world!",
-			 "pickachuuuuuu",
-			 "sample text",
-			 "more text"};
+			 "hello\r\n",
+			 "world!\r\n",
+			 "pickachuuuuuu\r\n",
+			 "sample text\r\n",
+			 "more text\r\n"};
 	return chat_lines[line-1];
 }
 void initialize_ui(){
@@ -73,7 +73,8 @@ StateModes enter(){
 			
 			// ACTIONS //
 			if (state == CHAT_E){
-				UARTprintf(UART0_BASE_PTR,getChatLine(line_select));
+				char* line = getChatLine(line_select);
+				UARTprintf(UART0_BASE_PTR,line);
 			}
 			
 			if (state == FILE_TRANSFER_E){
@@ -107,9 +108,14 @@ StateModes enter(){
 	if (switched_menu == 1){
 		line_select = 0;
 	}
-}
+	
+	return next_state;
+	
+} // END enter
+
+
 int get_next_line(int line){
-	if (line+1 == menu_size){
+	if (line+1 >= menu_size){
 		return 0;
 	}
 	return line+1;

@@ -84,7 +84,14 @@ void UART0_IRQHandler(){
 		Temp = UART0_D;
 		if (Temp == '\n'){
 			// send input string
-			Print(string_buffer); // TODO: multiple options should be available
+			
+			if (is_config_command(string_buffer)){
+				int baud_config = translate_config_command(string_buffer);
+				change_config(baud_config);
+			} else{
+				Print(string_buffer); 
+			}
+				
 			// then reset it.
 			clear_string_buffer();
 		}

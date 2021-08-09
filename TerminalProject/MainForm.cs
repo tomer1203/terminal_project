@@ -24,8 +24,8 @@ namespace TerminalProject
             InitializeComponent();
 
             serialPort = new SerialPort();
-            serialPort.PortName = "COM1";
-            serialPort.ReadTimeout = 300;
+            serialPort.PortName = "COM6";
+            serialPort.ReadTimeout = 3000;
             serialPort.WriteTimeout = 300;
             serialPort.BaudRate = 9600;
             serialPort.Open();
@@ -41,11 +41,18 @@ namespace TerminalProject
         private void DataRecievedHandler(Object sender, SerialDataReceivedEventArgs e)
         {
             SerialPort sp = (SerialPort)sender;
-           // string inData = sp.ReadLine();
+            string inData = "";
+            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
+            inData = sp.ReadLine();
+            serialPort.ReadTimeout = 3000;
+            /*try
+            {
+                inData = sp.ReadLine();
+            }catch (Exception ignore) { };*/
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
             dataRecieveRichTextBox.Invoke((MethodInvoker)delegate
             {
-             //   dataRecieveRichTextBox.Text = inData;
+                dataRecieveRichTextBox.Text = inData;
             });
         }
 
@@ -89,7 +96,7 @@ namespace TerminalProject
          */ 
        private void configurationButton_click(object sender, EventArgs e)
         {
-            ConfigurationsForm configurationsForm = new ConfigurationsForm();
+            ConfigurationsForm configurationsForm = new ConfigurationsForm(ref serialPort);
             configurationsForm.MinimizeBox = false;
             configurationsForm.MaximizeBox = false;
             configurationsForm.Show();

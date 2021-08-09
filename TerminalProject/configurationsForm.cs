@@ -8,21 +8,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using System.IO.Ports;
+
 namespace TerminalProject
 {
     public partial class ConfigurationsForm : Form
     {
-        public ConfigurationsForm()
+        private SerialPort mSerialPort;
+
+        public ConfigurationsForm(ref SerialPort serialPort)
         {
+
+
             InitializeComponent();
 
             this.MinimumSize = this.Size;
             this.MaximumSize = this.Size;
 
-            this.setPortcomboBox.Items.AddRange(new object[] {
-            "COM1",
-            "COM2",
-            "COM3"});
+            this.setPortcomboBox.Items.AddRange(SerialPort.GetPortNames());
 
             this.setBaudratecomboBox.Items.AddRange(new object[] {
             "2400",
@@ -35,11 +38,12 @@ namespace TerminalProject
 
         private void saveConfButton_Click(object sender, EventArgs e)
         {
-
             bool ok = true;
+            String port = "COM1";
+            int baudrate = 9600;
             try
             {
-                String port = this.setPortcomboBox.SelectedItem.ToString();
+                port = this.setPortcomboBox.SelectedItem.ToString();
             }
             catch (Exception exception)
             {
@@ -49,7 +53,7 @@ namespace TerminalProject
 
             try
             {
-                String baudrate = this.setBaudratecomboBox.SelectedItem.ToString();
+                baudrate = int.Parse(this.setBaudratecomboBox.SelectedItem.ToString());
             }catch(Exception exception)
             {
                 saveConfErrorLabel.Text = "*Choose Baudrate";
@@ -58,6 +62,8 @@ namespace TerminalProject
             // TODO: change MCU configurations
             if (ok)
             {
+                mSerialPort.PortName = port;
+                mSerialPort.BaudRate = baudrate;
                 this.Close();
             }
 

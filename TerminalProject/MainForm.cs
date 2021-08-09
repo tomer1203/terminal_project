@@ -22,18 +22,26 @@ namespace TerminalProject
         public MainForm()
         {
             InitializeComponent();
+            this.MinimumSize = this.Size;
+            this.MaximumSize = this.Size;
 
             serialPort = new SerialPort();
-            serialPort.PortName = "COM6";
-            serialPort.ReadTimeout = 3000;
+            string[] ports = SerialPort.GetPortNames().Length > 0 ? SerialPort.GetPortNames() : new string[] { "" };
+            serialPort.PortName = "COM1";//ports[0]; // default
+            serialPort.BaudRate = 9600; // default
+            serialPort.ReadTimeout = 300;
             serialPort.WriteTimeout = 300;
-            serialPort.BaudRate = 9600;
-            serialPort.Open();
             serialPort.DataReceived += new SerialDataReceivedEventHandler(DataRecievedHandler);
             _continue = true;
 
+            try
+            {
+                serialPort.Open();
+                setConnectingLabel(SerialPortStatus.STATUS_OK);
+            }
+            catch (Exception) { setConnectingLabel(SerialPortStatus.STATUS_ERROR); }
+
             // Get a list of serial port names.
-            string[] ports = SerialPort.GetPortNames();
             dataRecieveRichTextBox.Text = string.Join(", ", ports);
 
         }
@@ -44,15 +52,10 @@ namespace TerminalProject
             string inData = "";
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
             inData = sp.ReadLine();
-            serialPort.ReadTimeout = 3000;
-            /*try
-            {
-                inData = sp.ReadLine();
-            }catch (Exception ignore) { };*/
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
-            dataRecieveRichTextBox.Invoke((MethodInvoker)delegate
+            stringRecieveRichTextBox.Invoke((MethodInvoker)delegate
             {
-                dataRecieveRichTextBox.Text = inData;
+                stringRecieveRichTextBox.Text = inData;
             });
         }
 
@@ -61,8 +64,6 @@ namespace TerminalProject
          */
         private void serialButton_Click(object sender, EventArgs e)
         {
-
-            //serialPort.BaudRate = SetPortBaudRate(serialPort.BaudRate);
             try
             {
                 dataRecieveRichTextBox.Text = serialPort.ReadLine();
@@ -77,18 +78,8 @@ namespace TerminalProject
          */
         private void sendButton_Click(object sender, EventArgs e)
         {
-            serialPort.Write(dataToSendTextBox.Text + '\n');
+            serialPort.Write(dataToSendTextBox.Text + '\0');
             dataToSendTextBox.Text = "";
-
-            Graphics g = this.CreateGraphics();
-            Pen p = new Pen(Color.Green);
-
-            SolidBrush sb = new SolidBrush(Color.Green);
-            g.DrawEllipse(p, connectingLabel.Location.X - 10, connectingLabel.Location.Y + 4, 5, 5);
-            g.FillEllipse(sb, connectingLabel.Location.X - 10, connectingLabel.Location.Y + 4, 5, 5);
-
-            this.connectingLabel.Text = serialPort.IsOpen.ToString();
-
         }
 
         /*
@@ -96,14 +87,18 @@ namespace TerminalProject
          */ 
        private void configurationButton_click(object sender, EventArgs e)
         {
+            // start configuration window
             ConfigurationsForm configurationsForm = new ConfigurationsForm(ref serialPort);
             configurationsForm.MinimizeBox = false;
             configurationsForm.MaximizeBox = false;
             configurationsForm.Show();
+
+            setConnectingLabel(SerialPortStatus.STATUS_OK);
+
         }
 
         /*
-         * Listen to EnterKey
+         * Listen to EnterKey to send data
          */ 
         private void dataToSendTextBox_KeyDown(Object sender, KeyEventArgs keyEvent)
         {
@@ -113,29 +108,35 @@ namespace TerminalProject
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e){}
+
+        private void setConnectingLabel(int status)
         {
+            switch(status)
+            {
+                case SerialPortStatus.STATUS_OK:
+                    this.connectingLabel.Text = "Connected to " + serialPort.PortName + " with baudrate " + serialPort.BaudRate;
+                    Graphics g = this.CreateGraphics();
+                    Pen p = new Pen(Color.Green);
+                    SolidBrush sb = new SolidBrush(Color.Green);
+                    g.DrawEllipse(p, connectingLabel.Location.X-5, connectingLabel.Location.Y-5, 5, 5);
+                    g.FillEllipse(sb, connectingLabel.Location.X-5, connectingLabel.Location.Y-5, 5, 5);
+                    
+                    break;
+                case SerialPortStatus.STATUS_ERROR:
+                    this.connectingLabel.Text = "Configure Serial Port";
+                    break;
+            }
+
             
         }
 
-        /*
-         * Display BaudRate values and prompt user to enter a value.
-         */
-        private int SetPortBaudRate(int defaultPortBaudRate)
-        {
-            string baudRate;
 
-            this.enterStringLabel.Text = "Enter Baudrate:";
-            baudRate = this.dataToSendTextBox.Text;
-
-            if (baudRate == "")
-            {
-                baudRate = defaultPortBaudRate.ToString();
-            }
-
-            return int.Parse(baudRate);
-        }
-
-        
     }
+
+    static class SerialPortStatus
+    {
+        public const int STATUS_OK = 0, STATUS_ERROR = 1; 
+
+    } 
 }

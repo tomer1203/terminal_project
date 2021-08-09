@@ -18,15 +18,15 @@ namespace TerminalProject
 
         public ConfigurationsForm(ref SerialPort serialPort)
         {
-
-
+            this.mSerialPort = serialPort;
             InitializeComponent();
 
             this.MinimumSize = this.Size;
             this.MaximumSize = this.Size;
-
+            
+            // Set list of available ports
             this.setPortcomboBox.Items.AddRange(SerialPort.GetPortNames());
-
+            // Set list of available baudrates
             this.setBaudratecomboBox.Items.AddRange(new object[] {
             "2400",
             "9600",
@@ -36,35 +36,61 @@ namespace TerminalProject
             
         }
 
+        /*
+         * Save Configuration
+         */ 
         private void saveConfButton_Click(object sender, EventArgs e)
         {
-            bool ok = true;
+            bool status_ok = true;
             String port = "COM1";
             int baudrate = 9600;
             try
             {
                 port = this.setPortcomboBox.SelectedItem.ToString();
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-                ok = false;
+                status_ok = false;
                 saveConfErrorLabel.Text = "*Choose Port";
             }
 
             try
             {
+                // get baudrate as integer
                 baudrate = int.Parse(this.setBaudratecomboBox.SelectedItem.ToString());
-            }catch(Exception exception)
+            }catch(Exception)
             {
                 saveConfErrorLabel.Text = "*Choose Baudrate";
-                ok = false;
+                status_ok = false;
             }
-            // TODO: change MCU configurations
-            if (ok)
+            
+            if (status_ok)
             {
+                string data = "";
+                // close opened serial port
+                if (mSerialPort.IsOpen){
+                    mSerialPort.Close();
+                }
                 mSerialPort.PortName = port;
+                try
+                {
+                    mSerialPort.Open();
+                    data = "$[Br]" + baudrate.ToString() + '\0';
+                    mSerialPort.Write(data);
+                    mSerialPort.Close();
+                }
+                catch (Exception) { }
+                    
                 mSerialPort.BaudRate = baudrate;
-                this.Close();
+                try
+                {
+                    mSerialPort.Open();
+                    this.Close();
+                }
+                catch (Exception exception) {
+                    saveConfErrorLabel.Text = exception.ToString();
+                };
+                
             }
 
         }

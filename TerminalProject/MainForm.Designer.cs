@@ -148,13 +148,13 @@
             // 
             // connectingLabel
             // 
-            this.connectingLabel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.connectingLabel.AutoSize = true;
-            this.connectingLabel.Location = new System.Drawing.Point(392, 522);
+            this.connectingLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.connectingLabel.Location = new System.Drawing.Point(0, 531);
             this.connectingLabel.Name = "connectingLabel";
-            this.connectingLabel.Size = new System.Drawing.Size(102, 20);
+            this.connectingLabel.Size = new System.Drawing.Size(850, 20);
             this.connectingLabel.TabIndex = 2;
             this.connectingLabel.Text = "Connecting...";
+            this.connectingLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // configurationsButton
             // 
@@ -166,7 +166,7 @@
             this.configurationsButton.UseVisualStyleBackColor = true;
             this.configurationsButton.Click += new System.EventHandler(this.configurationButton_click);
             // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -175,7 +175,7 @@
             this.Controls.Add(this.connectingLabel);
             this.Controls.Add(this.tabControl1);
             this.MinimumSize = new System.Drawing.Size(515, 400);
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Text = "Terminal Project";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl1.ResumeLayout(false);
@@ -183,7 +183,6 @@
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 

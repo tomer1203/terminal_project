@@ -84,7 +84,9 @@ int translate_config_command(char* string){
 	return atoi(&string[5]);
 }
 void change_config(int Baud_rate){
+	UART0_C2 &= (~UARTLP_C2_RE_MASK) & (~UARTLP_C2_TE_MASK) & (~UART_C2_RIE_MASK);
 	Uart0_Br_Sbr(CORE_CLOCK/2/1000, Baud_rate);
+	UART0_C2 = UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK | UART_C2_RIE_MASK;
 }
 // format:
 // "$[Br]9600\0"
@@ -100,12 +102,18 @@ void UART0_IRQHandler(){
 		
 	if(UART0_S1 & UART_S1_RDRF_MASK){ // RX buffer is full and ready for reading
 		Temp = UART0_D;
+		
+		// building the string buffer
+		string_buffer[string_index++] = Temp;
+				
 		if (Temp == '\0'){
 			// send input string
 			
 			if (is_config_command(string_buffer)){
 				int baud_config = translate_config_command(string_buffer);
 				change_config(baud_config);
+				UARTprintf(UART0_BASE_PTR,"changed baud rate, status ok\n");
+
 			} else{
 				Print(string_buffer); 
 			}
@@ -113,22 +121,9 @@ void UART0_IRQHandler(){
 			// then reset it.
 			clear_string_buffer();
 		}
-		// building the string buffer
-		string_buffer[string_index++] = Temp;
-		
-		
-		
-		Temp = UART0_D;
-		Temp -= '0';
-		
-		menu_control(Temp);
-		
 		
 	}
-	if(UART0_S1 & UART_S1_TDRE_MASK){ // TX buffer is empty and ready for sending
-		
-		UART0_D = Temp+'0';
-	}
+	
 }
 
 //-----------------------------------------------------------------
@@ -191,7 +186,7 @@ void Print(const char * s){
 	cursor_off;
 	lcd_clear();
 	lcd_goto(0);
-	DelayMs(5);
+	DelayMs(10);
 	
 	lcd_puts(s);
 	

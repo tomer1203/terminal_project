@@ -13,13 +13,13 @@ using System.Threading;
 
 namespace TerminalProject
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
 
         static SerialPort serialPort;
         static bool _continue;
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
 
@@ -27,6 +27,7 @@ namespace TerminalProject
             serialPort.PortName = "COM1";
             serialPort.ReadTimeout = 300;
             serialPort.WriteTimeout = 300;
+            serialPort.BaudRate = 9600;
             serialPort.Open();
             serialPort.DataReceived += new SerialDataReceivedEventHandler(DataRecievedHandler);
             _continue = true;
@@ -40,11 +41,11 @@ namespace TerminalProject
         private void DataRecievedHandler(Object sender, SerialDataReceivedEventArgs e)
         {
             SerialPort sp = (SerialPort)sender;
-            string inData = sp.ReadLine();
+           // string inData = sp.ReadLine();
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
             dataRecieveRichTextBox.Invoke((MethodInvoker)delegate
             {
-                dataRecieveRichTextBox.Text = inData;
+             //   dataRecieveRichTextBox.Text = inData;
             });
         }
 
@@ -58,7 +59,7 @@ namespace TerminalProject
             try
             {
                 dataRecieveRichTextBox.Text = serialPort.ReadLine();
-                serialPort.WriteLine("Got it bro");
+                serialPort.WriteLine("Got it");
             }
             catch (TimeoutException) { }
             
@@ -69,20 +70,34 @@ namespace TerminalProject
          */
         private void sendButton_Click(object sender, EventArgs e)
         {
-            serialPort.Write(dataToSendTextBox.Text);
+            serialPort.Write(dataToSendTextBox.Text + '\n');
             dataToSendTextBox.Text = "";
 
             Graphics g = this.CreateGraphics();
             Pen p = new Pen(Color.Green);
 
             SolidBrush sb = new SolidBrush(Color.Green);
-            g.DrawEllipse(p, label2.Location.X - 10, label2.Location.Y + 4, 5, 5);
-            g.FillEllipse(sb, label2.Location.X - 10, label2.Location.Y + 4, 5, 5);
+            g.DrawEllipse(p, connectingLabel.Location.X - 10, connectingLabel.Location.Y + 4, 5, 5);
+            g.FillEllipse(sb, connectingLabel.Location.X - 10, connectingLabel.Location.Y + 4, 5, 5);
 
-            this.label2.Text = serialPort.IsOpen.ToString();
+            this.connectingLabel.Text = serialPort.IsOpen.ToString();
 
         }
 
+        /*
+         * Set Configuretions
+         */ 
+       private void configurationButton_click(object sender, EventArgs e)
+        {
+            ConfigurationsForm configurationsForm = new ConfigurationsForm();
+            configurationsForm.MinimizeBox = false;
+            configurationsForm.MaximizeBox = false;
+            configurationsForm.Show();
+        }
+
+        /*
+         * Listen to EnterKey
+         */ 
         private void dataToSendTextBox_KeyDown(Object sender, KeyEventArgs keyEvent)
         {
             if(keyEvent.KeyCode == Keys.Enter)
@@ -103,7 +118,7 @@ namespace TerminalProject
         {
             string baudRate;
 
-            this.label1.Text = "Enter Baudrate:";
+            this.enterStringLabel.Text = "Enter Baudrate:";
             baudRate = this.dataToSendTextBox.Text;
 
             if (baudRate == "")

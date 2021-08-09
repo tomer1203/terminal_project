@@ -15,7 +15,7 @@
 
 int interval;
 
-typedef enum StateModes{IDLE_E} StateModes;
+typedef enum StateModes{IDLE_E,CHAT_E,FILE_TRANSFER_E,CONFIGURATION_E} StateModes;
 volatile StateModes state;
 
 StateModes lastState;

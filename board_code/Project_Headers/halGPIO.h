@@ -15,7 +15,7 @@ void DelayMs(unsigned int cnt);
 char string_buffer[MAX_STRING];
 int string_index;
 
-
+void Print_two_lines(const char *s1,const char *s2);
 void InitTimers();
 void Print(const char * s);
 void PrintVolt(const char * s);

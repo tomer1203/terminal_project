@@ -6,7 +6,9 @@
  */
 #include "Fsm.h"
 #include "TFC.h"
-
+void change_state(StateModes next_state){
+	state = next_state;
+}
 void menu_control(uint8_t digit){
 	
 //	if(state == GET_DELAY_E)
@@ -85,25 +87,6 @@ void Fsm(void){
 			disablePITx(0);
 			RGB_LED_OFF;
 			wait(); 
-			break;
-		
-		case GET_DELAY_E:
-			wait(); 
-			break;
-			
-		case BLINK_E:
-			wait(); 
-			break;
-			
-		case POTEN_E:
-			RGB_LED_OFF;
-			wait();
-			break;
-			
-		case SLEEP_E:
-			disablePITx(0);
-			RGB_LED_OFF;
-			stop(); // sleep
 			break;
 		
 		}

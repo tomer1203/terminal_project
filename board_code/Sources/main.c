@@ -22,9 +22,9 @@ int main(void){
 	InitUARTs();
 	enablePIT();
 	disablePITx(1);
-	
+	initialize_ui();
+	print_ui();
 	Fsm();
-	
 	return 0;
 }
 

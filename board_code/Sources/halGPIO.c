@@ -26,19 +26,26 @@ void PORTD_IRQHandler(void){
 5. Sleep\r\n";
         
 		UARTprintf(UART0_BASE_PTR,menu_s);
+		
+		RED_LED_TOGGLE;
+		scroll_down();
 	}
 	if(PORTD_ISFR & PTD_6){
-		char I_love_my_negev[20] = "I love my Negev\r\n";
-		if (state == PRINT_E){
-            // Print Menu
-            UARTprintf(UART0_BASE_PTR,I_love_my_negev);
-        } 
+//		char I_love_my_negev[20] = "I love my Negev\r\n";
+//		if (state == PRINT_E){
+//            // Print Menu
+//            UARTprintf(UART0_BASE_PTR,I_love_my_negev);
+//        } 
+		state = enter();
+		BLUE_LED_TOGGLE;
 	}
 	//Debounce or using PFE field
 	while(!(GPIOD_PDIR & PTD_7) );// wait of release the button
 	while(!(GPIOD_PDIR & PTD_6) );// wait of release the button
 	for(i=10000 ; i>0 ; i--); //delay, button debounce
 	
+	print_ui();
+	DelayMs(10);
 	PORTD_ISFR |= 0x00000080;  // clear interrupt flag bit of PTD7
 }
 
@@ -74,18 +81,19 @@ void UART0_IRQHandler(){
 	uint8_t Temp;
 		
 	if(UART0_S1 & UART_S1_RDRF_MASK){ // RX buffer is full and ready for reading
-		if (UART0_D == '\n'){
+		Temp = UART0_D;
+		if (Temp == '\n'){
 			// send input string
 			Print(string_buffer); // TODO: multiple options should be available
 			// then reset it.
 			clear_string_buffer();
 		}
 		// building the string buffer
-		string_buffer[string_index] = UART0_D;
+		string_buffer[string_index++] = Temp;
 		
 		
 		
-		Temp = UART0_D ;
+		Temp = UART0_D;
 		Temp -= '0';
 		
 		menu_control(Temp);
@@ -162,6 +170,14 @@ void Print(const char * s){
 	
 	lcd_puts(s);
 	
+}
+void Print_two_lines(const char *s1,const char *s2){
+	lcd_clear();
+	lcd_goto(1);
+	DelayMs(10);
+	lcd_puts(s1);
+	lcd_new_line;
+	lcd_puts(s2);
 }
 
 void PrintVolt(const char * s){

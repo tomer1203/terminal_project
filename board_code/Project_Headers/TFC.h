@@ -17,9 +17,12 @@
 #include "arm_cm0.h"
 #include "UART.h"
 
+
 #include "Fsm.h"
 #include "halGPIO.h"
+#include "user_interface.h"
 #include "ADCandDAC.h"
 #include "halLCD.h"
+
 
 #endif /* TFC_H_ */

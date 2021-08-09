@@ -76,7 +76,7 @@ void UART0_IRQHandler(){
 		
 		
 		Temp = UART0_D ;
-		Temp -= '0';
+		Temp -= '1';
 		
 		menu_control(Temp);
 		

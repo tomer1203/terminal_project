@@ -73,6 +73,24 @@ void clear_string_buffer(){
 	string_index = 0;
 }
 
+int is_config_command(char* string){
+	if (string[0]=='$' && string[1]=='[' && string[2]=='B' && string[3]=='r' && string[4]==']'){
+		return 1;
+	} else {
+		return 0;
+	}
+}
+int translate_config_command(char* string){
+	return atoi(&string[5]);
+}
+void change_config(int Baud_rate){
+	Uart0_Br_Sbr(CORE_CLOCK/2/1000, Baud_rate);
+}
+// format:
+// "$[Br]9600\0"
+// $ - command symbol
+// Br -Baud rate configuration
+
 //-----------------------------------------------------------------
 //  UART0 - ISR
 //-----------------------------------------------------------------
@@ -82,7 +100,7 @@ void UART0_IRQHandler(){
 		
 	if(UART0_S1 & UART_S1_RDRF_MASK){ // RX buffer is full and ready for reading
 		Temp = UART0_D;
-		if (Temp == '\n'){
+		if (Temp == '\0'){
 			// send input string
 			
 			if (is_config_command(string_buffer)){

@@ -17,6 +17,8 @@ int string_index;
 
 void Print_two_lines(const char *s1,const char *s2);
 void InitTimers();
+int translate_config_command(char* string);
+
 void Print(const char * s);
 void PrintVolt(const char * s);
 void change_color();

@@ -65,29 +65,7 @@ void PIT_IRQHandler(){
 	}
 }
 
-void clear_string_buffer(){
-	int i = 0;
-	for (i = 0;i < MAX_STRING;i++){
-		string_buffer[i] = 1;
-	}
-	string_index = 0;
-}
 
-int is_config_command(char* string){
-	if (string[0]=='$' && string[1]=='[' && string[2]=='B' && string[3]=='r' && string[4]==']'){
-		return 1;
-	} else {
-		return 0;
-	}
-}
-int translate_config_command(char* string){
-	return atoi(&string[5]);
-}
-void change_config(int Baud_rate){
-	UART0_C2 &= (~UARTLP_C2_RE_MASK) & (~UARTLP_C2_TE_MASK) & (~UART_C2_RIE_MASK);
-	Uart0_Br_Sbr(CORE_CLOCK/2/1000, Baud_rate);
-	UART0_C2 = UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK | UART_C2_RIE_MASK;
-}
 // format:
 // "$[Br]9600\0"
 // $ - command symbol
@@ -97,38 +75,43 @@ void change_config(int Baud_rate){
 //  UART0 - ISR
 //-----------------------------------------------------------------
 void UART0_IRQHandler(){
-	
-	uint8_t Temp;
-	int a= 0;
+	uint8_t Char;
 	
 	if(UART0_S1 & UART_S1_RDRF_MASK){ // RX buffer is full and ready for reading
-		Temp = UART0_D;
+		Char = UART0_D;
 		
-		// building the string buffer
-		string_buffer[string_index++] = Temp;
+		string_buffer[string_index] = Char;
 		
-		if(string_index == 10)
-			a = 0;
-				
-		if (Temp == '\0'){
-			// send input string
+		// if message is finished		
+		if (Char == '\0' && string_index >= 6){
 			
-			if (is_config_command(string_buffer)){
-				int baud_config = translate_config_command(string_buffer);
-				Print_two_lines("Baud Rate:", &string_buffer[5]);
-				change_config(baud_config);
-				UARTprintf(UART0_BASE_PTR,"changed baud rate, status ok\n");
-
-			} else{
-				Print(string_buffer); 
+			// CHECKSUM Check //
+			if (!checksum(string_buffer)){
+				UARTprintf(UART0_BASE_PTR,"$[St]3"STATUS_CHECKSUM_ERROR);
+				clear_string_buffer();
+				return;
+			} else {
+				UARTprintf(UART0_BASE_PTR,"$[St]2"STATUS_OK);
 			}
-				
-			// then reset it.
+			
+			// ACTIONS //
+			// change Baud rate
+			if (is_br_command(string_buffer)){
+				int baud_config = atoi(strip_command(string_buffer));
+				Print_two_lines("Baud Rate:", &string_buffer[5]);
+				change_Baud_config(baud_config);
+				UARTprintf(UART0_BASE_PTR,"$[Tx]Gchanged baud rate, status ok\r\n");
+			
+			// normal chat
+			} else if (is_chat_command(string_buffer)){ 
+				Print(strip_command(string_buffer)); 
+			}
+			
+			// when finished reading message, clean the buffer.
 			clear_string_buffer();
 		}
-		
+		string_index++;
 	}
-	
 }
 
 //-----------------------------------------------------------------

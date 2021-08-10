@@ -1,7 +1,7 @@
 #ifndef TFC_UART_H_
 #define TFC_UART_H_
 
-#define CORE_CLOCK 48000000
+//#define CORE_CLOCK 48000000
 
 
 void Uart0_Br_Sbr(int sysclk, int baud);

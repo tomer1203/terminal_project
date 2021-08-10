@@ -76,22 +76,30 @@ void PIT_IRQHandler(){
 //-----------------------------------------------------------------
 void UART0_IRQHandler(){
 	uint8_t Char;
-	
+	char length[4];
 	if(UART0_S1 & UART_S1_RDRF_MASK){ // RX buffer is full and ready for reading
 		Char = UART0_D;
 		
 		string_buffer[string_index] = Char;
+		input_string_length--;
+		
+		// read the input string length
+		if (string_index == 10){
+			strcpy_s(length,3,&string_buffer[7]);
+			length[3] = '\0';
+			input_string_length = atoi(length)+1; // the +1 is for the closing |
+		}
 		
 		// if message is finished		
-		if (Char == '\0' && string_index >= 6){
+		if (input_string_length<=0 && string_index >= 11){
 			
 			// CHECKSUM Check //
-			if (!checksum(string_buffer)){
-				UARTprintf(UART0_BASE_PTR,"$[St]3"STATUS_CHECKSUM_ERROR);
+			if (!validate_checksum(string_buffer,string_index)){
+				send2pc("St","001",STATUS_CHECKSUM_ERROR);
 				clear_string_buffer();
 				return;
 			} else {
-				UARTprintf(UART0_BASE_PTR,"$[St]2"STATUS_OK);
+				send2pc("St","001",STATUS_OK);
 			}
 			
 			// ACTIONS //
@@ -100,8 +108,8 @@ void UART0_IRQHandler(){
 				int baud_config = atoi(strip_command(string_buffer));
 				Print_two_lines("Baud Rate:", &string_buffer[5]);
 				change_Baud_config(baud_config);
-				UARTprintf(UART0_BASE_PTR,"$[Tx]Gchanged baud rate, status ok\r\n");
-			
+				
+				send2pc("Tx","028","changed baud rate, status ok");
 			// normal chat
 			} else if (is_chat_command(string_buffer)){ 
 				Print(strip_command(string_buffer)); 

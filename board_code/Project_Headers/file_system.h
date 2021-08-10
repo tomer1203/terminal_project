@@ -10,6 +10,7 @@
 
 #define SIZE_OF_FILE_SYSTEM 1024
 #define MAX_NUMBER_OF_FILES 20
+#define MAX_NAME_SIZE       20
 #define FILE_SYSTEM_START_ADDRESS &fs_memory
 #define FILE_SYSTEM_END_ADDRESS &fs_memory+SIZE_OF_FILE_SYSTEM
 

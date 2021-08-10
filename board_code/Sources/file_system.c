@@ -1,9 +1,11 @@
 /*
  * file_system.c
+
  *
  *  Created on: Aug 10, 2021
  *      Author: tomer
  */
+#include "TFC.h"
 void initialize_file_system(){
 	int i=0;
 	file_system.start_address = FILE_SYSTEM_START_ADDRESS;
@@ -27,7 +29,7 @@ void initialize_file_system(){
 }
 initialize_file_desc(File_descriptor * file_desc){
 	int i = 0;
-	for (int i=0;i<MAX_NAME_SIZE;i++){
+	for (i=0;i<MAX_NAME_SIZE;i++){
 		file_desc->name[i] = 0;
 	}
 	file_desc->size          = 0;

@@ -20,6 +20,7 @@
 
 #include "Fsm.h"
 #include "uart_functions.h"
+#include "file_system.h"
 #include "halGPIO.h"
 #include "user_interface.h"
 #include "ADCandDAC.h"

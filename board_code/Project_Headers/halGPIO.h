@@ -7,13 +7,15 @@
 
 #ifndef HALGPIO_H_
 #define HALGPIO_H_
-#define MAX_STRING 256
+// 1/2 KB
+#define MAX_STRING 512
 
 void DelayUs(unsigned int cnt);
 void DelayMs(unsigned int cnt);
 
 char string_buffer[MAX_STRING];
 int string_index;
+int input_string_length;
 
 void Print_two_lines(const char *s1,const char *s2);
 void InitTimers();

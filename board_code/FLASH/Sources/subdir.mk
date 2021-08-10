@@ -12,11 +12,13 @@ C_SRCS_QUOTED += \
 "../Sources/UART.c" \
 "../Sources/arm_cm0.c" \
 "../Sources/convertToAscii.c" \
+"../Sources/file_system.c" \
 "../Sources/halGPIO.c" \
 "../Sources/halLCD.c" \
 "../Sources/main.c" \
 "../Sources/mcg.c" \
 "../Sources/sa_mtb.c" \
+"../Sources/uart_functions.c" \
 "../Sources/user_interface.c" \
 
 C_SRCS += \
@@ -26,11 +28,13 @@ C_SRCS += \
 ../Sources/UART.c \
 ../Sources/arm_cm0.c \
 ../Sources/convertToAscii.c \
+../Sources/file_system.c \
 ../Sources/halGPIO.c \
 ../Sources/halLCD.c \
 ../Sources/main.c \
 ../Sources/mcg.c \
 ../Sources/sa_mtb.c \
+../Sources/uart_functions.c \
 ../Sources/user_interface.c \
 
 OBJS += \
@@ -40,11 +44,13 @@ OBJS += \
 ./Sources/UART.o \
 ./Sources/arm_cm0.o \
 ./Sources/convertToAscii.o \
+./Sources/file_system.o \
 ./Sources/halGPIO.o \
 ./Sources/halLCD.o \
 ./Sources/main.o \
 ./Sources/mcg.o \
 ./Sources/sa_mtb.o \
+./Sources/uart_functions.o \
 ./Sources/user_interface.o \
 
 C_DEPS += \
@@ -54,11 +60,13 @@ C_DEPS += \
 ./Sources/UART.d \
 ./Sources/arm_cm0.d \
 ./Sources/convertToAscii.d \
+./Sources/file_system.d \
 ./Sources/halGPIO.d \
 ./Sources/halLCD.d \
 ./Sources/main.d \
 ./Sources/mcg.d \
 ./Sources/sa_mtb.d \
+./Sources/uart_functions.d \
 ./Sources/user_interface.d \
 
 OBJS_QUOTED += \
@@ -68,11 +76,13 @@ OBJS_QUOTED += \
 "./Sources/UART.o" \
 "./Sources/arm_cm0.o" \
 "./Sources/convertToAscii.o" \
+"./Sources/file_system.o" \
 "./Sources/halGPIO.o" \
 "./Sources/halLCD.o" \
 "./Sources/main.o" \
 "./Sources/mcg.o" \
 "./Sources/sa_mtb.o" \
+"./Sources/uart_functions.o" \
 "./Sources/user_interface.o" \
 
 C_DEPS_QUOTED += \
@@ -82,11 +92,13 @@ C_DEPS_QUOTED += \
 "./Sources/UART.d" \
 "./Sources/arm_cm0.d" \
 "./Sources/convertToAscii.d" \
+"./Sources/file_system.d" \
 "./Sources/halGPIO.d" \
 "./Sources/halLCD.d" \
 "./Sources/main.d" \
 "./Sources/mcg.d" \
 "./Sources/sa_mtb.d" \
+"./Sources/uart_functions.d" \
 "./Sources/user_interface.d" \
 
 OBJS_OS_FORMAT += \
@@ -96,11 +108,13 @@ OBJS_OS_FORMAT += \
 ./Sources/UART.o \
 ./Sources/arm_cm0.o \
 ./Sources/convertToAscii.o \
+./Sources/file_system.o \
 ./Sources/halGPIO.o \
 ./Sources/halLCD.o \
 ./Sources/main.o \
 ./Sources/mcg.o \
 ./Sources/sa_mtb.o \
+./Sources/uart_functions.o \
 ./Sources/user_interface.o \
 
 
@@ -153,9 +167,17 @@ Sources/convertToAscii.o: ../Sources/convertToAscii.c
 	@echo 'Finished building: $<'
 	@echo ' '
 
-Sources/halGPIO.o: ../Sources/halGPIO.c
+Sources/file_system.o: ../Sources/file_system.c
 	@echo 'Building file: $<'
 	@echo 'Executing target #7 $<'
+	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
+	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/file_system.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/file_system.o"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+Sources/halGPIO.o: ../Sources/halGPIO.c
+	@echo 'Building file: $<'
+	@echo 'Executing target #8 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/halGPIO.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/halGPIO.o"
 	@echo 'Finished building: $<'
@@ -163,7 +185,7 @@ Sources/halGPIO.o: ../Sources/halGPIO.c
 
 Sources/halLCD.o: ../Sources/halLCD.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #8 $<'
+	@echo 'Executing target #9 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/halLCD.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/halLCD.o"
 	@echo 'Finished building: $<'
@@ -171,7 +193,7 @@ Sources/halLCD.o: ../Sources/halLCD.c
 
 Sources/main.o: ../Sources/main.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #9 $<'
+	@echo 'Executing target #10 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/main.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/main.o"
 	@echo 'Finished building: $<'
@@ -179,7 +201,7 @@ Sources/main.o: ../Sources/main.c
 
 Sources/mcg.o: ../Sources/mcg.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #10 $<'
+	@echo 'Executing target #11 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/mcg.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/mcg.o"
 	@echo 'Finished building: $<'
@@ -187,15 +209,23 @@ Sources/mcg.o: ../Sources/mcg.c
 
 Sources/sa_mtb.o: ../Sources/sa_mtb.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #11 $<'
+	@echo 'Executing target #12 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/sa_mtb.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/sa_mtb.o"
 	@echo 'Finished building: $<'
 	@echo ' '
 
+Sources/uart_functions.o: ../Sources/uart_functions.c
+	@echo 'Building file: $<'
+	@echo 'Executing target #13 $<'
+	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
+	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/uart_functions.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/uart_functions.o"
+	@echo 'Finished building: $<'
+	@echo ' '
+
 Sources/user_interface.o: ../Sources/user_interface.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #12 $<'
+	@echo 'Executing target #14 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/user_interface.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/user_interface.o"
 	@echo 'Finished building: $<'

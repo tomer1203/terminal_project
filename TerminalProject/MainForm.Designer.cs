@@ -36,20 +36,27 @@
             this.enterStringLabel = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.stringRecieveRichTextBox = new TerminalProject.Source_files.DisabledRichTextBox();
+            this.dataRecievePanel = new System.Windows.Forms.Panel();
+            this.dataRecieveLabel = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.dataRecieveRichTextBox = new System.Windows.Forms.RichTextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.connectingLabel = new System.Windows.Forms.Label();
             this.connectingPictureBox = new System.Windows.Forms.PictureBox();
             this.configurationsLabel = new System.Windows.Forms.Label();
             this.settingsPanel = new System.Windows.Forms.Panel();
+            this.fileNamePanel = new System.Windows.Forms.Panel();
+            this.fileNameLabel = new System.Windows.Forms.Label();
+            this.filePanel = new System.Windows.Forms.Panel();
+            this.fileLabel = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.dataRecievePanel.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.connectingPictureBox)).BeginInit();
             this.settingsPanel.SuspendLayout();
+            this.fileNamePanel.SuspendLayout();
+            this.filePanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // sendButton
@@ -104,7 +111,7 @@
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.stringRecieveRichTextBox);
+            this.tabPage1.Controls.Add(this.dataRecievePanel);
             this.tabPage1.Controls.Add(this.sendButton);
             this.tabPage1.Controls.Add(this.enterStringLabel);
             this.tabPage1.Controls.Add(this.dataToSendTextBox);
@@ -116,18 +123,30 @@
             this.tabPage1.Text = "Chat";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
-            // stringRecieveRichTextBox
+            // dataRecievePanel
             // 
-            this.stringRecieveRichTextBox.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.stringRecieveRichTextBox.Location = new System.Drawing.Point(35, 87);
-            this.stringRecieveRichTextBox.Name = "stringRecieveRichTextBox";
-            this.stringRecieveRichTextBox.Size = new System.Drawing.Size(770, 346);
-            this.stringRecieveRichTextBox.TabIndex = 1;
-            this.stringRecieveRichTextBox.Text = "";
+            this.dataRecievePanel.Controls.Add(this.dataRecieveLabel);
+            this.dataRecievePanel.Location = new System.Drawing.Point(35, 98);
+            this.dataRecievePanel.Name = "dataRecievePanel";
+            this.dataRecievePanel.Size = new System.Drawing.Size(770, 218);
+            this.dataRecievePanel.TabIndex = 2;
+            // 
+            // dataRecieveLabel
+            // 
+            this.dataRecieveLabel.BackColor = System.Drawing.SystemColors.MenuBar;
+            this.dataRecieveLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataRecieveLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.dataRecieveLabel.Location = new System.Drawing.Point(0, 0);
+            this.dataRecieveLabel.Name = "dataRecieveLabel";
+            this.dataRecieveLabel.Size = new System.Drawing.Size(770, 218);
+            this.dataRecieveLabel.TabIndex = 0;
+            this.dataRecieveLabel.Text = "String Recieved";
+            this.dataRecieveLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.dataRecieveRichTextBox);
+            this.tabPage2.Controls.Add(this.filePanel);
+            this.tabPage2.Controls.Add(this.fileNamePanel);
             this.tabPage2.Location = new System.Drawing.Point(4, 39);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -135,15 +154,6 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "View";
             this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // dataRecieveRichTextBox
-            // 
-            this.dataRecieveRichTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataRecieveRichTextBox.Location = new System.Drawing.Point(3, 3);
-            this.dataRecieveRichTextBox.Name = "dataRecieveRichTextBox";
-            this.dataRecieveRichTextBox.Size = new System.Drawing.Size(837, 451);
-            this.dataRecieveRichTextBox.TabIndex = 0;
-            this.dataRecieveRichTextBox.Text = "";
             // 
             // panel1
             // 
@@ -201,6 +211,43 @@
             this.settingsPanel.MouseLeave += new System.EventHandler(this.settingsPanel_MouseLeave);
             this.settingsPanel.MouseHover += new System.EventHandler(this.settingsPanel_MouseHover);
             // 
+            // fileNamePanel
+            // 
+            this.fileNamePanel.Controls.Add(this.fileNameLabel);
+            this.fileNamePanel.Location = new System.Drawing.Point(28, 20);
+            this.fileNamePanel.Name = "fileNamePanel";
+            this.fileNamePanel.Size = new System.Drawing.Size(782, 64);
+            this.fileNamePanel.TabIndex = 0;
+            // 
+            // fileNameLabel
+            // 
+            this.fileNameLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fileNameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.fileNameLabel.Location = new System.Drawing.Point(0, 0);
+            this.fileNameLabel.Name = "fileNameLabel";
+            this.fileNameLabel.Size = new System.Drawing.Size(782, 64);
+            this.fileNameLabel.TabIndex = 1;
+            this.fileNameLabel.Text = "File Name";
+            this.fileNameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // filePanel
+            // 
+            this.filePanel.BackColor = System.Drawing.SystemColors.MenuBar;
+            this.filePanel.Controls.Add(this.fileLabel);
+            this.filePanel.Location = new System.Drawing.Point(28, 87);
+            this.filePanel.Name = "filePanel";
+            this.filePanel.Size = new System.Drawing.Size(782, 333);
+            this.filePanel.TabIndex = 1;
+            // 
+            // fileLabel
+            // 
+            this.fileLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fileLabel.Location = new System.Drawing.Point(0, 0);
+            this.fileLabel.Name = "fileLabel";
+            this.fileLabel.Size = new System.Drawing.Size(782, 333);
+            this.fileLabel.TabIndex = 0;
+            this.fileLabel.Text = "The start of a file";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -218,11 +265,14 @@
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            this.dataRecievePanel.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.connectingPictureBox)).EndInit();
             this.settingsPanel.ResumeLayout(false);
+            this.fileNamePanel.ResumeLayout(false);
+            this.filePanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -232,8 +282,6 @@
 
         // Text Box
         private System.Windows.Forms.TextBox dataToSendTextBox;
-        private System.Windows.Forms.RichTextBox dataRecieveRichTextBox;
-        private Source_files.DisabledRichTextBox stringRecieveRichTextBox;
 
         // Labels
         private System.Windows.Forms.Label enterStringLabel;
@@ -247,6 +295,12 @@
         private System.Windows.Forms.PictureBox connectingPictureBox;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel settingsPanel;
+        private System.Windows.Forms.Panel dataRecievePanel;
+        private System.Windows.Forms.Label dataRecieveLabel;
+        private System.Windows.Forms.Panel filePanel;
+        private System.Windows.Forms.Label fileLabel;
+        private System.Windows.Forms.Panel fileNamePanel;
+        private System.Windows.Forms.Label fileNameLabel;
     }
 }
 

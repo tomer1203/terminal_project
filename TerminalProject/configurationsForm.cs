@@ -9,17 +9,19 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using System.IO.Ports;
+using TerminalProject.Source_files;
+using System.Threading;
 
 namespace TerminalProject
 {
     public partial class ConfigurationsForm : Form
     {
-        private SerialPort mSerialPort;
+        private CustomSerialPort mSerialPort;
 
         /*
          * Construstor
          */
-        public ConfigurationsForm(ref SerialPort serialPort)
+        public ConfigurationsForm(ref CustomSerialPort serialPort)
         {
             
             InitializeComponent();
@@ -33,11 +35,14 @@ namespace TerminalProject
             if (ports != null)
             { 
                 this.setPortcomboBox.Items.AddRange(ports);
+                // enable save button
                 saveConfButton.Click += new System.EventHandler(this.saveConfButton_Click);
+                this.setPortcomboBox.SelectedItem = serialPort.PortName;
             }
             else
             {   // no available ports
                 saveConfErrorLabel.Text = "no available ports";
+                // disable save button
                 saveConfButton.Click -= this.saveConfButton_Click;
 
             }
@@ -47,6 +52,7 @@ namespace TerminalProject
             "9600",
             "19200",
             "38400"});
+            this.setBaudratecomboBox.SelectedItem = serialPort.BaudRate.ToString();
         }
 
         /*
@@ -89,8 +95,7 @@ namespace TerminalProject
                 try
                 {
                     mSerialPort.Open();
-                    data = "$[Br]" + baudrate.ToString() + '\0';
-                    mSerialPort.Write(data);
+                    mSerialPort.sendMessage(CustomSerialPort.BAUDRATE, baudrate.ToString());
                     mSerialPort.Close();
                 }
                 catch (Exception) { }
@@ -99,7 +104,7 @@ namespace TerminalProject
                 try
                 {
                     mSerialPort.Open();
-                    Source_files.EventHub.OnSaveConfigurations(mSerialPort, EventArgs.Empty);
+                    EventHub.OnSaveConfigurations(mSerialPort, EventArgs.Empty);
                     this.Close();
                 }
                 catch (Exception) {

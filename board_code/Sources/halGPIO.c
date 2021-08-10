@@ -94,7 +94,7 @@ void UART0_IRQHandler(){
 		if (input_string_length<=0 && string_index >= 11){
 			
 			// CHECKSUM Check //
-			if (!validate_checksum(string_buffer,string_index)){
+			if (!validate_checksum(string_buffer,string_index+1)){
 				send2pc("St","001",STATUS_CHECKSUM_ERROR);
 				clear_string_buffer();
 				return;
@@ -103,6 +103,7 @@ void UART0_IRQHandler(){
 			}
 			
 			// ACTIONS //
+			
 			// change Baud rate
 			if (is_br_command(string_buffer)){
 				int baud_config = atoi(strip_command(string_buffer));
@@ -110,6 +111,7 @@ void UART0_IRQHandler(){
 				change_Baud_config(baud_config);
 				
 				send2pc("Tx","028","changed baud rate, status ok");
+			
 			// normal chat
 			} else if (is_chat_command(string_buffer)){ 
 				Print(strip_command(string_buffer)); 

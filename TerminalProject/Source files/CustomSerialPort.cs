@@ -24,6 +24,8 @@ namespace TerminalProject.Source_files
         private const int defaultBaudrate = 9600;
         public string dafaultPort;
 
+        public string lastMessage = "";
+
         /*
          * Constructor to set Default values
          */ 
@@ -46,8 +48,8 @@ namespace TerminalProject.Source_files
          */ 
         public void sendMessage(string opc, string val)
         {
-            
-            string num = val.Length.ToString();
+            this.DiscardInBuffer();
+            string num = val.Length.ToString("D3");
             char checksum = '1';
             String message = String.Format(customFormat, opc, checksum, num ,val);
             // Calc Checksum
@@ -66,12 +68,16 @@ namespace TerminalProject.Source_files
         {
 
             String inData = this.ReadExisting();
+            inData = inData.TrimStart('\0');
+            lastMessage = inData;
 
-            // Format of Data: $[--]#_____ while # is checksum, -- is 2 chars opc
+            // Format of Data: $[--]#|___|__ while # is checksum, -- is 2 chars opc
             string opc = inData.Substring(2, 2);
             char recievedCheckSum = inData[5];
-            int checksumStatus = validateChecksum(inData, recievedCheckSum) ? STATUS_OK : STATUS_CHECKSUM_ERROR; 
-            string val = inData.Substring(6);
+            int checksumStatus = validateChecksum(inData) ? STATUS_OK : STATUS_CHECKSUM_ERROR;
+            string val = "0";
+            if (checksumStatus == STATUS_OK)
+                val = inData.Substring(11);
 
             return (opc, val, checksumStatus);
 
@@ -84,26 +90,25 @@ namespace TerminalProject.Source_files
         {
             char checksum = '\0';
 
-            for (int i = 0 ; i < message.Length && i !=5 ; i++ ){
+            for (int i = 0 ; i < message.Length ; i++ ){
                 checksum ^= message[i];
             }
-            return checksum;
+
+            return (char)(checksum ^ '1');
         }
 
         /*
          * Return weather checksum valid
          */ 
-        private bool validateChecksum(string data , char checksum)
+        private bool validateChecksum(string data)
         {
-            int i = 0;
+           
             char tmp = '\0';
-            while (data[i] != '\0')
-            {
+            for(int i = 0 ; i < data.Length ; i++)
                 tmp ^= data[i];
-                i++;
-            }
+            
 
-            return tmp == checksum;
+            return tmp == 0;
         }
 
        

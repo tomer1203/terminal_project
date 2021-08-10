@@ -59,10 +59,9 @@ namespace TerminalProject
                 serialPort.Close();
                 this.Invoke((MethodInvoker)delegate {
                     setConnectingLabel(CustomSerialPort.STATUS_CHECKSUM_ERROR);
-                });
-              
+                }); 
             }
-            
+
         }
 
         private void handleMessage(string opc, string val, int checksumStatus)
@@ -72,7 +71,7 @@ namespace TerminalProject
                 // update UI
                 dataRecieveLabel.Invoke((MethodInvoker)delegate
                 {
-                    dataRecieveLabel.Text = "STATUS_CHECKSUM_ERROR";
+                    dataRecieveLabel.Text = "STATUS_CHECKSUM_ERROR" + serialPort.lastMessage;
                 });
                 return;
             }
@@ -84,8 +83,8 @@ namespace TerminalProject
 
                 case CustomSerialPort.STATUS: // get MCU Serial Port Status
                     // update UI connecting label
-                    serialPort.Close();
                     this.Invoke((MethodInvoker)delegate {
+                        System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
                         setConnectingLabel(int.Parse(val));
                     });
                     break;
@@ -108,7 +107,6 @@ namespace TerminalProject
         private void sendButton_Click(object sender, EventArgs e)
         {
             sendStringToSerialPost();
-            this.dataRecieveLabel.Text = "This is a very long string This is a very long string This is a very long string";
         }
 
         /*

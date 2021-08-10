@@ -9,7 +9,7 @@
 void clear_string_buffer(){
 	int i = 0;
 	for (i = 0;i < MAX_STRING;i++){
-		string_buffer[i] = 1;
+		string_buffer[i] = 0;
 	}
 	string_index = 0;
 }
@@ -75,9 +75,13 @@ char calc_checksum(char * string,int len){
 }
 
 void send2pc(char* code,char* len,char* message){
-	char output[512];
-	char dummy_checksum = 'a';
+	char output[MAX_STRING];
+	char dummy_checksum[2] = "a";
 	char checksum;
+	int i = 0,length_int;
+	for (i = 0;i < MAX_STRING;i++){
+		output[i] = 0;
+	}
 	strcpy(output,"$[");
 	strcat(output,code);
 	strcat(output,"]");
@@ -86,7 +90,8 @@ void send2pc(char* code,char* len,char* message){
 	strcat(output,len);
 	strcat(output,"|");
 	strcat(output,message);
-	checksum = calc_checksum(output,atoi(len)+11);
+	length_int = atoi(len)+11;
+	checksum = calc_checksum(output,length_int);
 	checksum = checksum ^ 'a'; // get rid of the dummy checksum effect
 	output[5] = checksum;
 	UARTprintf(UART0_BASE_PTR,output);

@@ -99,18 +99,23 @@ void change_config(int Baud_rate){
 void UART0_IRQHandler(){
 	
 	uint8_t Temp;
-		
+	int a= 0;
+	
 	if(UART0_S1 & UART_S1_RDRF_MASK){ // RX buffer is full and ready for reading
 		Temp = UART0_D;
 		
 		// building the string buffer
 		string_buffer[string_index++] = Temp;
+		
+		if(string_index == 10)
+			a = 0;
 				
 		if (Temp == '\0'){
 			// send input string
 			
 			if (is_config_command(string_buffer)){
 				int baud_config = translate_config_command(string_buffer);
+				Print_two_lines("Baud Rate:", &string_buffer[5]);
 				change_config(baud_config);
 				UARTprintf(UART0_BASE_PTR,"changed baud rate, status ok\n");
 

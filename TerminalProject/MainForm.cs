@@ -17,8 +17,10 @@ namespace TerminalProject
     {
 
         static SerialPort serialPort;
-        static bool _continue;
 
+        /*
+         * Construstor
+         */ 
         public MainForm()
         {
             InitializeComponent();
@@ -26,13 +28,12 @@ namespace TerminalProject
             this.MaximumSize = this.Size;
 
             serialPort = new SerialPort();
-            string[] ports = SerialPort.GetPortNames().Length > 0 ? SerialPort.GetPortNames() : new string[] { "" };
-            serialPort.PortName = "COM1";//ports[0]; // default
+            string[] ports = SerialPort.GetPortNames().Length > 0 ? SerialPort.GetPortNames() : new string[] { "No Available Ports" };
+            serialPort.PortName = ports[0]; // default
             serialPort.BaudRate = 9600; // default
             serialPort.ReadTimeout = 300;
             serialPort.WriteTimeout = 300;
             serialPort.DataReceived += new SerialDataReceivedEventHandler(DataRecievedHandler);
-            _continue = true;
 
             try
             {
@@ -44,42 +45,50 @@ namespace TerminalProject
             // Get a list of serial port names.
             dataRecieveRichTextBox.Text = string.Join(", ", ports);
 
+            Source_files.EventHub.saveConfigurationsHandler += onConfighrationsChanged;
+
         }
 
+        /*
+         * Listens to UART interrupts
+         */ 
         private void DataRecievedHandler(Object sender, SerialDataReceivedEventArgs e)
         {
             SerialPort sp = (SerialPort)sender;
             string inData = "";
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
-            inData = sp.ReadLine();
+            try {
+                inData = sp.ReadLine();
+            } catch (Exception)
+            {
+                serialPort.Close();
+              //  setConnectingLabel(SerialPortStatus.STATUS_ERROR);
+            }
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
             stringRecieveRichTextBox.Invoke((MethodInvoker)delegate
             {
                 stringRecieveRichTextBox.Text = inData;
             });
-        }
-
-        /*
-         * Reads Data from MCU 
-         */
-        private void serialButton_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                dataRecieveRichTextBox.Text = serialPort.ReadLine();
-                serialPort.WriteLine("Got it");
             }
-            catch (TimeoutException) { }
-            
-        }
+
+       
 
         /*
          * Send Data to MCU 
          */
         private void sendButton_Click(object sender, EventArgs e)
         {
-            serialPort.Write(dataToSendTextBox.Text + '\0');
-            dataToSendTextBox.Text = "";
+            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
+            try
+            {
+                serialPort.Write(dataToSendTextBox.Text + '\0');
+                dataToSendTextBox.Text = "";
+            }
+            catch (Exception)
+            {
+                setConnectingLabel(SerialPortStatus.STATUS_ERROR);
+            } 
+            
         }
 
         /*
@@ -88,13 +97,18 @@ namespace TerminalProject
        private void configurationButton_click(object sender, EventArgs e)
         {
             // start configuration window
+            if ((Application.OpenForms["ConfigurationsForm"] as ConfigurationsForm) != null)
+            {
+                //Form is already open
+                Application.OpenForms["ConfigurationsForm"].Close();
+            }
+           
             ConfigurationsForm configurationsForm = new ConfigurationsForm(ref serialPort);
             configurationsForm.MinimizeBox = false;
             configurationsForm.MaximizeBox = false;
             configurationsForm.Show();
 
-            setConnectingLabel(SerialPortStatus.STATUS_OK);
-
+            
         }
 
         /*
@@ -108,35 +122,79 @@ namespace TerminalProject
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e){}
-
-        private void setConnectingLabel(int status)
+        /*
+         * Settings Button Mouse Hover
+         */ 
+        private void settingsPanel_MouseHover(Object sender, EventArgs e)
         {
-            switch(status)
-            {
-                case SerialPortStatus.STATUS_OK:
-                    this.connectingLabel.Text = "Connected to " + serialPort.PortName + " with baudrate " + serialPort.BaudRate;
-                    Graphics g = this.CreateGraphics();
-                    Pen p = new Pen(Color.Green);
-                    SolidBrush sb = new SolidBrush(Color.Green);
-                    g.DrawEllipse(p, connectingLabel.Location.X-5, connectingLabel.Location.Y-5, 5, 5);
-                    g.FillEllipse(sb, connectingLabel.Location.X-5, connectingLabel.Location.Y-5, 5, 5);
-                    
-                    break;
-                case SerialPortStatus.STATUS_ERROR:
-                    this.connectingLabel.Text = "Configure Serial Port";
-                    break;
-            }
-
-            
+            this.settingsPanel.BackColor = Color.LightSeaGreen;
         }
 
+        /*
+         * Settings Button Mouse Leave
+         */
+        private void settingsPanel_MouseLeave(Object sender, EventArgs e)
+        {
+            this.settingsPanel.BackColor = Color.Transparent;
+        }
+
+        private void Form1_Load(object sender, EventArgs e){}
+
+
+        /*
+         * Confighrations Change Listener
+         */
+        private void onConfighrationsChanged(object sender, EventArgs e)
+        {
+            setConnectingLabel(SerialPortStatus.STATUS_OK);
+        }
+
+        /*
+         * Dispaly connectingt label
+         */ 
+        private void setConnectingLabel(int status)
+        {
+
+            Brush brush = Brushes.Red;
+            switch (status)
+            {
+                case SerialPortStatus.STATUS_OK:
+                    brush = Brushes.Green;
+                    this.connectingLabel.Text = "Connected to " + serialPort.PortName + " with Baudrate " + serialPort.BaudRate + " BPS";
+                    break;
+
+                case SerialPortStatus.STATUS_ERROR:
+                    brush = Brushes.Red;
+                    this.connectingLabel.Text = "Configure Serial Port";
+                    break;
+
+            }
+            int nSize = 8;
+            int x = (panel1.Size.Width - connectingLabel.Size.Width) / 2;
+            int y = (panel1.Size.Height - connectingLabel.Size.Height) / 2; ;
+            connectingLabel.Location = new Point(x, y);
+            connectingPictureBox.Location = new Point(connectingLabel.Location.X - 13, connectingLabel.Location.Y + 3);
+            Bitmap bm = new Bitmap(connectingPictureBox.Width, connectingPictureBox.Height);
+            using (Graphics gr = Graphics.FromImage(bm))
+            {
+                gr.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                gr.FillEllipse(brush, Convert.ToInt32((connectingPictureBox.Width - nSize) / 2), Convert.ToInt32((connectingPictureBox.Height - nSize) / 2), nSize, nSize);
+            }
+           
+            connectingPictureBox.Image = bm;
+
+        }
 
     }
 
+    /*
+     * Class of constants to hold Serial Port status
+     */
     static class SerialPortStatus
     {
         public const int STATUS_OK = 0, STATUS_ERROR = 1; 
 
     } 
+
+
 }

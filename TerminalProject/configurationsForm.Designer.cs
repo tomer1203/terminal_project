@@ -40,36 +40,37 @@
             // setBaudrateLabel
             // 
             this.setBaudrateLabel.AutoSize = true;
-            this.setBaudrateLabel.Location = new System.Drawing.Point(12, 131);
+            this.setBaudrateLabel.Location = new System.Drawing.Point(25, 126);
             this.setBaudrateLabel.Name = "setBaudrateLabel";
-            this.setBaudrateLabel.Size = new System.Drawing.Size(108, 20);
+            this.setBaudrateLabel.Size = new System.Drawing.Size(79, 20);
             this.setBaudrateLabel.TabIndex = 0;
-            this.setBaudrateLabel.Text = "Set Baudrate:";
+            this.setBaudrateLabel.Text = "Baudrate:";
             // 
             // setPortLabel
             // 
             this.setPortLabel.AutoSize = true;
-            this.setPortLabel.Location = new System.Drawing.Point(49, 93);
+            this.setPortLabel.Location = new System.Drawing.Point(62, 88);
             this.setPortLabel.Name = "setPortLabel";
-            this.setPortLabel.Size = new System.Drawing.Size(71, 20);
+            this.setPortLabel.Size = new System.Drawing.Size(42, 20);
             this.setPortLabel.TabIndex = 1;
-            this.setPortLabel.Text = "Set Port:";
+            this.setPortLabel.Text = "Port:";
             // 
             // configurationsTitle
             // 
             this.configurationsTitle.AutoSize = true;
-            this.configurationsTitle.Font = new System.Drawing.Font("Arial Narrow", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.configurationsTitle.Location = new System.Drawing.Point(58, 45);
+            this.configurationsTitle.Font = new System.Drawing.Font("Arial Narrow", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.configurationsTitle.Location = new System.Drawing.Point(12, 34);
             this.configurationsTitle.Name = "configurationsTitle";
-            this.configurationsTitle.Size = new System.Drawing.Size(154, 20);
+            this.configurationsTitle.Size = new System.Drawing.Size(244, 24);
             this.configurationsTitle.TabIndex = 2;
-            this.configurationsTitle.Text = "Set Uart Configurations";
+            this.configurationsTitle.Text = "Set Serial Port Configurations:";
             // 
             // setPortcomboBox
             // 
+            this.setPortcomboBox.BackColor = System.Drawing.Color.WhiteSmoke;
             this.setPortcomboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.setPortcomboBox.FormattingEnabled = true;
-            this.setPortcomboBox.Location = new System.Drawing.Point(135, 90);
+            this.setPortcomboBox.Location = new System.Drawing.Point(110, 82);
             this.setPortcomboBox.Name = "setPortcomboBox";
             this.setPortcomboBox.Size = new System.Drawing.Size(121, 28);
             this.setPortcomboBox.TabIndex = 3;
@@ -78,24 +79,27 @@
             // 
             this.setBaudratecomboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.setBaudratecomboBox.FormattingEnabled = true;
-            this.setBaudratecomboBox.Location = new System.Drawing.Point(135, 131);
+            this.setBaudratecomboBox.Location = new System.Drawing.Point(110, 123);
             this.setBaudratecomboBox.Name = "setBaudratecomboBox";
             this.setBaudratecomboBox.Size = new System.Drawing.Size(121, 28);
             this.setBaudratecomboBox.TabIndex = 4;
             // 
             // saveConfButton
             // 
+            this.saveConfButton.BackColor = System.Drawing.SystemColors.MenuBar;
+            this.saveConfButton.Cursor = System.Windows.Forms.Cursors.VSplit;
+            this.saveConfButton.ForeColor = System.Drawing.Color.Teal;
             this.saveConfButton.Location = new System.Drawing.Point(94, 188);
             this.saveConfButton.Name = "saveConfButton";
             this.saveConfButton.Size = new System.Drawing.Size(81, 35);
             this.saveConfButton.TabIndex = 5;
             this.saveConfButton.Text = " Save";
-            this.saveConfButton.UseVisualStyleBackColor = true;
-            this.saveConfButton.Click += new System.EventHandler(this.saveConfButton_Click);
+            this.saveConfButton.UseVisualStyleBackColor = false;
             // 
             // saveConfErrorLabel
             // 
             this.saveConfErrorLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.saveConfErrorLabel.ForeColor = System.Drawing.Color.Tomato;
             this.saveConfErrorLabel.Location = new System.Drawing.Point(0, 263);
             this.saveConfErrorLabel.Name = "saveConfErrorLabel";
             this.saveConfErrorLabel.Size = new System.Drawing.Size(274, 20);
@@ -106,6 +110,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.MenuBar;
             this.ClientSize = new System.Drawing.Size(274, 283);
             this.Controls.Add(this.saveConfErrorLabel);
             this.Controls.Add(this.saveConfButton);
@@ -114,8 +119,11 @@
             this.Controls.Add(this.configurationsTitle);
             this.Controls.Add(this.setPortLabel);
             this.Controls.Add(this.setBaudrateLabel);
+            this.KeyPreview = true;
             this.Name = "ConfigurationsForm";
-            this.Text = "configurationsFormcs";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "Terminal Projet";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.saveConfButton_KeyDown);
             this.ResumeLayout(false);
             this.PerformLayout();
 

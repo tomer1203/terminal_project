@@ -16,24 +16,37 @@ namespace TerminalProject
     {
         private SerialPort mSerialPort;
 
+        /*
+         * Construstor
+         */
         public ConfigurationsForm(ref SerialPort serialPort)
         {
-            this.mSerialPort = serialPort;
+            
             InitializeComponent();
 
+            this.mSerialPort = serialPort;
             this.MinimumSize = this.Size;
             this.MaximumSize = this.Size;
-            
+
             // Set list of available ports
-            this.setPortcomboBox.Items.AddRange(SerialPort.GetPortNames());
+            string[] ports = SerialPort.GetPortNames().Length > 0 ? SerialPort.GetPortNames() : null;
+            if (ports != null)
+            { 
+                this.setPortcomboBox.Items.AddRange(ports);
+                saveConfButton.Click += new System.EventHandler(this.saveConfButton_Click);
+            }
+            else
+            {   // no available ports
+                saveConfErrorLabel.Text = "no available ports";
+                saveConfButton.Click -= this.saveConfButton_Click;
+
+            }
             // Set list of available baudrates
             this.setBaudratecomboBox.Items.AddRange(new object[] {
             "2400",
             "9600",
             "19200",
             "38400"});
-
-            
         }
 
         /*
@@ -42,16 +55,17 @@ namespace TerminalProject
         private void saveConfButton_Click(object sender, EventArgs e)
         {
             bool status_ok = true;
-            String port = "COM1";
-            int baudrate = 9600;
+            string[] availablePorts = SerialPort.GetPortNames().Length > 0 ? SerialPort.GetPortNames() : new string[] { "No Available Ports" };
+            String port = availablePorts[0];
+            int baudrate = 9600; // default value
             try
-            {
+            {  // get port name  
                 port = this.setPortcomboBox.SelectedItem.ToString();
             }
             catch (Exception)
             {
                 status_ok = false;
-                saveConfErrorLabel.Text = "*Choose Port";
+                saveConfErrorLabel.Text = "* Choose Port";
             }
 
             try
@@ -60,11 +74,11 @@ namespace TerminalProject
                 baudrate = int.Parse(this.setBaudratecomboBox.SelectedItem.ToString());
             }catch(Exception)
             {
-                saveConfErrorLabel.Text = "*Choose Baudrate";
+                saveConfErrorLabel.Text = "* Choose Baudrate";
                 status_ok = false;
             }
             
-            if (status_ok)
+            if (status_ok) // user chose both baudrate and port
             {
                 string data = "";
                 // close opened serial port
@@ -85,14 +99,26 @@ namespace TerminalProject
                 try
                 {
                     mSerialPort.Open();
+                    Source_files.EventHub.OnSaveConfigurations(mSerialPort, EventArgs.Empty);
                     this.Close();
                 }
-                catch (Exception exception) {
-                    saveConfErrorLabel.Text = exception.ToString();
+                catch (Exception) {
+                    saveConfErrorLabel.Text = "port already open";
                 };
                 
             }
 
+        }
+
+        /*
+         * Listen to EnterKey to send data
+         */
+        private void saveConfButton_KeyDown(Object sender, KeyEventArgs keyEvent)
+        {
+            if (keyEvent.KeyCode == Keys.Enter)
+            {
+                saveConfButton_Click(sender, new EventArgs());
+            }
         }
     }
 }

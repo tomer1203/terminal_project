@@ -44,6 +44,9 @@ namespace TerminalProject
             EventHub.saveConfigurationsHandler += onConfighrationsChanged;
 
         }
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////            Methods
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /*
          * Listens to UART interrupts
@@ -53,19 +56,35 @@ namespace TerminalProject
             CustomSerialPort sp = (CustomSerialPort)sender;
             try {
                  inData = sp.readMessage();
-                handleMessage(inData.Item1, inData.Item2, inData.Item3);
-            } catch (Exception)
+                
+            }catch (Exception exception)
             {
                 serialPort.Close();
                 this.Invoke((MethodInvoker)delegate {
                     setConnectingLabel(CustomSerialPort.STATUS_CHECKSUM_ERROR);
-                }); 
+                });
+                // update UI
+                dataRecieveLabel.Invoke((MethodInvoker)delegate
+                {
+                    dataRecieveLabel.Text = exception.ToString();
+                });
+               
             }
+            System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
+            handleMessage(inData.Item1, inData.Item2, inData.Item3);
 
         }
+        
 
+        /// <summary>
+        /// Handle Message
+        /// </summary>
+        /// <param name="opc">operation code</param>
+        /// <param name="val">value</param>
+        /// <param name="checksumStatus">check sum</param>
         private void handleMessage(string opc, string val, int checksumStatus)
         {
+
             if(checksumStatus == CustomSerialPort.STATUS_CHECKSUM_ERROR)
             {
                 // update UI
@@ -76,18 +95,37 @@ namespace TerminalProject
                 return;
             }
 
+            
             switch (opc)
             {
-                case CustomSerialPort.BAUDRATE: // get Baudrate
+                // get Baudrate
+                case CustomSerialPort.TYPE_BAUDRATE: 
                     break;
 
-                case CustomSerialPort.STATUS: // get MCU Serial Port Status
+                case CustomSerialPort.TYPE_TEXT:
+                    // update UI
+                    dataRecieveLabel.Invoke((MethodInvoker)delegate
+                    {
+                        dataRecieveLabel.Text = val;
+                    });
+                    break;
+                
+                // get MCU Serial Port Status
+                case CustomSerialPort.TYPE_STATUS: 
                     if(int.Parse(val) == CustomSerialPort.STATUS_RECIEVING)
                     {
                         // update UI
                         dataRecieveLabel.Invoke((MethodInvoker)delegate
                         {
                             dataRecieveLabel.Text = "Fetching Data...";
+                        });
+                        break;
+                    }else if (int.Parse(val) == CustomSerialPort.STATUS_BUFFER_ERROR)
+                    {
+                        // update UI
+                        dataRecieveLabel.Invoke((MethodInvoker)delegate
+                        {
+                            dataRecieveLabel.Text = "Buffer Error. Send Again";
                         });
                         break;
                     }
@@ -98,14 +136,13 @@ namespace TerminalProject
                     });
                     break;
 
-                case CustomSerialPort.TEXT:
-                    // update UI
-                    dataRecieveLabel.Invoke((MethodInvoker)delegate
-                    {
-                        dataRecieveLabel.Text = val;
-                    });
-                    break;
+                
             }
+
+        } 
+
+        private void updateDataRecieveLabel(Func<int> p)
+        {
 
         }
 
@@ -117,7 +154,7 @@ namespace TerminalProject
         {
             sendStringToSerialPost();
         }
-
+        
         /*
          * Send Data to MCU 
          */
@@ -125,7 +162,7 @@ namespace TerminalProject
         {
             try
             {
-                serialPort.sendMessage(CustomSerialPort.TEXT, dataToSendTextBox.Text);
+                serialPort.sendMessage(CustomSerialPort.TYPE_TEXT, dataToSendTextBox.Text);
                 dataToSendTextBox.Text = "";
             }
             catch (Exception)
@@ -195,7 +232,6 @@ namespace TerminalProject
          */ 
         private void setConnectingLabel(int status)
         {
-
             Brush brush = Brushes.Red;
             switch (status)
             {

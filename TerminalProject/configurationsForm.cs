@@ -95,7 +95,7 @@ namespace TerminalProject
                 try
                 {
                     mSerialPort.Open();
-                    mSerialPort.sendMessage(CustomSerialPort.BAUDRATE, baudrate.ToString());
+                    mSerialPort.sendMessage(CustomSerialPort.TYPE_BAUDRATE, baudrate.ToString());
                     mSerialPort.Close();
                 }
                 catch (Exception) { }

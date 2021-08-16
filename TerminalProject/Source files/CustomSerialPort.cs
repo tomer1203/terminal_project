@@ -12,14 +12,14 @@ namespace TerminalProject.Source_files
     public class CustomSerialPort : SerialPort
     {
         // Status
-        public const int STATUS_OK = 0, STATUS_CHECKSUM_ERROR = 1, STATUS_RECIEVING = 2;
+        public const int STATUS_OK = 0, STATUS_CHECKSUM_ERROR = 1, STATUS_RECIEVING = 2, STATUS_BUFFER_ERROR = 3;
         public static char sentChecksum;
         // Our Format
         public const string customFormat = "$[{0}]{1}|{2}|{3}\0";
         // Message types
-        public const string TEXT = "Tx";
-        public const string BAUDRATE = "Br";
-        public const string STATUS = "St"; 
+        public const string TYPE_TEXT = "Tx";
+        public const string TYPE_BAUDRATE = "Br";
+        public const string TYPE_STATUS = "St"; 
 
         private const int defaultBaudrate = 9600;
         public string dafaultPort;
@@ -77,7 +77,7 @@ namespace TerminalProject.Source_files
             // search for | |
             int cnt = inData.Count(f => f == '|');
             pollCnt += cnt;
-            if (pollCnt == 2)
+            if (pollCnt >= 2)
             {
                 dataLen = int.Parse(myBuffer.Substring(7, 3));
                 if (dataLen == myBuffer.Length - 11)
@@ -85,15 +85,22 @@ namespace TerminalProject.Source_files
                     lastMessage = myBuffer;
                  
                 }
-                else { return (STATUS, STATUS_RECIEVING.ToString(), -1); }
+                else { return (TYPE_STATUS, STATUS_RECIEVING.ToString(), -1); }
+            } // Error receiving data
+            else if (myBuffer.Length > 11)
+            {
+                // get ready for next transaction
+                myBuffer = "";
+                dataLen = pollCnt = 0;
+                return (TYPE_STATUS, STATUS_BUFFER_ERROR.ToString(), -1);
             }
-            else { return (STATUS, STATUS_RECIEVING.ToString(), -1); }
+            else { return (TYPE_STATUS, STATUS_RECIEVING.ToString(), -1); }
 
 
             // Format of Data: $[--]#|___|__ while # is checksum, -- is 2 chars opc
             string opc = myBuffer.Substring(2, 2);
             char recievedCheckSum = myBuffer[5];
-            int checksumStatus = validateChecksum(myBuffer) ? STATUS_OK : STATUS_CHECKSUM_ERROR;
+            int checksumStatus = validateChecksum(myBuffer, recievedCheckSum) ? STATUS_OK : STATUS_CHECKSUM_ERROR;
             string val = "0";
             if (checksumStatus == STATUS_OK)
                 val = myBuffer.Substring(11);
@@ -117,21 +124,27 @@ namespace TerminalProject.Source_files
                 checksum ^= message[i];
             }
 
+            if (checksum == 0)
+                return (char)1;
+
             return (char)(checksum ^ '1');
         }
 
         /*
          * Return weather checksum valid
          */ 
-        private bool validateChecksum(string data)
+        private bool validateChecksum(string data, char recievedChecksum)
         {
            
-            char tmp = '\0';
+            char checksum = '\0';
             for(int i = 0 ; i < data.Length ; i++)
-                tmp ^= data[i];
+                checksum ^= data[i];
+
+            if (checksum == 1 && recievedChecksum == 1)
+                return true;
             
 
-            return tmp == 0;
+            return checksum == 0;
         }
 
        

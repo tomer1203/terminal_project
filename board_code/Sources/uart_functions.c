@@ -95,6 +95,8 @@ void send2pc(char* code,char* len,const char* message){
 	length_int = atoi(len)+11;
 	checksum = calc_checksum(output,length_int);
 	checksum = checksum ^ 'a'; // get rid of the dummy checksum effect
+	if(checksum == 0)
+		checksum = 1;
 	output[5] = checksum;
 	UARTprintf(UART0_BASE_PTR, output);
 }

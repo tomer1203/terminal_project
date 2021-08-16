@@ -15,29 +15,16 @@ void PORTD_IRQHandler(void){
 	volatile unsigned int i;
 	// check that the interrupt was for switch
 	if (PORTD_ISFR & PTD_7) {
-		
-		//UARTprintf(UART0_BASE_PTR,"Echo: Press a key followed with Enter!\r\n");
-		char menu_s[160] = 
-"Menu\r\n\
-1. Blink RGB LED, color by color with delay of X[ms]\r\n\
-2. Get delay time X[ms]:\r\n\
-3. Potentiometer 3-digit value [v]\r\n\
-4. Clear all LEDs\r\n\
-5. Sleep\r\n";
-        
-		//UARTprintf(UART0_BASE_PTR,menu_s);
-		
-		RED_LED_TOGGLE;
-		scroll_down();
+		if(!(GPIOD_PDIR & PTD_7)){
+			RED_LED_TOGGLE;
+			scroll_down();
+		}
 	}
 	if(PORTD_ISFR & PTD_6){
-//		char I_love_my_negev[20] = "I love my Negev\r\n";
-//		if (state == PRINT_E){
-//            // Print Menu
-//            UARTprintf(UART0_BASE_PTR,I_love_my_negev);
-//        } 
-		state = enter();
-		BLUE_LED_TOGGLE;
+		if(!(GPIOD_PDIR & PTD_6)){
+			state = enter();
+			BLUE_LED_TOGGLE;
+		}
 	}
 	//Debounce or using PFE field
 	while(!(GPIOD_PDIR & PTD_7) );// wait of release the button
@@ -45,8 +32,10 @@ void PORTD_IRQHandler(void){
 	for(i=10000 ; i>0 ; i--); //delay, button debounce
 	
 	print_ui();
-	DelayMs(10);
-	PORTD_ISFR |= 0x00000080;  // clear interrupt flag bit of PTD7
+	DelayMs(1000);
+	
+	PORTD_ISFR |= PTD_7;  // clear interrupt flag bit of PTD7
+	PORTD_ISFR |= PTD_6;  // clear interrupt flag bit of PTD6
 }
 
 //-----------------------------------------------------------------

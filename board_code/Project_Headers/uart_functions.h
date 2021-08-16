@@ -22,7 +22,7 @@ void change_Baud_config(int Baud_rate);
 
 int validate_checksum(char* string, int len);
 char calc_checksum(char * string,int len);
-void send2pc(char* code,char* len,char* message);
+void send2pc(char* code,char* len,const char* message);
 
 
 #endif /* UART_FUNCTIONS_H_ */

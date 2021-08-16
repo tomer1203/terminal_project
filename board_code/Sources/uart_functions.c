@@ -74,10 +74,12 @@ char calc_checksum(char * string,int len){
 	return checksum;
 }
 
-void send2pc(char* code,char* len,char* message){
+void send2pc(char* code,char* len,const char* message){
 	char output[MAX_STRING];
 	char dummy_checksum[2] = "a";
 	char checksum;
+	char tmp[MAX_STRING];
+	strcpy(tmp,message);
 	int i = 0,length_int;
 	for (i = 0;i < MAX_STRING;i++){
 		output[i] = 0;
@@ -89,10 +91,10 @@ void send2pc(char* code,char* len,char* message){
 	strcat(output,"|");
 	strcat(output,len);
 	strcat(output,"|");
-	strcat(output,message);
+	strcat(output,tmp);
 	length_int = atoi(len)+11;
 	checksum = calc_checksum(output,length_int);
 	checksum = checksum ^ 'a'; // get rid of the dummy checksum effect
 	output[5] = checksum;
-	UARTprintf(UART0_BASE_PTR,output);
+	UARTprintf(UART0_BASE_PTR, output);
 }

@@ -5,16 +5,21 @@
  *      Author: tomer
  */
 # include "TFC.h"
-const char* getChatLine(int line){
-	char chat_lines[5][20] =  {
-			 "$[Tx]||hello\r\n",
+
+const char chat_lines[5][20] =  {
+			 "hello\r\n",
 			 "world!\r\n",
 			 "pickachuuuuuu\r\n",
 			 "sample text\r\n",
 			 "more text\r\n"};
+
+
+const char* getChatLine(int line){
+	
 	return chat_lines[line-1];
 }
 void initialize_ui(){
+		 
 	menu_select = 0;
 	line_select = 0;
 	menu_size   = MAIN_MENU_SIZE;
@@ -48,6 +53,7 @@ void scroll_down(){
 StateModes enter(){
 	StateModes next_state = IDLE_E;
 	char Length[3];
+	char Length_final[3];
 	int switched_menu = 0;
 	// choose next state
 	if (state == IDLE_E){
@@ -77,7 +83,14 @@ StateModes enter(){
 			if (state == CHAT_E){
 				char* line = getChatLine(line_select);
 				sprintf(Length,"%d",strlen(line));
-				send2pc("Tx",Length,line);
+				if (strlen(line) < 10){
+					strcpy(Length_final, "00");
+					strcat(Length_final,Length);
+				} else if (strlen(line) < 100){
+					strcpy(Length_final, "0");
+					strcat(Length_final,Length);
+				}
+				send2pc("Tx",Length_final,line);
 			}
 			
 			if (state == FILE_TRANSFER_E){

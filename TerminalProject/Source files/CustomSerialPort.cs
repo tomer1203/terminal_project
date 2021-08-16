@@ -83,9 +83,6 @@ namespace TerminalProject.Source_files
                 if (dataLen == myBuffer.Length - 11)
                 {
                     lastMessage = myBuffer;
-                    // get ready for next transaction
-                    myBuffer = "";
-                    dataLen = pollCnt = 0;
                  
                 }
                 else { return (STATUS, STATUS_RECIEVING.ToString(), -1); }
@@ -96,10 +93,14 @@ namespace TerminalProject.Source_files
             // Format of Data: $[--]#|___|__ while # is checksum, -- is 2 chars opc
             string opc = myBuffer.Substring(2, 2);
             char recievedCheckSum = myBuffer[5];
-            int checksumStatus = validateChecksum(inData) ? STATUS_OK : STATUS_CHECKSUM_ERROR;
+            int checksumStatus = validateChecksum(myBuffer) ? STATUS_OK : STATUS_CHECKSUM_ERROR;
             string val = "0";
             if (checksumStatus == STATUS_OK)
                 val = myBuffer.Substring(11);
+
+            // get ready for next transaction
+            myBuffer = "";
+            dataLen = pollCnt = 0;
 
             return (opc, val, checksumStatus);
 

@@ -21,4 +21,6 @@ void print_ui();
 void scroll_down();
 StateModes enter();
 
+extern const char chat_lines[5][20];
+
 #endif /* USER_INTERFACE_H_ */

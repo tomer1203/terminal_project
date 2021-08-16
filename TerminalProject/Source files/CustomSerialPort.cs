@@ -15,7 +15,7 @@ namespace TerminalProject.Source_files
         public const int STATUS_OK = 0, STATUS_CHECKSUM_ERROR = 1, STATUS_RECIEVING = 2, STATUS_BUFFER_ERROR = 3;
         public static char sentChecksum;
         // Our Format
-        public const string customFormat = "$[{0}]{1}|{2}|{3}\0";
+        public const string customFormat = "$[{0}]{1}|{2}|{3}";
         // Message types
         public const string TYPE_TEXT = "Tx";
         public const string TYPE_BAUDRATE = "Br";
@@ -62,7 +62,7 @@ namespace TerminalProject.Source_files
 
             // Send
             this.Write(message);
-            //this.Write("\0".getBytes() ,1,1);
+          
         }
 
         /*
@@ -79,13 +79,32 @@ namespace TerminalProject.Source_files
             pollCnt += cnt;
             if (pollCnt >= 2)
             {
-                dataLen = int.Parse(myBuffer.Substring(7, 3));
+                try {
+                    dataLen = int.Parse(myBuffer.Substring(7, 3));
+                } catch (Exception)
+                {
+                    // get ready for next transaction
+                    myBuffer = "";
+                    dataLen = pollCnt = 0;
+                    return (TYPE_STATUS, STATUS_BUFFER_ERROR.ToString(), -1);
+                }
+                // Check if data len ok
                 if (dataLen == myBuffer.Length - 11)
                 {
                     lastMessage = myBuffer;
-                 
+
                 }
+                // Buffer Length Error
+                else if(dataLen < myBuffer.Length - 11)
+                {
+                    // get ready for next transaction
+                    myBuffer = "";
+                    dataLen = pollCnt = 0;
+                    return (TYPE_STATUS, STATUS_BUFFER_ERROR.ToString(), -1);
+                }
+                // Still Receiving 
                 else { return (TYPE_STATUS, STATUS_RECIEVING.ToString(), -1); }
+
             } // Error receiving data
             else if (myBuffer.Length > 11)
             {
@@ -148,9 +167,13 @@ namespace TerminalProject.Source_files
         }
 
        
+        public void clearMyBuffer()
+        {
+            this.myBuffer = "";
+        }
 
 
-    }
+    }// END SerialPort
 
    
 }

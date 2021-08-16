@@ -90,6 +90,8 @@ namespace TerminalProject
                 // close opened serial port
                 if (mSerialPort.IsOpen){
                     mSerialPort.Close();
+                    // Delay is needed befor opening the port again
+                    Thread.Sleep(50);
                 }
                 mSerialPort.PortName = port;
                 try
@@ -97,20 +99,24 @@ namespace TerminalProject
                     mSerialPort.Open();
                     mSerialPort.sendMessage(CustomSerialPort.TYPE_BAUDRATE, baudrate.ToString());
                     mSerialPort.Close();
+                    // Delay is needed befor opening the port again
+                    Thread.Sleep(50);
                 }
                 catch (Exception) { }
-                    
+                mSerialPort.clearMyBuffer();
                 mSerialPort.BaudRate = baudrate;
                 try
                 {
                     mSerialPort.Open();
                     EventHub.OnSaveConfigurations(mSerialPort, EventArgs.Empty);
+                    // Close window
                     this.Close();
                 }
-                catch (Exception) {
+                catch (Exception)
+                {
                     saveConfErrorLabel.Text = "port already open";
                 };
-                
+
             }
 
         }

@@ -43,7 +43,22 @@ namespace TerminalProject
 
             EventHub.saveConfigurationsHandler += onConfighrationsChanged;
 
-        }
+            string row = "File1.txt";
+            var listViewItem = new ListViewItem(row);
+            string row2 = "File2.txt";
+            var listViewItem2 = new ListViewItem(row2);
+
+            //Controls.Add(filesListView);
+            filesListView.View = View.List;
+            filesListView.GridLines = true;
+            filesListView.FullRowSelect = true;
+            filesListView.Columns.Add("File Name");
+            filesListView.Items.Add(listViewItem);
+            filesListView.Items.Add(listViewItem2);
+            
+
+        } // END MainForm
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////            Methods
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,6 +133,7 @@ namespace TerminalProject
                         dataRecieveLabel.Invoke((MethodInvoker)delegate
                         {
                             dataRecieveLabel.Text = "Fetching Data...";
+                            statusLabel.Text = "STATUS_RECIEVING";
                         });
                         break;
                     }else if (int.Parse(val) == CustomSerialPort.STATUS_BUFFER_ERROR)
@@ -126,13 +142,23 @@ namespace TerminalProject
                         dataRecieveLabel.Invoke((MethodInvoker)delegate
                         {
                             dataRecieveLabel.Text = "Buffer Error. Send Again";
+                            statusLabel.Text = "STATUS_BUFFER_ERROR";
                         });
                         break;
+                    }else if(int.Parse(val) == CustomSerialPort.STATUS_OK)
+                    {
+                        // update UI
+                        dataRecieveLabel.Invoke((MethodInvoker)delegate
+                        {
+                            statusLabel.Text = "STATUS_OK";
+                        });
                     }
+
                     // update UI connecting label
                     this.Invoke((MethodInvoker)delegate {
                         System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
                         setConnectingLabel(int.Parse(val));
+
                     });
                     break;
 
@@ -262,6 +288,23 @@ namespace TerminalProject
 
         }
 
+        private void nonFormatButon_Click(object sender, EventArgs e)
+        {
+            serialPort.Write(dataToSendTextBox.Text);
+        }
+
+        /*
+         * On List View Item Click
+         */ 
+        private void filesListView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (filesListView.SelectedItems.Count >= 1)
+            {
+                ListViewItem item = filesListView.SelectedItems[0];
+
+                item.Text = "Picked";
+            }
+        }
     }
 
 }

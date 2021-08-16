@@ -71,12 +71,15 @@ void UART0_IRQHandler(){
 		
 		string_buffer[string_index] = Char;
 		input_string_length--;
-		
+//		Print(string_buffer);
 		// read the input string length
 		if (string_index == 10){
-			strcpy_s(length,3,&string_buffer[7]);
+//			strcpy_s(length,3,&string_buffer[7]);
+			length[0] = string_buffer[7];
+			length[1] = string_buffer[8];
+			length[2] = string_buffer[9];
 			length[3] = '\0';
-			input_string_length = atoi(length)+1; // the +1 is for the closing |
+			input_string_length = atoi(length); // the +1 is for the closing |
 		}
 		
 		// if message is finished		
@@ -96,7 +99,7 @@ void UART0_IRQHandler(){
 			// change Baud rate
 			if (is_br_command(string_buffer)){
 				int baud_config = atoi(strip_command(string_buffer));
-				Print_two_lines("Baud Rate:", &string_buffer[5]);
+				Print_two_lines("Baud Rate:", strip_command(string_buffer));
 				change_Baud_config(baud_config);
 				
 				send2pc("Tx","028","changed baud rate, status ok");
@@ -108,6 +111,7 @@ void UART0_IRQHandler(){
 			
 			// when finished reading message, clean the buffer.
 			clear_string_buffer();
+			return;
 		}
 		string_index++;
 	}

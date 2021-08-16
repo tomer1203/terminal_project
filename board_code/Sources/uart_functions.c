@@ -12,6 +12,7 @@ void clear_string_buffer(){
 		string_buffer[i] = 0;
 	}
 	string_index = 0;
+	input_string_length=0;
 }
 int is_chat_command(char* string){
 	if (string[0]=='$' && string[1]=='[' && string[2]=='T' && string[3]=='x' && string[4]==']'){

@@ -55,10 +55,15 @@ void change_Baud_config(int Baud_rate){
 int validate_checksum(char* string, int len) {
 	int i = 0;
 	int checksum = 0;
-	
+	char received_checksum;
 	// i==5 is the checksum byte and it can be 0
 	for (i=0; i < MAX_STRING && i < len; i++){
 		checksum = checksum ^ string[i];
+	}
+
+	received_checksum = string[5];
+	if (checksum == 1 && received_checksum == 1) {
+		return 1;
 	}
 	return (checksum == 0);
 }

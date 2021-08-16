@@ -5,8 +5,8 @@
  *      Author: tomer
  */
 # include "TFC.h"
-
-const char chat_lines[5][20] =  {
+const char* getChatLine(int line){
+	char chat_lines[5][20] =  {
 			 "hello\r\n",
 			 "world!\r\n",
 			 "pickachuuuuuu\r\n",

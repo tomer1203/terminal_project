@@ -10,6 +10,7 @@
 int index_cyclic_plusplus(int old_index);
 int index_cyclic_minusminus(int old_index);
 int address_cyclic_add(int address,int added_value);
+char     reading_Line[LINE_LENGTH];
 
 void initialize_file_system(){
 	int i=0;
@@ -65,7 +66,34 @@ int read_file_init(int file_num){
 // check if there are more lines to read
 // read one line(16 Bytes) update read pointer
 // return either the line or null for failure
+int read_line(){
+	int read_amount = 16;
+	char* end_line_address;
+	char* end_of_file_address;
+	char* read_line_start;
+	if (file_system.state != READ_FILE_FS){
+		return NULL;
+	}
 
+	// decide how much you can read
+	end_line_address    = (char*)address_cyclic_add((int)file_system.read_pointer,16);
+	end_of_file_address = (char*)address_cyclic_add((int)file_system.file_list[file_system.read_file].start_pointer,file_system.file_list[file_system.read_file].size);
+	read_line_start = file_system.read_pointer;
+	if (end_line_address > end_of_file_address){
+		read_amount = end_of_file_address - file_system.read_pointer;
+		file_system.read_pointer = 0;
+		
+	}
+	else {
+		file_system.read_pointer += 16;
+	}
+
+	//** TODO READ 16 BYTES FROM DMA TODO **//
+	//reading_Line = value here;
+
+
+	return read_amount;
+}
 
 // write_file_init_message //
 // check what message has been received and act accordingly

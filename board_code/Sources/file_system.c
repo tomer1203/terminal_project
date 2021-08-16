@@ -55,6 +55,7 @@ int read_file_init(int file_num){
 	file_system.state = READ_FILE_FS;
 	file_system.read_file = file_num;
 	file_system.read_pointer = file_system.file_list[file_num].start_pointer;
+
 	return 0;
 }
 

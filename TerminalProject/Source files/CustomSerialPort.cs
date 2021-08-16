@@ -28,6 +28,7 @@ namespace TerminalProject.Source_files
 
         private string myBuffer = "";
         private int dataLen = 0;
+        private int pollCnt = 0;
 
         /*
          * Constructor to set Default values
@@ -69,33 +70,28 @@ namespace TerminalProject.Source_files
          */ 
         public (string ,string, int checksumStatus) readMessage()
         {
-
+            // Read content of buffer
             String inData = this.ReadExisting();
             inData = inData.TrimStart('\0');
             myBuffer += inData;
+            // search for | |
             int cnt = inData.Count(f => f == '|');
-            if (cnt == 2)
+            pollCnt += cnt;
+            if (pollCnt == 2)
             {
                 dataLen = int.Parse(myBuffer.Substring(7, 3));
-                if (dataLen == myBuffer.Length)
+                if (dataLen == myBuffer.Length - 11)
                 {
                     lastMessage = myBuffer;
+                    // get ready for next transaction
+                    myBuffer = "";
+                    dataLen = pollCnt = 0;
+                 
                 }
                 else { return (STATUS, STATUS_RECIEVING.ToString(), -1); }
-                /*
-                 * Len is only the length of the val
-                 * need to send len of whole string
-                 * need to attach all string to myBbuffer and check to see
-                 * when I got all the string
-                 * (rpeat of process)
-                 * - Add a still_fetching status
-                 */
             }
             else { return (STATUS, STATUS_RECIEVING.ToString(), -1); }
 
-            
-            
-            
 
             // Format of Data: $[--]#|___|__ while # is checksum, -- is 2 chars opc
             string opc = myBuffer.Substring(2, 2);

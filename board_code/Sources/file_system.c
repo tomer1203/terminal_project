@@ -24,7 +24,7 @@ void initialize_file_system(){
 	file_system.first_file		      = 0;
 	file_system.last_file		      = 0;
 	
-	file_system.current_read_file     = 0;
+	file_system.read_file     = 0;
 	file_system.read_pointer          = file_system.start_address;
 	
 	// Initialize the files
@@ -32,7 +32,7 @@ void initialize_file_system(){
 		initialize_file_desc(&file_system.file_list[i]);
 	}
 }
-initialize_file_desc(File_descriptor * file_desc){
+void initialize_file_desc(File_descriptor *file_desc){
 	int i = 0;
 	for (i=0;i<MAX_NAME_SIZE;i++){
 		file_desc->name[i] = 0;
@@ -53,7 +53,9 @@ File_descriptor* file_info(int index){
 // return success or fail
 int read_file_init(int file_num){
 	file_system.state = READ_FILE_FS;
-	file_system
+	file_system.read_file = file_num;
+	file_system.read_pointer = file_system.file_list[file_num].start_pointer;
+	return 0;
 }
 
 
@@ -80,7 +82,7 @@ int write_file_init_message(char* message){
 	
 	// set up the write pointer
 	file_system.write_pointer =  
-			address_cyclic_add((int)(file_system.file_list[file_system.last_file].start_pointer),
+			(char*)address_cyclic_add((int)(file_system.file_list[file_system.last_file].start_pointer),
 					file_system.file_list[file_system.last_file].size);
 	
 	if (file_system.state == WRITE_SIZE_FS){
@@ -165,10 +167,11 @@ int write_file_chunck(char* write_data, int size){
 
 int remove_last_file(){
 	file_system.last_file = index_cyclic_minusminus(file_system.last_file);
+	return 0;
 }
 
 int address_cyclic_add(int address,int added_value){
-	return FILE_SYSTEM_START_ADDRESS+(address-FILE_SYSTEM_START_ADDRESS+added_value)%SIZE_OF_FILE_SYSTEM;
+	return (int)FILE_SYSTEM_START_ADDRESS+(address-(int)FILE_SYSTEM_START_ADDRESS+added_value)%SIZE_OF_FILE_SYSTEM;
 }
 
 int file_index_plusplus(int file_index){

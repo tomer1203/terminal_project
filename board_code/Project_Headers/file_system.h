@@ -48,7 +48,7 @@ typedef struct File_System{
 	char* send_pointer; 
 	
 	// read to lcd operations
-	int   current_read_file;
+	int   read_file;
 	char* read_pointer;   // not sure this is necessary
 	
 	// constants
@@ -61,10 +61,11 @@ File_System file_system;
 void             initialize_file_system();
 File_descriptor* file_info(int index);
 int 			 read_file_init(int file_num);
+char*            read_line(); // reads up to \n or EOF
 int              write_file_init_message(char* message);
 int              remove_last_file();
-int file_index_plusplus(int file_index);
-int file_index_minusminus(int file_index);
+int              file_index_plusplus(int file_index);
+int              file_index_minusminus(int file_index);
 
 
 #endif /* FILE_SYSTEM_H_ */

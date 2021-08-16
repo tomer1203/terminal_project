@@ -7,7 +7,7 @@
 # include "TFC.h"
 const char* getChatLine(int line){
 	char chat_lines[5][20] =  {
-			 "hello\r\n",
+			 "$[Tx]||hello\r\n",
 			 "world!\r\n",
 			 "pickachuuuuuu\r\n",
 			 "sample text\r\n",
@@ -47,6 +47,7 @@ void scroll_down(){
 }
 StateModes enter(){
 	StateModes next_state = IDLE_E;
+	char Length[3];
 	int switched_menu = 0;
 	// choose next state
 	if (state == IDLE_E){
@@ -75,7 +76,8 @@ StateModes enter(){
 			// ACTIONS //
 			if (state == CHAT_E){
 				char* line = getChatLine(line_select);
-				UARTprintf(UART0_BASE_PTR,line);
+				sprintf(Length,"%d",strlen(line));
+				send2pc("Tx",Length,line);
 			}
 			
 			if (state == FILE_TRANSFER_E){

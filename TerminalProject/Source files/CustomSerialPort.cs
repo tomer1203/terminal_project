@@ -12,19 +12,22 @@ namespace TerminalProject.Source_files
     public class CustomSerialPort : SerialPort
     {
         // Status
-        public const int STATUS_OK = 0, STATUS_CHECKSUM_ERROR = 1;
+        public const int STATUS_OK = 0, STATUS_CHECKSUM_ERROR = 1, STATUS_RECIEVING = 2;
         public static char sentChecksum;
         // Our Format
         public const string customFormat = "$[{0}]{1}|{2}|{3}\0";
         // Message types
         public const string TEXT = "Tx";
         public const string BAUDRATE = "Br";
-        public const string STATUS = "St";
+        public const string STATUS = "St"; 
 
         private const int defaultBaudrate = 9600;
         public string dafaultPort;
 
         public string lastMessage = "";
+
+        private string myBuffer = "";
+        private int dataLen = 0;
 
         /*
          * Constructor to set Default values
@@ -69,15 +72,38 @@ namespace TerminalProject.Source_files
 
             String inData = this.ReadExisting();
             inData = inData.TrimStart('\0');
-            lastMessage = inData;
+            myBuffer += inData;
+            int cnt = inData.Count(f => f == '|');
+            if (cnt == 2)
+            {
+                dataLen = int.Parse(myBuffer.Substring(7, 3));
+                if (dataLen == myBuffer.Length)
+                {
+                    lastMessage = myBuffer;
+                }
+                else { return (STATUS, STATUS_RECIEVING.ToString(), -1); }
+                /*
+                 * Len is only the length of the val
+                 * need to send len of whole string
+                 * need to attach all string to myBbuffer and check to see
+                 * when I got all the string
+                 * (rpeat of process)
+                 * - Add a still_fetching status
+                 */
+            }
+            else { return (STATUS, STATUS_RECIEVING.ToString(), -1); }
+
+            
+            
+            
 
             // Format of Data: $[--]#|___|__ while # is checksum, -- is 2 chars opc
-            string opc = inData.Substring(2, 2);
-            char recievedCheckSum = inData[5];
+            string opc = myBuffer.Substring(2, 2);
+            char recievedCheckSum = myBuffer[5];
             int checksumStatus = validateChecksum(inData) ? STATUS_OK : STATUS_CHECKSUM_ERROR;
             string val = "0";
             if (checksumStatus == STATUS_OK)
-                val = inData.Substring(11);
+                val = myBuffer.Substring(11);
 
             return (opc, val, checksumStatus);
 

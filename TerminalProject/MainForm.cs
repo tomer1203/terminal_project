@@ -82,6 +82,15 @@ namespace TerminalProject
                     break;
 
                 case CustomSerialPort.STATUS: // get MCU Serial Port Status
+                    if(int.Parse(val) == CustomSerialPort.STATUS_RECIEVING)
+                    {
+                        // update UI
+                        dataRecieveLabel.Invoke((MethodInvoker)delegate
+                        {
+                            dataRecieveLabel.Text = "Fetching Data...";
+                        });
+                        break;
+                    }
                     // update UI connecting label
                     this.Invoke((MethodInvoker)delegate {
                         System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");

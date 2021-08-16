@@ -34,7 +34,8 @@ void print_ui(){
 		 "more text"},
 		{// 2-file transfer menu
 		 "<-Back",
-		 "FILES"},
+		 "Read File",
+		 "Send File"},
 		{// 3-Configuration menu
 		 "<-Back",
 		 "configuration"}};

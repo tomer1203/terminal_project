@@ -6,23 +6,28 @@
  *      Author: tomer
  */
 #include "TFC.h"
+
+int index_cyclic_plusplus(int old_index);
+int index_cyclic_minusminus(int old_index);
+int address_cyclic_add(int address,int added_value);
+
 void initialize_file_system(){
 	int i=0;
 	file_system.start_address = FILE_SYSTEM_START_ADDRESS;
 	file_system.end_address   = FILE_SYSTEM_END_ADDRESS;
 	
-	file_system.number_of_files   = 0;
-	file_system.state             = IDLE_FS;
-
-	file_system.write_pointer     = file_system.start_address;
-	file_system.size_remaining    = 0;
-	file_system.first_file		  = 0;
-	file_system.last_file		  = 0;
+	file_system.number_of_files       = 0;
+	file_system.state                 = IDLE_FS;
+	file_system.system_size_remaining = SIZE_OF_FILE_SYSTEM; 
+	file_system.write_pointer         = file_system.start_address;
+	file_system.size_remaining        = 0;
+	file_system.first_file		      = 0;
+	file_system.last_file		      = 0;
 	
-	file_system.current_read_file = 0;
-	file_system.read_pointer      = file_system.start_address;
+	file_system.current_read_file     = 0;
+	file_system.read_pointer          = file_system.start_address;
 	
-	// Initialise the files
+	// Initialize the files
 	for (i = 0; i < MAX_NUMBER_OF_FILES;i++){
 		initialize_file_desc(&file_system.file_list[i]);
 	}
@@ -37,10 +42,20 @@ initialize_file_desc(File_descriptor * file_desc){
 	file_desc->valid         = 0;
 }
 
-// read_file_init_message //
+// file_info //
+File_descriptor* file_info(int index){
+	return &file_system.file_list[index];
+}
+
+// read_file_init //
 // change state to READ_FILE_FS
 // set read_file and read_pointer
 // return success or fail
+int read_file_init(int file_num){
+	file_system.state = READ_FILE_FS;
+	file_system
+}
+
 
 // read_line         //
 // check if we are in correct state
@@ -50,18 +65,64 @@ initialize_file_desc(File_descriptor * file_desc){
 
 
 // write_file_init_message //
+// check what message has been received and act accordingly
+// check if there is space and if not remove old files
+// set basic stats on the write operation
+// returns if initialization is complete
+// assumed message order:
+// name
+// size
 int write_file_init_message(char* message){
+	char * size_str;
+	int size;
+	int size_temp;
+	int index_temp;
+	
+	// set up the write pointer
+	file_system.write_pointer =  
+			address_cyclic_add((int)(file_system.file_list[file_system.last_file].start_pointer),
+					file_system.file_list[file_system.last_file].size);
+	
 	if (file_system.state == WRITE_SIZE_FS){
 		// writing size
 		if (!is_size_command(message)){
 			return -1;
 		}
+		// this is a valid size command
+		size_str = strip_command(message);
+		size = atoi(size_str);
 		
+		// check that there is enough space for the new file
+		if (size > SIZE_OF_FILE_SYSTEM){
+			return -2;
+		}
+		
+		// clear files to make space for the new file
+		while (file_system.system_size_remaining < size){
+			if (file_system.number_of_files == 0){
+				// this is tested earlier so should never happen
+				return -12;
+			}
+			file_system.file_list[file_system.first_file].valid = 0;
+			file_system.system_size_remaining  += file_system.file_list[file_system.first_file].size;
+			file_system.number_of_files -= 1;
+			file_system.first_file      = index_cyclic_plusplus(file_system.first_file);
+		}
+		
+		// add file to system
+		file_system.system_size_remaining -= size;
+		file_system.temp_file_desc.size = size;
+		file_system.size_remaining = size;
+		// change address of last file to point to new file location
+		file_system.last_file = index_cyclic_plusplus(file_system.last_file); 
+		file_system.file_list[file_system.last_file] = file_system.temp_file_desc;
+		file_system.state = WRITE_DATA_FS;
+		return 0;
 		
 	} else {
 		// writing name
 		if (!is_name_command(message)){
-			return -1;
+			return -3;
 		}
 		initialize_file_desc(&file_system.temp_file_desc);
 		strcpy(&file_system.temp_file_desc.name,message);
@@ -72,17 +133,68 @@ int write_file_init_message(char* message){
 		return 0;
 	}
 }
-// check what message has been received and act accordingly
-// check if there is space and if not remove old files
-// set basic stats on the write operation
-// returns if initialization is complete
 
-// assumed message order:
-// size
-// name
 
 // write_file_chunck //
-// 
+// copies the write_data into the memory
+// this should be called after reading a chunck from the memory
 // check if we are in correct state
 // check if size of chunk fits the size of the message
 // send chunk to dma for sending to memory
+// check if we finished the message and if so turn the valid into true.
+int write_file_chunck(char* write_data, int size){
+	if (file_system.state != WRITE_DATA_FS){
+		return -1; // entered in wrong state
+	}
+	if (size > file_system.size_remaining){
+		return -2; // space allocated to file is done
+	}
+	
+	//** TODO SEND TO DMA TODO **//
+	
+	file_system.size_remaining-=size;
+	
+	// finished reading the file
+	if (file_system.size_remaining == 0){
+		file_system.state = IDLE_FS;
+		file_system.file_list[file_system.last_file].valid = 1;
+		return 1;
+	}
+	return 0;
+}
+
+int remove_last_file(){
+	file_system.last_file = index_cyclic_minusminus(file_system.last_file);
+}
+
+int address_cyclic_add(int address,int added_value){
+	return FILE_SYSTEM_START_ADDRESS+(address-FILE_SYSTEM_START_ADDRESS+added_value)%SIZE_OF_FILE_SYSTEM;
+}
+
+int file_index_plusplus(int file_index){
+	if (file_index == file_system.last_file){
+		return file_system.first_file;
+	}
+	return index_cyclic_plusplus(file_index);
+}
+int file_index_minusminus(int file_index){
+	if (file_index == file_system.first_file){
+		return file_system.last_file;
+	}
+	return index_cyclic_minusminus(file_index);
+}
+
+// ++ action for indexes
+int index_cyclic_plusplus(int old_index){
+	if (old_index >= MAX_NUMBER_OF_FILES-1){
+		return 0;
+	}
+	return old_index+1;
+}
+// -- action for indexes
+int index_cyclic_minusminus(int old_index){
+	if (old_index <= 0){
+		return MAX_NUMBER_OF_FILES-1;
+	}
+	return old_index-1;
+}

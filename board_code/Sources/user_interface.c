@@ -5,14 +5,31 @@
  *      Author: tomer
  */
 # include "TFC.h"
-
 const char chat_lines[5][20] =  {
-			 "hello\r\n",
-			 "world!\r\n",
-			 "pickachuuuuuu\r\n",
-			 "sample text\r\n",
-			 "more text\r\n"};
-
+		"hello\r\n",
+		"world!\r\n",
+		"pickachuuuuuu\r\n",
+		"sample text\r\n",
+		"more text\r\n"};
+const char main_menu[4][6][20] = {
+	{// 0-main menu
+	 "-chat mode",
+	 "-transfer mode",
+	 "-config mode"},
+	{// 1-chat menu
+	 "<-Back",
+	 "hello",
+	 "world!",
+	 "pickachuuuuuu",
+	 "sample text",
+	 "more text"},
+	{// 2-file transfer menu
+	 "<-Back",
+	 "Read File",
+	 "Send File"},
+	{// 3-Configuration menu
+	 "<-Back",
+	 "Brate:      "} };
 
 const char* getChatLine(int line){
 	
@@ -25,25 +42,7 @@ void initialize_ui(){
 	menu_size   = MAIN_MENU_SIZE;
 }
 void print_ui(){
-	const char main_menu[4][6][20] = {
-		{// 0-main menu
-		 "-chat mode",
-		 "-transfer mode",
-		 "-config mode"},
-		{// 1-chat menu
-	     "<-Back",
-		 "hello",
-		 "world!",
-		 "pickachuuuuuu",
-		 "sample text",
-		 "more text"},
-		{// 2-file transfer menu
-		 "<-Back",
-		 "Read File",
-		 "Send File"},
-		{// 3-Configuration menu
-		 "<-Back",
-		 "configuration"}};
+
 	Print_two_lines(main_menu[menu_select][line_select],
 					main_menu[menu_select][get_next_line(line_select)]);
 }

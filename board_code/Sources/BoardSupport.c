@@ -43,6 +43,7 @@ void InitGPIO()
 	GPIOB_PDDR |= 0xF; // Setup LCD DATA pins as output
 	
 	lcd_init(); // init the LCD
+	baud_config = 9600;
 }
 
 //-----------------------------------------------------------------

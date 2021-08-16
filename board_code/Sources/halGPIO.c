@@ -66,6 +66,7 @@ void PIT_IRQHandler(){
 void UART0_IRQHandler(){
 	uint8_t Char;
 	char length[4];
+	char baudRate[6];
 	if(UART0_S1 & UART_S1_RDRF_MASK){ // RX buffer is full and ready for reading
 		Char = UART0_D;
 		
@@ -97,8 +98,18 @@ void UART0_IRQHandler(){
 			// ACTIONS //
 			
 			// change Baud rate
-			if (is_br_command(string_buffer)){
-				int baud_config = atoi(strip_command(string_buffer));
+			if (is_chat_command(string_buffer)) {
+				Print(strip_command(string_buffer));
+			} else if (is_write_file_transfer_command(string_buffer)) {
+				//state =
+			} else if (is_br_command(string_buffer)) {
+				baud_config = atoi(strip_command(string_buffer));
+				sprintf(baudRate, "%5d", baud_config);
+				main_menu[3][1][7] = baudRate[0];
+				main_menu[3][1][8] = baudRate[1];
+				main_menu[3][1][9] = baudRate[2];
+				main_menu[3][1][10] = baudRate[3];
+				main_menu[3][1][11] = baudRate[4];
 				Print_two_lines("Baud Rate:", strip_command(string_buffer));
 				change_Baud_config(baud_config);
 				

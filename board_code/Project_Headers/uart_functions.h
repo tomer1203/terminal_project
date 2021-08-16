@@ -14,6 +14,7 @@
 
 void clear_string_buffer();
 int is_chat_command(char* string);
+int is_write_file_transfer_command(char* string);
 int is_br_command(char* string);
 int is_size_command(char* string);
 int is_name_command(char* string);

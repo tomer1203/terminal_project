@@ -21,6 +21,13 @@ int is_chat_command(char* string){
 		return 0;
 	}
 }
+int is_write_file_transfer_command(char* string){
+	if (string[0]=='$' && string[1]=='[' && string[2]=='W' && string[3]=='f' && string[4]==']'){
+		return 1;
+	} else {
+		return 0;
+	}
+}
 int is_br_command(char* string){
 	if (string[0]=='$' && string[1]=='[' && string[2]=='B' && string[3]=='r' && string[4]==']'){
 		return 1;

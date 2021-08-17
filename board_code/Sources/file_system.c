@@ -193,7 +193,7 @@ int write_file_init_message(char* message){
 // check if we finished the message and if so turn the valid into true.
 int write_file_chunck(char* write_data, int size){
 	int i = 0;
-	char data[512]={0};
+	char data[MAX_STRING]={0};
 	strcpy(data,strip_command(write_data));
 	if (file_system.state != WRITE_DATA_FS){
 		return -1; // entered in wrong state
@@ -207,6 +207,7 @@ int write_file_chunck(char* write_data, int size){
 	for (i = 0;i < size;i++) {
 		file_system.write_pointer[i] = data [i];
 	}
+	file_system.write_pointer = file_system.write_pointer+size;
 	
 	// finished reading the file
 	if (file_system.size_remaining == 0){

@@ -10,7 +10,9 @@
 int index_cyclic_plusplus(int old_index);
 int index_cyclic_minusminus(int old_index);
 int address_cyclic_add(int address,int added_value);
+
 char     reading_Line[LINE_LENGTH];
+uint8_t  fs_memory[SIZE_OF_FILE_SYSTEM];
 
 void initialize_file_system(){
 	int i=0;
@@ -148,7 +150,7 @@ int write_file_init_message(char* message){
 		file_system.last_file = index_cyclic_plusplus(file_system.last_file); 
 		file_system.file_list[file_system.last_file] = file_system.temp_file_desc;
 		file_system.state = WRITE_DATA_FS;
-		return 0;
+		return 1;
 		
 	} else {
 		// writing name
@@ -200,7 +202,7 @@ int remove_last_file(){
 }
 
 int address_cyclic_add(int address,int added_value){
-	return (int)FILE_SYSTEM_START_ADDRESS+(address-(int)FILE_SYSTEM_START_ADDRESS+added_value)%SIZE_OF_FILE_SYSTEM;
+	return ((int)(FILE_SYSTEM_START_ADDRESS))+(address-((int)(FILE_SYSTEM_START_ADDRESS))+added_value)%SIZE_OF_FILE_SYSTEM;
 }
 
 int file_index_plusplus(int file_index){

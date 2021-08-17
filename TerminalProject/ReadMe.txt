@@ -14,7 +14,7 @@ $[Wd]_|___|DATA
 $[Wd]_|___|DATA
 
 --board to pc
-$[FE]_|001|_          --- File Status
+$[Fe]_|001|_          --- File Status
 
 
 //          sending text        //

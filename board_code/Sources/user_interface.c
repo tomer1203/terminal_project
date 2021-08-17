@@ -11,7 +11,7 @@ const char chat_lines[5][20] =  {
 		"pickachuuuuuu\r\n",
 		"sample text\r\n",
 		"more text\r\n"};
-const char main_menu[4][6][20] = {
+char main_menu[4][6][20] = {
 	{// 0-main menu
 	 "-chat mode",
 	 "-transfer mode",
@@ -30,7 +30,12 @@ const char main_menu[4][6][20] = {
 	{// 3-Configuration menu
 	 "<-Back",
 	 "Brate:      "} };
-
+void copy_16chars(char* to, char* from) {
+	int i = 0;
+	for (i = 0;i < 16; i++) {
+		to[i] = from[i];
+	}
+}
 const char* getChatLine(int line){
 	
 	return chat_lines[line-1];
@@ -42,12 +47,36 @@ void initialize_ui(){
 	menu_size   = MAIN_MENU_SIZE;
 }
 void print_ui(){
-
-	Print_two_lines(main_menu[menu_select][line_select],
-					main_menu[menu_select][get_next_line(line_select)]);
+	if (state == DISPLAY_FILE_E) {
+		Print_two_lines(last_read_line, current_read_line);
+	} else if (state == READ_FILE_E) {
+		if (line_select == 0) {
+			Print_two_lines("<-Back", current_file_desc->name);
+		}
+		else if (line_select == menu_size-1) {
+			Print_two_lines(current_file_desc->name, "<-Back");
+		}
+		Print_two_lines(last_file_descriptor->name,current_file_desc->name);
+	} else {
+		Print_two_lines(main_menu[menu_select][line_select],
+			main_menu[menu_select][get_next_line(line_select)]);
+	}
+	
 }
 void scroll_down(){
-	line_select = get_next_line(line_select);
+	if (state == DISPLAY_FILE_E) {
+		read_line();
+		copy_16chars(last_read_line, current_read_line);
+		copy_16chars(current_read_line, reading_Line);
+	} else if (state == READ_FILE_E) {
+		line_select = file_index_plusplus(line_select-1); // -1 is for back
+		line_select++;
+		last_file_descriptor = current_file_desc;
+		current_file_desc = file_info(line_select);
+	} else {
+		line_select = get_next_line(line_select);
+	}
+	
 }
 StateModes enter(){
 	StateModes next_state = IDLE_E;
@@ -71,6 +100,25 @@ StateModes enter(){
 			break;
 		default:
 			next_state = IDLE_E;
+			switched_menu = 1;
+		}
+	} else if (state == FILE_TRANSFER_E) {
+		switch (line_select) {
+		case 0:
+			next_state = IDLE_E;
+			switched_menu = 1;
+			break;
+		case 1:
+			next_state = READ_FILE_E;
+			switched_menu = 1;
+			break;
+		case 2:
+			next_state = SEND_FILE_E;
+			switched_menu = 1;
+			break;
+		default:
+			next_state = IDLE_E;
+			switched_menu = 1;
 		}
 	} else {
 		if (line_select == 0){
@@ -91,9 +139,19 @@ StateModes enter(){
 				}
 				send2pc("Tx",Length_final,line);
 			}
-			
-			if (state == FILE_TRANSFER_E){
+			if (state == READ_FILE_E) {
+				read_file_init(line_select - 1);
+				next_state = DISPLAY_FILE_E;
+				switched_menu = 1;
+			}
+			if (state == DISPLAY_FILE_E) {
+				next_state = READ_FILE_E;
+				switched_menu = 1;
+			}
+			if (state == SEND_FILE_E){
 				// TODO: SEND FILE 2 PC
+				state = IDLE_E;
+				switched_menu = 1;
 			}
 			
 		}
@@ -113,6 +171,10 @@ StateModes enter(){
 	case(FILE_TRANSFER_E):
 		menu_select=2;
 		menu_size = FILE_MENU_SIZE;
+		break;
+	case(READ_FILE_E):
+		menu_select = 4;
+		menu_size = file_system.number_of_files+1;
 		break;
 	case(CONFIGURATION_E):
 		menu_select=3;

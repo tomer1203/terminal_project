@@ -63,8 +63,9 @@ File_System file_system;
 void             initialize_file_system();
 File_descriptor* file_info(int index);
 int 			 read_file_init(int file_num);
-int              read_line(); // reads up to \n or EOF
+int              read_line(); // reads up to 16 chars or EOF
 int              write_file_init_message(char* message);
+int				 write_file_chunck(char* write_data, int size);
 int              remove_last_file();
 int              file_index_plusplus(int file_index);
 int              file_index_minusminus(int file_index);

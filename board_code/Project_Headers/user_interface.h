@@ -17,11 +17,17 @@ int menu_select;
 int line_select;
 int menu_size;
 
+char last_read_line[16];
+char current_read_line[16];
+
+File_descriptor *last_file_descriptor;
+File_descriptor *current_file_desc;
+
 void print_ui();
 void scroll_down();
 StateModes enter();
 
 extern const char chat_lines[5][20];
-extern const char main_menu[4][6][20];
+extern char main_menu[4][6][20];
 
 #endif /* USER_INTERFACE_H_ */

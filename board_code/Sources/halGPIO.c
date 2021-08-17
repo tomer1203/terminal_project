@@ -67,6 +67,7 @@ void UART0_IRQHandler(){
 	uint8_t Char;
 	char length[4];
 	char baudRate[6];
+	int function_return_value;
 	if(UART0_S1 & UART_S1_RDRF_MASK){ // RX buffer is full and ready for reading
 		Char = UART0_D;
 		
@@ -85,40 +86,58 @@ void UART0_IRQHandler(){
 		
 		// if message is finished		
 		if (input_string_length<=0 && string_index >= 11){
-			
 			// CHECKSUM Check //
-			if (!validate_checksum(string_buffer,string_index+1)){
-				send2pc("St","001",STATUS_CHECKSUM_ERROR);
+			if (!validate_checksum(string_buffer, string_index + 1)) {
+				send2pc("St", "001", STATUS_CHECKSUM_ERROR);
 				clear_string_buffer();
 				return;
+			}
+			else {
+				send2pc("St", "001", STATUS_OK);
+			}
+			if (state == WRITING_FILE_INIT_E) {
+				function_return_value = write_file_init_message(string_buffer);
+					if (function_return_value == 1) {
+						state = WRITING_FILE;
+					}
+			} else if (state == WRITING_FILE) {
+				function_return_value = write_file_chunck(string_buffer, string_index);
+				if (function_return_value == 1) {
+					send2pc("Fe", "001", STATUS_OK);
+				}
 			} else {
-				send2pc("St","001",STATUS_OK);
+				// ACTIONS //
+				// change Baud rate
+				if (is_chat_command(string_buffer)) {
+					Print(strip_command(string_buffer));
+				}
+				else if (is_write_file_transfer_command(string_buffer)) {
+					state = WRITING_FILE_INIT_E;
+				}
+				else if (is_br_command(string_buffer)) {
+					baud_config = atoi(strip_command(string_buffer));
+					sprintf(baudRate, "%5d", baud_config);
+					main_menu[3][1][7] = baudRate[0];
+					main_menu[3][1][8] = baudRate[1];
+					main_menu[3][1][9] = baudRate[2];
+					main_menu[3][1][10] = baudRate[3];
+					main_menu[3][1][11] = baudRate[4];
+					Print_two_lines("Baud Rate:", strip_command(string_buffer));
+					change_Baud_config(baud_config);
+
+					send2pc("Tx", "028", "changed baud rate, status ok");
+
+					// normal chat
+				}
+				else if (is_chat_command(string_buffer)) {
+					Print(strip_command(string_buffer));
+				}
 			}
 			
-			// ACTIONS //
 			
-			// change Baud rate
-			if (is_chat_command(string_buffer)) {
-				Print(strip_command(string_buffer));
-			} else if (is_write_file_transfer_command(string_buffer)) {
-				//state =
-			} else if (is_br_command(string_buffer)) {
-				baud_config = atoi(strip_command(string_buffer));
-				sprintf(baudRate, "%5d", baud_config);
-				main_menu[3][1][7] = baudRate[0];
-				main_menu[3][1][8] = baudRate[1];
-				main_menu[3][1][9] = baudRate[2];
-				main_menu[3][1][10] = baudRate[3];
-				main_menu[3][1][11] = baudRate[4];
-				Print_two_lines("Baud Rate:", strip_command(string_buffer));
-				change_Baud_config(baud_config);
-				
-				send2pc("Tx","028","changed baud rate, status ok");
 			
-			// normal chat
-			} else if (is_chat_command(string_buffer)){ 
-				Print(strip_command(string_buffer)); 
-			}
+			
+			
 			
 			// when finished reading message, clean the buffer.
 			clear_string_buffer();

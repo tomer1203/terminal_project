@@ -101,7 +101,7 @@ void UART0_IRQHandler(){
 						state = WRITING_FILE;
 					}
 			} else if (state == WRITING_FILE) {
-				function_return_value = write_file_chunck(string_buffer, string_index);
+				function_return_value = write_file_chunck(string_buffer, string_index-10);
 				if (function_return_value == 1) {
 					send2pc("Fe", "001", STATUS_OK);
 				}

@@ -12,14 +12,16 @@
 #define MAX_NUMBER_OF_FILES 20
 #define MAX_NAME_SIZE       20
 #define LINE_LENGTH         16
-#define FILE_SYSTEM_START_ADDRESS &fs_memory
-#define FILE_SYSTEM_END_ADDRESS &fs_memory+SIZE_OF_FILE_SYSTEM
+#define FILE_SYSTEM_START_ADDRESS fs_memory
+#define FILE_SYSTEM_END_ADDRESS fs_memory + SIZE_OF_FILE_SYSTEM
 
 
 
 // the file system's memory
-extern uint8_t  fs_memory[SIZE_OF_FILE_SYSTEM];
+extern char     fs_memory[SIZE_OF_FILE_SYSTEM];
 extern char     reading_Line[LINE_LENGTH+1];
+
+int first_time;
 
 // File System States
 typedef enum FS_StateModes{IDLE_FS,READ_FILE_FS,WRITE_SIZE_FS,WRITE_DATA_FS} FS_StateModes;

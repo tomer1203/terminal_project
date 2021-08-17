@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.IO;
+using System.Threading;
 using System.IO.Ports;
 
 namespace TerminalProject.Source_files
@@ -16,6 +17,7 @@ namespace TerminalProject.Source_files
         public static char sentChecksum;
         // Our Format
         public const string customFormat = "$[{0}]{1}|{2}|{3}";
+        public const int PACKET_SIZE = 512;
         // Message types
         public static class Type {
             // Messages
@@ -149,9 +151,31 @@ namespace TerminalProject.Source_files
         public void sendFile(string filePath)
         {
             FileInfo file = new FileInfo(filePath);
+            // File descriptors
             sendMessage(Type.FILE_START, "");
+            Thread.Sleep(50);
             sendMessage(Type.FILE_NAME, file.Name);
+            Thread.Sleep(50);
             sendMessage(Type.FILE_SIZE, file.Length.ToString());
+            Thread.Sleep(50);
+
+            string text = File.ReadAllText(filePath);
+            int packetNum = text.Length / PACKET_SIZE;
+            int leftovers = text.Length % PACKET_SIZE;
+            packetNum += leftovers > 0 ? 1 : 0;
+
+            for(int i = 0 ; i < packetNum ; i ++)
+            {
+                if(i == packetNum - 1)
+                {
+                    sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, leftovers));
+                    return;
+                }
+                sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, PACKET_SIZE ));
+                Thread.Sleep(50);
+            }
+
+
 
 
         } // END sendFile

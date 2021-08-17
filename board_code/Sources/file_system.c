@@ -9,10 +9,10 @@
 
 int index_cyclic_plusplus(int old_index);
 int index_cyclic_minusminus(int old_index);
-int address_cyclic_add(int address,int added_value);
+char* address_cyclic_add(char* address,char* added_value);
 
-char     reading_Line[LINE_LENGTH];
-uint8_t  fs_memory[SIZE_OF_FILE_SYSTEM];
+char     reading_Line[LINE_LENGTH+1];
+char  fs_memory[SIZE_OF_FILE_SYSTEM];
 
 void initialize_file_system(){
 	int i=0;
@@ -29,7 +29,7 @@ void initialize_file_system(){
 	
 	file_system.read_file     = 0;
 	file_system.read_pointer          = file_system.start_address;
-	
+	first_time = 1;
 	// Initialize the files
 	for (i = 0; i < MAX_NUMBER_OF_FILES;i++){
 		initialize_file_desc(&file_system.file_list[i]);
@@ -41,7 +41,7 @@ void initialize_file_desc(File_descriptor *file_desc){
 		file_desc->name[i] = 0;
 	}
 	file_desc->size          = 0;
-	file_desc->start_pointer = NULL;
+	file_desc->start_pointer = file_system.start_address;
 	file_desc->valid         = 0;
 }
 
@@ -69,7 +69,7 @@ int read_file_init(int file_num){
 // read one line(16 Bytes) update read pointer
 // return either the line or null for failure
 int read_line(){
-	int read_amount = 16;
+	int read_amount = 16, i = 0;
 	char* end_line_address;
 	char* end_of_file_address;
 	char* read_line_start;
@@ -93,9 +93,9 @@ int read_line(){
 	//** TODO READ 16 BYTES FROM DMA TODO **//
 	//reading_Line = value here;
 	for (i = 0;i < read_amount;i++) {
-		reading_Line = file_system.read_pointer[i];
+		reading_Line[i] = file_system.read_pointer[i];
 	}
-	reading_Line[i] = '\0'
+	reading_Line[i] = '\0';
 
 	return read_amount;
 }
@@ -116,7 +116,7 @@ int write_file_init_message(char* message){
 	
 	// set up the write pointer
 	file_system.write_pointer =  
-			(char*)address_cyclic_add((int)(file_system.file_list[file_system.last_file].start_pointer),
+			address_cyclic_add((file_system.file_list[file_system.last_file].start_pointer),
 					file_system.file_list[file_system.last_file].size);
 	
 	if (file_system.state == WRITE_SIZE_FS){
@@ -149,8 +149,14 @@ int write_file_init_message(char* message){
 		file_system.system_size_remaining -= size;
 		file_system.temp_file_desc.size = size;
 		file_system.size_remaining = size;
-		// change address of last file to point to new file location
-		file_system.last_file = index_cyclic_plusplus(file_system.last_file); 
+		
+		// save temporary file descriptor in file system
+		if (first_time){
+			first_time = 0;
+		} else {
+			// change address of last file to point to new file location
+			file_system.last_file = index_cyclic_plusplus(file_system.last_file);
+		}
 		file_system.file_list[file_system.last_file] = file_system.temp_file_desc;
 		file_system.state = WRITE_DATA_FS;
 		return 1;
@@ -181,6 +187,8 @@ int write_file_init_message(char* message){
 // check if we finished the message and if so turn the valid into true.
 int write_file_chunck(char* write_data, int size){
 	int i = 0;
+	char data[512]={0};
+	strcpy(data,strip_command(write_data));
 	if (file_system.state != WRITE_DATA_FS){
 		return -1; // entered in wrong state
 	}
@@ -191,13 +199,14 @@ int write_file_chunck(char* write_data, int size){
 	file_system.size_remaining -= size;
 	//** TODO SEND TO DMA TODO **//
 	for (i = 0;i < size;i++) {
-		file_system.write_pointer[i] = write_data[i];
+		file_system.write_pointer[i] = data [i];
 	}
 	
 	// finished reading the file
 	if (file_system.size_remaining == 0){
 		file_system.state = IDLE_FS;
 		file_system.file_list[file_system.last_file].valid = 1;
+		file_system.number_of_files += 1;
 		return 1;
 	}
 	return 0;
@@ -208,8 +217,19 @@ int remove_last_file(){
 	return 0;
 }
 
-int address_cyclic_add(int address,int added_value){
-	return ((int)(FILE_SYSTEM_START_ADDRESS))+(address-((int)(FILE_SYSTEM_START_ADDRESS))+added_value)%SIZE_OF_FILE_SYSTEM;
+char* address_cyclic_add(char* address,char* added_value){
+	int Temp;
+	Temp = (int)(address-(FILE_SYSTEM_START_ADDRESS)+added_value);
+	Temp = Temp%SIZE_OF_FILE_SYSTEM;
+	Temp = Temp+(int)FILE_SYSTEM_START_ADDRESS;
+	
+	return (char*)Temp;
+//	return FILE_SYSTEM_START_ADDRESS + 
+//			(address-(FILE_SYSTEM_START_ADDRESS)+added_value) % SIZE_OF_FILE_SYSTEM;
+//	 char* add = (FILE_SYSTEM_START_ADDRESS + (address-(FILE_SYSTEM_START_ADDRESS)+added_value));
+//	 return (char*)(((uintptr_t)(add)) % SIZE_OF_FILE_SYSTEM); 
+	
+	
 }
 
 int file_index_plusplus_with_menu(int file_index) {

@@ -339,7 +339,7 @@ namespace TerminalProject
             try
             {   
                 serialPort.sendFile(selectedFilePath);
-                fileStatusLabel.Text = "Sending File";
+                fileStatusLabel.Text = "Sending "  + Path.GetFileName(selectedFilePath);
             }
             catch (Exception) { }
         }

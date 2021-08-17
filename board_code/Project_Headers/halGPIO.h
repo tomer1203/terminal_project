@@ -8,7 +8,7 @@
 #ifndef HALGPIO_H_
 #define HALGPIO_H_
 // 1/2 KB
-#define MAX_STRING 512
+#define MAX_STRING 524
 
 void DelayUs(unsigned int cnt);
 void DelayMs(unsigned int cnt);

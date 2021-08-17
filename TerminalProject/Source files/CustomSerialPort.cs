@@ -15,7 +15,7 @@ namespace TerminalProject.Source_files
         public static char sentChecksum;
         // Our Format
         public const string customFormat = "$[{0}]{1}|{2}|{3}";
-        public const int PACKET_SIZE = 512;
+        public const int PACKET_SIZE = 128;
         public const int SEND_DELAY = 30;
         public const int CONFIGURE_DELAY = 30;
         // Message types
@@ -203,10 +203,11 @@ namespace TerminalProject.Source_files
                 checksum ^= message[i];
             }
 
+            checksum ^= '1';
+
             if (checksum == 0)
                 return (char)1;
-
-            return (char)(checksum ^ '1');
+            return (char)checksum;
         }
 
         /*

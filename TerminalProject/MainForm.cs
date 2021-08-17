@@ -119,7 +119,10 @@ namespace TerminalProject
 
                 // File recieved ok 
                 case CustomSerialPort.Type.FILE_END:
-                    updateFileTransferUI("File Sent Successfully");
+                    if(int.Parse(val) == 0)
+                        updateFileTransferUI("File Sent Successfully");
+                    else
+                        updateFileTransferUI("File didnot Sent Successfully");
                     break;
 
 

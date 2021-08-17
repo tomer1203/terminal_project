@@ -22,8 +22,9 @@ namespace TerminalProject
         private ValueTuple<string, string, int> inData = new ValueTuple<string, string, int>();
 
         // For Files
-        private string filesToSendPath = "C:/Users/טל/Desktop/Terminal Project Files/Files to send";
+        private string filesToSendDirectory = "Terminal Project Files/Files to send";
         private string selectedFilePath = "";
+        private string dataFilesPath = "";
 
         /*
          * Construstor
@@ -283,7 +284,7 @@ namespace TerminalProject
             if (filesListView.SelectedItems.Count >= 1)
             {
                 string selectedFile = filesListView.SelectedItems[0].Text;
-                string[] fileEntries = Directory.GetFiles(filesToSendPath);
+                string[] fileEntries = Directory.GetFiles(dataFilesPath);
                 foreach (string filePath in fileEntries)
                 {
                     if (Path.GetFileName(filePath).Equals(selectedFile) && Path.GetExtension(filePath) == ".txt")
@@ -304,14 +305,15 @@ namespace TerminalProject
             // Set Column
             this.filesListView.Columns.Add("Name", 600, HorizontalAlignment.Left);
             this.filesListView.Columns.Add("Size", -2, HorizontalAlignment.Left);
+            // get Directory
+            string currentDirectoryPath = Environment.CurrentDirectory;
+            dataFilesPath = Path.Combine(currentDirectoryPath, filesToSendDirectory);
 
-            if (Directory.Exists(filesToSendPath))
+            if (Directory.Exists(dataFilesPath))
             {
-                string currentDirectoryPath = Environment.CurrentDirectory;
-                //string dataFilesPath = Path.Combine(currentDirectoryPath, );
-                // Process the list of files found in the directory.
+                // Process the list of files found in the directory
                 ListViewItem listViewItem;
-                string[] fileEntries = Directory.GetFiles(filesToSendPath);
+                string[] fileEntries = Directory.GetFiles(dataFilesPath);
                 foreach (string filePath in fileEntries)
                 {
                     FileInfo file = new FileInfo(filePath);

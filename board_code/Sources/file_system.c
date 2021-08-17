@@ -9,7 +9,7 @@
 
 int index_cyclic_plusplus(int old_index);
 int index_cyclic_minusminus(int old_index);
-char* address_cyclic_add(char* address,char* added_value);
+char* address_cyclic_add(char* address,int added_value);
 
 char     reading_Line[LINE_LENGTH+1];
 char  fs_memory[SIZE_OF_FILE_SYSTEM];
@@ -78,23 +78,29 @@ int read_line(){
 	}
 
 	// decide how much you can read
-	end_line_address    = (char*)address_cyclic_add((int)file_system.read_pointer,16);
-	end_of_file_address = (char*)address_cyclic_add((int)file_system.file_list[file_system.read_file].start_pointer,file_system.file_list[file_system.read_file].size);
+	end_line_address    = address_cyclic_add(file_system.read_pointer,16);
+	end_of_file_address = address_cyclic_add(file_system.file_list[file_system.read_file].start_pointer,file_system.file_list[file_system.read_file].size);
 	read_line_start = file_system.read_pointer;
 	if (end_line_address > end_of_file_address){
 		read_amount = end_of_file_address - file_system.read_pointer;
-		file_system.read_pointer = 0;
+		//** TODO READ 16 BYTES FROM DMA TODO **//
+		//reading_Line = value here;
+		for (i = 0;i < read_amount;i++) {
+			reading_Line[i] = file_system.read_pointer[i];
+		}
+		file_system.read_pointer = file_system.file_list[file_system.read_file].start_pointer;
 		
 	}
 	else {
+		//** TODO READ 16 BYTES FROM DMA TODO **//
+		//reading_Line = value here;
+		for (i = 0;i < read_amount;i++) {
+			reading_Line[i] = file_system.read_pointer[i];
+		}
 		file_system.read_pointer += 16;
 	}
 
-	//** TODO READ 16 BYTES FROM DMA TODO **//
-	//reading_Line = value here;
-	for (i = 0;i < read_amount;i++) {
-		reading_Line[i] = file_system.read_pointer[i];
-	}
+	
 	reading_Line[i] = '\0';
 
 	return read_amount;
@@ -217,7 +223,7 @@ int remove_last_file(){
 	return 0;
 }
 
-char* address_cyclic_add(char* address,char* added_value){
+char* address_cyclic_add(char* address,int added_value){
 	int Temp;
 	Temp = (int)(address-(FILE_SYSTEM_START_ADDRESS)+added_value);
 	Temp = Temp%SIZE_OF_FILE_SYSTEM;

@@ -143,6 +143,10 @@ StateModes enter(){
 			}
 			if (state == READ_FILE_E) {
 				read_file_init(line_select - 1);
+				read_line();
+				copy_16chars(last_read_line, reading_Line);
+				read_line();
+				copy_16chars(current_read_line, reading_Line);
 				next_state = DISPLAY_FILE_E;
 				switched_menu = 1;
 			}

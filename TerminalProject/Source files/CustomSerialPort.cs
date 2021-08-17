@@ -12,8 +12,6 @@ namespace TerminalProject.Source_files
 {
     public class CustomSerialPort : SerialPort
     {
-        // Status
-        public const int STATUS_OK = 0, STATUS_CHECKSUM_ERROR = 1, STATUS_RECIEVING = 2, STATUS_BUFFER_ERROR = 3;
         public static char sentChecksum;
         // Our Format
         public const string customFormat = "$[{0}]{1}|{2}|{3}";
@@ -31,7 +29,17 @@ namespace TerminalProject.Source_files
             public const string FILE_NAME  = "Na";
             public const string FILE_SIZE  = "Sz";
             public const string FILE_DATA  = "Wd";
-
+            public const string FILE_END   = "Fe";
+        }
+        // STATUS TYPE
+        public static class STATUS
+        {
+            public static readonly string[] toString = {"OK", "CHECKSUM_ERROR", "RECIEVING", "BUFFER_ERROR", "PORT_ERROR" };
+            public const int OK = 0; 
+            public const int CHECKSUM_ERROR = 1;
+            public const int RECIEVING = 2;
+            public const int BUFFER_ERROR = 3;
+            public const int PORT_ERROR = 4;
         }
 
         private const int defaultBaudrate = 9600;
@@ -99,7 +107,7 @@ namespace TerminalProject.Source_files
                     // get ready for next transaction
                     myBuffer = "";
                     dataLen = pollCnt = 0;
-                    return (Type.STATUS, STATUS_BUFFER_ERROR.ToString(), -1);
+                    return (Type.STATUS, STATUS.BUFFER_ERROR.ToString(), -1);
                 }
                 // Check if data len ok
                 if (dataLen == myBuffer.Length - 11)
@@ -113,10 +121,10 @@ namespace TerminalProject.Source_files
                     // get ready for next transaction
                     myBuffer = "";
                     dataLen = pollCnt = 0;
-                    return (Type.STATUS, STATUS_BUFFER_ERROR.ToString(), -1);
+                    return (Type.STATUS, STATUS.BUFFER_ERROR.ToString(), -1);
                 }
                 // Still Receiving 
-                else { return (Type.STATUS, STATUS_RECIEVING.ToString(), -1); }
+                else { return (Type.STATUS, STATUS.RECIEVING.ToString(), -1); }
 
             } // Error receiving data
             else if (myBuffer.Length > 11)
@@ -124,17 +132,17 @@ namespace TerminalProject.Source_files
                 // get ready for next transaction
                 myBuffer = "";
                 dataLen = pollCnt = 0;
-                return (Type.STATUS, STATUS_BUFFER_ERROR.ToString(), -1);
+                return (Type.STATUS, STATUS.BUFFER_ERROR.ToString(), -1);
             }
-            else { return (Type.STATUS, STATUS_RECIEVING.ToString(), -1); }
+            else { return (Type.STATUS, STATUS.RECIEVING.ToString(), -1); }
 
 
             // Format of Data: $[--]#|___|__ while # is checksum, -- is 2 chars opc
             string opc = myBuffer.Substring(2, 2);
             char recievedCheckSum = myBuffer[5];
-            int checksumStatus = validateChecksum(myBuffer, recievedCheckSum) ? STATUS_OK : STATUS_CHECKSUM_ERROR;
+            int checksumStatus = validateChecksum(myBuffer, recievedCheckSum) ? STATUS.OK : STATUS.CHECKSUM_ERROR;
             string val = "0";
-            if (checksumStatus == STATUS_OK)
+            if (checksumStatus == STATUS.OK)
                 val = myBuffer.Substring(11);
 
             // get ready for next transaction
@@ -167,6 +175,7 @@ namespace TerminalProject.Source_files
             // Send Packets of File Data
             for(int i = 0 ; i < packetNum ; i ++)
             {
+                // if last packet
                 if(i == packetNum - 1)
                 {
                     sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, leftovers));

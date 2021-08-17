@@ -34,6 +34,9 @@ namespace TerminalProject
             InitializeComponent();
             this.MinimumSize = this.Size;
             this.MaximumSize = this.Size;
+
+            //tabControl1.Height = this.Height- 150;
+
             this.dataRecieveLabel.Parent = this.dataRecievePanel;
             this.dataRecieveLabel.Text = "";
 
@@ -44,9 +47,9 @@ namespace TerminalProject
             try
             {
                 serialPort.Open();
-                setConnectingLabel(CustomSerialPort.STATUS_OK);
+                setConnectingLabel(CustomSerialPort.STATUS.OK);
             }
-            catch (Exception) { setConnectingLabel(CustomSerialPort.STATUS_PORT_ERROR); }
+            catch (Exception) { setConnectingLabel(CustomSerialPort.STATUS.PORT_ERROR); }
 
             EventHub.saveConfigurationsHandler += onConfighrationsChanged;
 
@@ -73,7 +76,7 @@ namespace TerminalProject
             catch (Exception exception)
             {
                 serialPort.Close();
-                updateChatUI("", exception.ToString(), CustomSerialPort.STATUS_PORT_ERROR);
+                updateChatUI("", exception.ToString(), CustomSerialPort.STATUS.PORT_ERROR);
                 
             }
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
@@ -91,7 +94,7 @@ namespace TerminalProject
         private void handleMessage(string opc, string val, int checksumStatus)
         {
             // Checksum check
-            if (checksumStatus == CustomSerialPort.STATUS_CHECKSUM_ERROR)
+            if (checksumStatus == CustomSerialPort.STATUS.CHECKSUM_ERROR)
             {
                 updateChatUI("STATUS_CHECKSUM_ERROR", serialPort.lastMessage, -1);
                 return;
@@ -132,16 +135,16 @@ namespace TerminalProject
         {
             switch (status)
             {
-                case CustomSerialPort.STATUS_RECIEVING:
-                    updateChatUI("STATUS_RECIEVING", "Fetching Data...", status);
+                case CustomSerialPort.STATUS.RECIEVING:
+                    updateChatUI(CustomSerialPort.STATUS.toString[status], "Fetching Data...", status);
                     break;
 
-                case CustomSerialPort.STATUS_BUFFER_ERROR:
-                    updateChatUI("STATUS_BUFFER_ERROR", "Buffer Error. Send Again", status);
+                case CustomSerialPort.STATUS.BUFFER_ERROR:
+                    updateChatUI(CustomSerialPort.STATUS.toString[status], "Buffer Error. Send Again", status);
                     break;
 
-                case CustomSerialPort.STATUS_OK:
-                    updateChatUI("STATUS_OK", "", status);
+                case CustomSerialPort.STATUS.OK:
+                    updateChatUI(CustomSerialPort.STATUS.toString[status], "", status);
                     break;
 
                     
@@ -196,14 +199,19 @@ namespace TerminalProject
             Brush brush = Brushes.Red;
             switch (status)
             {
-                case CustomSerialPort.STATUS_OK:
+                case CustomSerialPort.STATUS.OK:
                     brush = Brushes.Green;
                     this.connectingLabel.Text = "Connected to " + serialPort.PortName + " with Baudrate " + serialPort.BaudRate + " BPS";
                     break;
 
-                case CustomSerialPort.STATUS_PORT_ERROR:
+                case CustomSerialPort.STATUS.PORT_ERROR:
                     brush = Brushes.Red;
                     this.connectingLabel.Text = "Configure Serial Port";
+                    break;
+
+                default:
+                    brush = Brushes.Orange;
+                    this.connectingLabel.Text = "Unrecognized Status: " + status;
                     break;
 
             }
@@ -240,7 +248,7 @@ namespace TerminalProject
             }
             catch (Exception)
             {
-                setConnectingLabel(CustomSerialPort.STATUS_CHECKSUM_ERROR);
+                setConnectingLabel(CustomSerialPort.STATUS.CHECKSUM_ERROR);
             }
         }
 
@@ -301,7 +309,7 @@ namespace TerminalProject
          */
         private void onConfighrationsChanged(object sender, EventArgs e)
         {
-            setConnectingLabel(CustomSerialPort.STATUS_OK);
+            setConnectingLabel(CustomSerialPort.STATUS.OK);
         }
 
 

@@ -128,6 +128,7 @@
             // 
             // statusLabel
             // 
+            this.statusLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.statusLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.statusLabel.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.statusLabel.Location = new System.Drawing.Point(3, 434);
@@ -152,6 +153,7 @@
             // 
             // dataRecievePanel
             // 
+            this.dataRecievePanel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.dataRecievePanel.Controls.Add(this.dataRecieveLabel);
             this.dataRecievePanel.Location = new System.Drawing.Point(35, 98);
             this.dataRecievePanel.Name = "dataRecievePanel";
@@ -160,6 +162,7 @@
             // 
             // dataRecieveLabel
             // 
+            this.dataRecieveLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.dataRecieveLabel.BackColor = System.Drawing.SystemColors.MenuBar;
             this.dataRecieveLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataRecieveLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
@@ -186,6 +189,7 @@
             // 
             // sendFileButton
             // 
+            this.sendFileButton.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.sendFileButton.ForeColor = System.Drawing.Color.Teal;
             this.sendFileButton.Location = new System.Drawing.Point(391, 370);
             this.sendFileButton.Name = "sendFileButton";
@@ -197,6 +201,7 @@
             // 
             // filesListView
             // 
+            this.filesListView.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.filesListView.BackColor = System.Drawing.SystemColors.MenuBar;
             this.filesListView.FullRowSelect = true;
             this.filesListView.GridLines = true;
@@ -214,6 +219,7 @@
             // 
             // fileNamePanel
             // 
+            this.fileNamePanel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.fileNamePanel.Controls.Add(this.fileNameLabel);
             this.fileNamePanel.Location = new System.Drawing.Point(28, 20);
             this.fileNamePanel.Name = "fileNamePanel";
@@ -222,6 +228,7 @@
             // 
             // fileNameLabel
             // 
+            this.fileNameLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.fileNameLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fileNameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.fileNameLabel.Location = new System.Drawing.Point(0, 0);
@@ -233,6 +240,7 @@
             // 
             // panel1
             // 
+            this.panel1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.panel1.BackColor = System.Drawing.Color.Transparent;
             this.panel1.Controls.Add(this.connectingLabel);
             this.panel1.Controls.Add(this.connectingPictureBox);
@@ -263,6 +271,7 @@
             // 
             // configurationsLabel
             // 
+            this.configurationsLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.configurationsLabel.BackColor = System.Drawing.Color.Transparent;
             this.configurationsLabel.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.configurationsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
@@ -277,6 +286,7 @@
             // 
             // settingsPanel
             // 
+            this.settingsPanel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.settingsPanel.BackColor = System.Drawing.Color.Transparent;
             this.settingsPanel.Controls.Add(this.configurationsLabel);
             this.settingsPanel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
@@ -289,6 +299,7 @@
             // 
             // fileStatusLabel
             // 
+            this.fileStatusLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.fileStatusLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.fileStatusLabel.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.fileStatusLabel.Location = new System.Drawing.Point(3, 434);

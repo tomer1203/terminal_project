@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Threading;
 using System.IO.Ports;
+using System.Text.RegularExpressions;
 
 namespace TerminalProject.Source_files
 {
@@ -97,7 +98,10 @@ namespace TerminalProject.Source_files
             // Read content of buffer
             String inData = this.ReadExisting();
             inData = inData.TrimStart('\0');
+           
             myBuffer += inData;
+            Regex rgx = new Regex(".*[$]");
+            myBuffer = rgx.Replace(myBuffer, "$");
             // search for | |
             int cnt = inData.Count(f => f == '|');
             pollCnt += cnt;

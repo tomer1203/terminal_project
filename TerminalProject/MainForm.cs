@@ -119,11 +119,17 @@ namespace TerminalProject
 
                 // File recieved ok 
                 case CustomSerialPort.Type.FILE_END:
-                    if(int.Parse(val) == 0)
+                    if(int.Parse(val) == CustomSerialPort.STATUS.OK)
                         updateFileTransferUI("File Sent Successfully");
                     else
                         updateFileTransferUI("File didnot Sent Successfully");
                     break;
+
+                default:
+                    updateFileTransferUI("Unreccognized type");
+                    break;
+
+
 
 
 
@@ -148,6 +154,9 @@ namespace TerminalProject
 
                 case CustomSerialPort.STATUS.OK:
                     updateChatUI(CustomSerialPort.STATUS.ToString(status), "", status);
+                    break;
+                default:
+                    int a = 0;
                     break;
 
                     

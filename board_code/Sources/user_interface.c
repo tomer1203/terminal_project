@@ -48,9 +48,9 @@ void initialize_ui(){
 	menu_size   = MAIN_MENU_SIZE;
 }
 void print_ui(){
-	if (state == DISPLAY_FILE_E) {
+	if (state == DISPLAY_FILE_E) {    // view contents of a file
 		Print_two_lines(last_read_line, current_read_line);
-	} else if (state == READ_FILE_E) {
+	} else if (state == READ_FILE_E) {// view file list
 		if (line_select == file_system.first_file-1) {
 			Print_two_lines(back, current_file_desc->name);
 		}
@@ -180,7 +180,7 @@ StateModes enter(){
 		break;
 	case(READ_FILE_E):
 		menu_select = 4;
-		menu_size = file_system.number_of_files+1;
+		menu_size = file_system.number_of_files+1;// +1 is for back
 		break;
 	case(CONFIGURATION_E):
 		menu_select=3;
@@ -195,7 +195,8 @@ StateModes enter(){
 	return next_state;
 	
 } // END enter
-
+void chat_action(){
+}
 
 int get_next_line(int line){
 	if (line+1 >= menu_size){

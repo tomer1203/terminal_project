@@ -68,6 +68,7 @@ void UART0_IRQHandler(){
 	char length[4];
 	char baudRate[6];
 	int function_return_value;
+	char text[2];
 	if(UART0_S1 & UART_S1_RDRF_MASK){ // RX buffer is full and ready for reading
 		Char = UART0_D;
 		
@@ -100,10 +101,19 @@ void UART0_IRQHandler(){
 					if (function_return_value == 1) {
 						state = WRITING_FILE;
 					}
+					if (function_return_value<0){
+						sprintf(text,"%d",function_return_value);
+						send2pc("Fe", "001", abs(function_return_value));
+					}
 			} else if (state == WRITING_FILE) {
 				function_return_value = write_file_chunck(string_buffer, string_index-10);
 				if (function_return_value == 1) {
 					send2pc("Fe", "001", STATUS_OK);
+					state = IDLE_E;
+				}
+				if (function_return_value<0){
+					sprintf(text,"%d",function_return_value);
+					send2pc("Fe", "001", abs(function_return_value));
 				}
 			} else {
 				// ACTIONS //

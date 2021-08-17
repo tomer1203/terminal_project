@@ -67,6 +67,7 @@ int              read_line(); // reads up to 16 chars or EOF
 int              write_file_init_message(char* message);
 int				 write_file_chunck(char* write_data, int size);
 int              remove_last_file();
+int              file_index_plusplus_with_menu(int file_index);
 int              file_index_plusplus(int file_index);
 int              file_index_minusminus(int file_index);
 

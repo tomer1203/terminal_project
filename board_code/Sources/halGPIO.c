@@ -96,7 +96,7 @@ void UART0_IRQHandler(){
 				send2pc("St", "001", STATUS_OK);
 			}
 			if (state == WRITING_FILE_INIT_E) {
-				function_return_value = write_file_init_message(string_buffer);
+				function_return_value = write_file_init_message(string_buffer)
 					if (function_return_value == 1) {
 						state = WRITING_FILE;
 					}

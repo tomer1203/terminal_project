@@ -10,7 +10,7 @@
 
 #define MAIN_MENU_SIZE 3
 #define CHAT_MENU_SIZE 6
-#define FILE_MENU_SIZE 2
+#define FILE_MENU_SIZE 3
 #define CONFIGURATION_MENU_SIZE 2
 
 int menu_select;

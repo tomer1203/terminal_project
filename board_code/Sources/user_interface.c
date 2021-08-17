@@ -53,8 +53,8 @@ void print_ui(){
 		if (line_select == 0) {
 			Print_two_lines("<-Back", current_file_desc->name);
 		}
-		else if (line_select == menu_size-1) {
-			Print_two_lines(current_file_desc->name, "<-Back");
+		else if (line_select == file_system.last_file) {
+			Print_two_lines(last_file_descriptor->name, "<-Back");
 		}
 		Print_two_lines(last_file_descriptor->name,current_file_desc->name);
 	} else {
@@ -69,14 +69,12 @@ void scroll_down(){
 		copy_16chars(last_read_line, current_read_line);
 		copy_16chars(current_read_line, reading_Line);
 	} else if (state == READ_FILE_E) {
-		line_select = file_index_plusplus(line_select-1); // -1 is for back
-		line_select++;
+		line_select = file_index_plusplus_with_menu(line_select); // -1 is for back
 		last_file_descriptor = current_file_desc;
-		current_file_desc = file_info(line_select);
+		current_file_desc = file_info(line_select-1);
 	} else {
 		line_select = get_next_line(line_select);
 	}
-	
 }
 StateModes enter(){
 	StateModes next_state = IDLE_E;
@@ -110,6 +108,8 @@ StateModes enter(){
 			break;
 		case 1:
 			next_state = READ_FILE_E;
+			line_select = file_system.first_file;
+			current_file_desc = file_info(line_select);
 			switched_menu = 1;
 			break;
 		case 2:
@@ -182,7 +182,7 @@ StateModes enter(){
 		break;
 	}
 	// when switching to new menu, reset line number
-	if (switched_menu == 1){
+	if (switched_menu == 1 && state != READ_FILE_E){
 		line_select = 0;
 	}
 	

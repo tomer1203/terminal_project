@@ -205,6 +205,13 @@ int address_cyclic_add(int address,int added_value){
 	return ((int)(FILE_SYSTEM_START_ADDRESS))+(address-((int)(FILE_SYSTEM_START_ADDRESS))+added_value)%SIZE_OF_FILE_SYSTEM;
 }
 
+int file_index_plusplus_with_menu(int file_index) {
+	if (file_index == file_system.last_file+1) {
+		return file_system.first_file+1;
+	}
+	return index_cyclic_plusplus(file_index)+1;
+}
+
 int file_index_plusplus(int file_index){
 	if (file_index == file_system.last_file){
 		return file_system.first_file;

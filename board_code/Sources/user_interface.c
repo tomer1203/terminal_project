@@ -167,7 +167,14 @@ StateModes enter(){
 		next_state = READ_FILE_E;
 		switched_menu = 1;
 		break;
-		
+	case SEND_FILE_E:
+		if (line_select == 0){
+			next_state = FILE_TRANSFER_E;
+			switched_menu = 1;
+		} else {
+			send_file_action();
+		}
+		break;
 	// all other states which don't need special attention
 	default: 
 		if (line_select == 0){
@@ -181,11 +188,7 @@ StateModes enter(){
 				chat_action();
 			}
 			
-			if (state == SEND_FILE_E){
-				// TODO: SEND FILE 2 PC
-				state = IDLE_E;
-				switched_menu = 1;
-			}
+			
 		}
 	}
 	
@@ -215,6 +218,7 @@ StateModes enter(){
 	
 	// when switching to new menu, reset line number
 	if (switched_menu == 1){
+		file_select = file_system.first_file;
 		line_select = 0;
 	}
 	state = next_state;
@@ -237,13 +241,16 @@ void chat_action(){
 }
 
 void read_action(){
-	read_file_init(line_select - 1);
+	read_file_init(file_select);
 	read_line();
 	copy_16chars(last_read_line, reading_Line);
 	read_line();
 	copy_16chars(current_read_line, reading_Line);
 }
-
+void send_file_action(){
+	send_file2pc(file_select);
+	// TODO
+}
 int get_next_line(int line){
 	if (line >= menu_size-1){
 		return 0;

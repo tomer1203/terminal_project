@@ -62,6 +62,12 @@ int read_file_init(int file_num){
 	return 0;
 }
 
+void send_file2pc(int indx){
+	// to work with you have file_system.
+	// to send2pc use send2pc
+	// to get information on the file_system you have file_system
+	// to move the data pointer through the filesystem use address_cyclic_add
+}
 
 // read_line         //
 // check if we are in correct state
@@ -73,20 +79,64 @@ int read_line(){
 	char* end_line_address;
 	char* end_of_file_address;
 	char* read_line_start;
+	char* read_address;
+	char* imaginary_end_file_address;
 	if (file_system.state != READ_FILE_FS){
 		return NULL;
 	}
-
+	//
+	//---- start of fs
+	//200-B
+	//-- end of file
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//-- readpointer
+	//---- end of fs
+	
+	
+	//---- start of fs
+	//
+	//
+	//-readpointer
+	//- end of file
+	//
+	//
+	//
+	//
+	//-start file
+	//
+	//---- end of fs
+	//
+	//-- Imaginary end file
+	//
+	//
+	//
 	// decide how much you can read
 	end_line_address    = address_cyclic_add(file_system.read_pointer,16);
 	end_of_file_address = address_cyclic_add(file_system.file_list[file_system.read_file].start_pointer,file_system.file_list[file_system.read_file].size);
 	read_line_start = file_system.read_pointer;
-	if (end_line_address > end_of_file_address){
-		read_amount = end_of_file_address - file_system.read_pointer;
+	
+	// calculate where the file would have ended if the file system wasn't cyclic
+	if (end_of_file_address < file_system.read_pointer){
+		imaginary_end_file_address = end_of_file_address+SIZE_OF_FILE_SYSTEM; 
+	} else {
+		imaginary_end_file_address = end_of_file_address;
+	}
+	
+	// if you are less than 16 bytes from the end of the file
+	if (end_line_address > imaginary_end_file_address){
+		read_amount = imaginary_end_file_address - file_system.read_pointer;
+		
 		//** TODO READ 16 BYTES FROM DMA TODO **//
 		//reading_Line = value here;
 		for (i = 0;i < read_amount;i++) {
-			reading_Line[i] = file_system.read_pointer[i];
+			read_address = address_cyclic_add(file_system.read_pointer,i);
+			reading_Line[i] = *read_address;
 		}
 		file_system.read_pointer = file_system.file_list[file_system.read_file].start_pointer;
 		
@@ -95,7 +145,8 @@ int read_line(){
 		//** TODO READ 16 BYTES FROM DMA TODO **//
 		//reading_Line = value here;
 		for (i = 0;i < read_amount;i++) {
-			reading_Line[i] = file_system.read_pointer[i];
+			read_address = address_cyclic_add(file_system.read_pointer,i);
+			reading_Line[i] = *read_address;
 		}
 		file_system.read_pointer += 16;
 	}
@@ -194,6 +245,7 @@ int write_file_init_message(char* message){
 int write_file_chunck(char* write_data, int size){
 	int i = 0;
 	char data[MAX_STRING]={0};
+	char* write_address;
 	strcpy(data,strip_command(write_data));
 	if (file_system.state != WRITE_DATA_FS){
 		return -1; // entered in wrong state
@@ -205,7 +257,8 @@ int write_file_chunck(char* write_data, int size){
 	file_system.size_remaining -= size;
 	//** TODO SEND TO DMA TODO **//
 	for (i = 0;i < size;i++) {
-		file_system.write_pointer[i] = data [i];
+		write_address = address_cyclic_add(file_system.write_pointer,i);
+		*write_address = data[i];
 	}
 	file_system.write_pointer = file_system.write_pointer+size;
 	
@@ -231,11 +284,6 @@ char* address_cyclic_add(char* address,int added_value){
 	Temp = Temp+(int)FILE_SYSTEM_START_ADDRESS;
 	
 	return (char*)Temp;
-//	return FILE_SYSTEM_START_ADDRESS + 
-//			(address-(FILE_SYSTEM_START_ADDRESS)+added_value) % SIZE_OF_FILE_SYSTEM;
-//	 char* add = (FILE_SYSTEM_START_ADDRESS + (address-(FILE_SYSTEM_START_ADDRESS)+added_value));
-//	 return (char*)(((uintptr_t)(add)) % SIZE_OF_FILE_SYSTEM); 
-	
 	
 }
 

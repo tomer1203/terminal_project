@@ -47,7 +47,7 @@ typedef struct File_System{
 	int             size_remaining; // when larger than 0 there is a write in operation
 
 	
-	// read(send to pc)
+	// send to pc
 	int   send_file;
 	char* send_pointer; 
 	

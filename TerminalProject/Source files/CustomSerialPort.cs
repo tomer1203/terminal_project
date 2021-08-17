@@ -36,7 +36,8 @@ namespace TerminalProject.Source_files
         // STATUS TYPE
         public static class STATUS
         {
-            public static readonly string[] toString = {"OK", "CHECKSUM_ERROR", "RECIEVING", "BUFFER_ERROR", "PORT_ERROR" };
+            private static readonly string[] STATUS_NAMES = {"OK", "CHECKSUM_ERROR", "RECIEVING", "BUFFER_ERROR", "PORT_ERROR" };
+            public static string ToString(int status) { return STATUS_NAMES[status]; }
             public const int OK = 0; 
             public const int CHECKSUM_ERROR = 1;
             public const int RECIEVING = 2;

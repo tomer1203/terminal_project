@@ -139,15 +139,15 @@ namespace TerminalProject
             switch (status)
             {
                 case CustomSerialPort.STATUS.RECIEVING:
-                    updateChatUI(CustomSerialPort.STATUS.toString[status], "Fetching Data...", status);
+                    updateChatUI(CustomSerialPort.STATUS.ToString(status), "Fetching Data...", status);
                     break;
 
                 case CustomSerialPort.STATUS.BUFFER_ERROR:
-                    updateChatUI(CustomSerialPort.STATUS.toString[status], "Buffer Error. Send Again", status);
+                    updateChatUI(CustomSerialPort.STATUS.ToString(status), "Buffer Error. Send Again", status);
                     break;
 
                 case CustomSerialPort.STATUS.OK:
-                    updateChatUI(CustomSerialPort.STATUS.toString[status], "", status);
+                    updateChatUI(CustomSerialPort.STATUS.ToString(status), "", status);
                     break;
 
                     
@@ -214,7 +214,7 @@ namespace TerminalProject
 
                 default:
                     brush = Brushes.Orange;
-                    this.connectingLabel.Text = "Unrecognized Status: " + status;
+                    this.connectingLabel.Text = "Unrecognized Status: " + CustomSerialPort.STATUS.ToString(status);
                     break;
 
             }

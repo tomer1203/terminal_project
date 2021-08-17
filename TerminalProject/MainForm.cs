@@ -51,15 +51,17 @@ namespace TerminalProject
             }
             catch (Exception) { setConnectingLabel(CustomSerialPort.STATUS.PORT_ERROR); }
 
-            EventHub.saveConfigurationsHandler += onConfighrationsChanged;
+            EventHub.saveConfigurationsHandler += onSerialConfigurationsChanged;
 
             // List View Initialization
             initializeFilesListView();
 
         } // END MainForm
 
+        private void Form1_Load(object sender, EventArgs e) { }
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ////            Methods
+        ////           Main Methods
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /*
@@ -103,7 +105,7 @@ namespace TerminalProject
             // Check opc
             switch (opc)
             {
-                // get Baudrate
+                // not in use
                 case CustomSerialPort.Type.BAUDRATE:
                     break;
 
@@ -125,12 +127,31 @@ namespace TerminalProject
                         updateFileTransferUI("File didnot Sent Successfully");
                     break;
 
-                default:
-                    updateFileTransferUI("Unreccognized type");
+                // Recieving file
+                case CustomSerialPort.Type.FILE_START:
+                    updateFileTransferUI("Recieving file...");
+                    break;
+
+                // Recieving file's Name
+                case CustomSerialPort.Type.FILE_NAME:
+                    updateFileTransferUI("Recieving file name: " + val);
+                    break;
+
+                // Recieving file's Size
+                case CustomSerialPort.Type.FILE_SIZE:
+                    updateFileTransferUI("Receiving file size: " + val);
+                    break;
+
+                // Recieving file's Data
+                case CustomSerialPort.Type.FILE_DATA:
+                   // TODO: something
                     break;
 
 
-
+                // Unknown
+                default:
+                    updateFileTransferUI("Unreccognized type");
+                    break;
 
 
             }
@@ -156,51 +177,10 @@ namespace TerminalProject
                     updateChatUI(CustomSerialPort.STATUS.ToString(status), "", status);
                     break;
                 default:
-                    int a = 0;
+                    // TODO: maybe UI change
                     break;
-
-                    
             }
 
-        }
-
-        /*
-         * Update Chat UI labels
-         */ 
-        private void updateChatUI(string statusLabelString, string dataRecievedLabelString, int setConnectionLabelWithStatus)
-        {
-            this.Invoke((MethodInvoker)delegate
-            {
-                // update Status Label
-                if (!statusLabel.Equals(""))
-                { 
-                    statusLabel.Text = statusLabelString;
-                    Console.Write(statusLabelString);
-                }
-
-                // update Data Recieved Label 
-                if(!dataRecievedLabelString.Equals(""))
-                    dataRecieveLabel.Text = dataRecievedLabelString;
-
-                // update Connecting Label
-                if (setConnectionLabelWithStatus != -1)
-                    setConnectingLabel(setConnectionLabelWithStatus);
-
-            });
-        }
-
-        private void updateFileTransferUI(string fileStatusLabelString )
-        {
-            this.Invoke((MethodInvoker)delegate
-            {
-                // update Status Label
-                if (!fileStatusLabelString.Equals(""))
-                {
-                    fileStatusLabel.Text = fileStatusLabelString;
-                    Console.Write(fileStatusLabelString);
-                }
-
-            });
         }
 
         /*
@@ -243,9 +223,95 @@ namespace TerminalProject
 
         }
 
+        /*
+         * Set Configuretions
+         */
+        private void configurationButton_click(object sender, EventArgs e)
+        {
+            // start configuration window
+            if ((Application.OpenForms["ConfigurationsForm"] as ConfigurationsForm) != null)
+            {
+                //Form is already open
+                Application.OpenForms["ConfigurationsForm"].Close();
+            }
+
+            ConfigurationsForm configurationsForm = new ConfigurationsForm(ref serialPort);
+            configurationsForm.MinimizeBox = false;
+            configurationsForm.MaximizeBox = false;
+            configurationsForm.Show();
+        }
 
         /*
-         * On Send Button Click 
+        * Listen to EnterKey to send data
+        */
+        private void mainForm_KeyDown(Object sender, KeyEventArgs keyEvent)
+        {
+            if (keyEvent.KeyCode == Keys.Enter)
+            {
+                if (tabControl1.SelectedTab == tabControl1.TabPages["tabPage1"])
+                    sendMessageButton_Click(sender, new EventArgs());
+                else if (tabControl1.SelectedTab == tabControl1.TabPages["tabPage2"])
+                    sendFileButton_Click(sender, new EventArgs());
+            }
+        }
+
+        /*
+        * Serial Button Mouse Hover
+        */
+        private void settingsPanel_MouseHover(Object sender, EventArgs e)
+        {
+            this.settingsPanel.BackColor = Color.LightSeaGreen;
+        }
+
+        /*
+         * Serial Button Mouse Leave
+         */
+        private void settingsPanel_MouseLeave(Object sender, EventArgs e)
+        {
+            this.settingsPanel.BackColor = Color.Transparent;
+        }
+
+       /*
+        * Serial Confighrations Change Listener
+        */
+        private void onSerialConfigurationsChanged(object sender, EventArgs e)
+        {
+            setConnectingLabel(CustomSerialPort.STATUS.OK);
+        }
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //                Chat Tab
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+        /*
+         * Update Chat UI labels
+         */
+        private void updateChatUI(string statusLabelString, string dataRecievedLabelString, int setConnectionLabelWithStatus)
+        {
+            this.Invoke((MethodInvoker)delegate
+            {
+                // update Status Label
+                if (!statusLabel.Equals(""))
+                { 
+                    statusLabel.Text = statusLabelString;
+                    Console.Write(statusLabelString);
+                }
+
+                // update Data Recieved Label 
+                if(!dataRecievedLabelString.Equals(""))
+                    dataRecieveLabel.Text = dataRecievedLabelString;
+
+                // update Connecting Label
+                if (setConnectionLabelWithStatus != -1)
+                    setConnectingLabel(setConnectionLabelWithStatus);
+
+            });
+        }
+
+
+        /*
+         * On Send Message Button Click 
          */
         private void sendMessageButton_Click(object sender, EventArgs e)
         {
@@ -266,66 +332,6 @@ namespace TerminalProject
 
 
         /*
-         * Set Configuretions
-         */
-        private void configurationButton_click(object sender, EventArgs e)
-        {
-            // start configuration window
-            if ((Application.OpenForms["ConfigurationsForm"] as ConfigurationsForm) != null)
-            {
-                //Form is already open
-                Application.OpenForms["ConfigurationsForm"].Close();
-            }
-
-            ConfigurationsForm configurationsForm = new ConfigurationsForm(ref serialPort);
-            configurationsForm.MinimizeBox = false;
-            configurationsForm.MaximizeBox = false;
-            configurationsForm.Show();
-        }
-
-        /*
-         * Listen to EnterKey to send data
-         */
-        private void mainForm_KeyDown(Object sender, KeyEventArgs keyEvent)
-        {
-            if (keyEvent.KeyCode == Keys.Enter)
-            {
-                if (tabControl1.SelectedTab == tabControl1.TabPages["tabPage1"])
-                    sendMessageButton_Click(sender, new EventArgs());
-                else if (tabControl1.SelectedTab == tabControl1.TabPages["tabPage2"])
-                    sendFileButton_Click(sender, new EventArgs());
-            }
-        }
-
-        /*
-         * Settings Button Mouse Hover
-         */
-        private void settingsPanel_MouseHover(Object sender, EventArgs e)
-        {
-            this.settingsPanel.BackColor = Color.LightSeaGreen;
-        }
-
-        /*
-         * Settings Button Mouse Leave
-         */
-        private void settingsPanel_MouseLeave(Object sender, EventArgs e)
-        {
-            this.settingsPanel.BackColor = Color.Transparent;
-        }
-
-        private void Form1_Load(object sender, EventArgs e) { }
-
-
-        /*
-         * Confighrations Change Listener
-         */
-        private void onConfighrationsChanged(object sender, EventArgs e)
-        {
-            setConnectingLabel(CustomSerialPort.STATUS.OK);
-        }
-
-
-        /*
          * NFB Button click to send data using Write method
          */ 
         private void nonFormatButon_Click(object sender, EventArgs e)
@@ -333,9 +339,30 @@ namespace TerminalProject
             serialPort.Write(dataToSendTextBox.Text);
         }
 
-        /*
-         * On List View Item Click
-         */
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //          Files Tab
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+       /*
+        * Updates File Transfer UI Labels
+        */
+        private void updateFileTransferUI(string fileStatusLabelString)
+        {
+            this.Invoke((MethodInvoker)delegate
+            {
+                // update Status Label
+                if (!fileStatusLabelString.Equals(""))
+                {
+                    fileStatusLabel.Text = fileStatusLabelString;
+                    Console.Write(fileStatusLabelString);
+                }
+
+            });
+        }
+
+       /*
+        * On List View Item Click
+        */
         private void filesListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (filesListView.SelectedItems.Count >= 1)
@@ -396,9 +423,9 @@ namespace TerminalProject
 
             // Send File to MCU
             try
-            {   
+            {
+                fileStatusLabel.Text = "Sending " + Path.GetFileName(selectedFilePath);
                 serialPort.sendFile(selectedFilePath);
-                fileStatusLabel.Text = "Sending "  + Path.GetFileName(selectedFilePath);
             }
             catch (Exception) { }
         }

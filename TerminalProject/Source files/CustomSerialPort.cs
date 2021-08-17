@@ -13,9 +13,9 @@ namespace TerminalProject.Source_files
 {
     public class CustomSerialPort : SerialPort
     {
-        public static char sentChecksum;
         // Our Format
         public const string customFormat = "$[{0}]{1}|{2}|{3}";
+        public const int customFormatLength = 11; 
         public const int PACKET_SIZE = 128;
         public const int SEND_DELAY = 30;
         public const int CONFIGURE_DELAY = 30;
@@ -50,7 +50,7 @@ namespace TerminalProject.Source_files
         public string dafaultPort;
 
         public string lastMessage = "";
-
+        public static char sentChecksum;
         private string myBuffer = "";
         private int dataLen = 0;
         private int pollCnt = 0;
@@ -87,7 +87,8 @@ namespace TerminalProject.Source_files
 
             // Send
             this.Write(message);
-          
+            Thread.Sleep(SEND_DELAY);
+
         } // END sendMessage
 
         /*
@@ -100,6 +101,7 @@ namespace TerminalProject.Source_files
             inData = inData.TrimStart('\0');
            
             myBuffer += inData;
+            // clean leading trash chars
             Regex rgx = new Regex(".*[$]");
             myBuffer = rgx.Replace(myBuffer, "$");
             // search for | |
@@ -117,13 +119,13 @@ namespace TerminalProject.Source_files
                     return (Type.STATUS, STATUS.BUFFER_ERROR.ToString(), -1);
                 }
                 // Check if data len ok
-                if (dataLen == myBuffer.Length - 11)
+                if (dataLen == myBuffer.Length - customFormatLength)
                 {
                     lastMessage = myBuffer;
 
                 }
                 // Buffer Length Error
-                else if(dataLen < myBuffer.Length - 11)
+                else if(dataLen < myBuffer.Length - customFormatLength)
                 {
                     // get ready for next transaction
                     myBuffer = "";
@@ -134,7 +136,7 @@ namespace TerminalProject.Source_files
                 else { return (Type.STATUS, STATUS.RECIEVING.ToString(), -1); }
 
             } // Error receiving data
-            else if (myBuffer.Length > 11)
+            else if (myBuffer.Length > customFormatLength)
             {
                 // get ready for next transaction
                 myBuffer = "";
@@ -150,7 +152,7 @@ namespace TerminalProject.Source_files
             int checksumStatus = validateChecksum(myBuffer, recievedCheckSum) ? STATUS.OK : STATUS.CHECKSUM_ERROR;
             string val = "0";
             if (checksumStatus == STATUS.OK)
-                val = myBuffer.Substring(11);
+                val = myBuffer.Substring(customFormatLength);
 
             // get ready for next transaction
             myBuffer = "";
@@ -168,11 +170,8 @@ namespace TerminalProject.Source_files
             FileInfo file = new FileInfo(filePath);
             // File descriptors
             sendMessage(Type.FILE_START, "");
-            Thread.Sleep(SEND_DELAY);
             sendMessage(Type.FILE_NAME, file.Name);
-            Thread.Sleep(SEND_DELAY);
             sendMessage(Type.FILE_SIZE, file.Length.ToString());
-            Thread.Sleep(SEND_DELAY);
 
             string text = File.ReadAllText(filePath);
             int packetNum = text.Length / PACKET_SIZE;
@@ -189,7 +188,6 @@ namespace TerminalProject.Source_files
                     return;
                 }
                 sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, PACKET_SIZE ));
-                Thread.Sleep(SEND_DELAY);
             }
 
 

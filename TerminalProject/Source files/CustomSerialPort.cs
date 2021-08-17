@@ -16,6 +16,8 @@ namespace TerminalProject.Source_files
         // Our Format
         public const string customFormat = "$[{0}]{1}|{2}|{3}";
         public const int PACKET_SIZE = 512;
+        public const int SEND_DELAY = 30;
+        public const int CONFIGURE_DELAY = 30;
         // Message types
         public static class Type {
             // Messages
@@ -161,11 +163,11 @@ namespace TerminalProject.Source_files
             FileInfo file = new FileInfo(filePath);
             // File descriptors
             sendMessage(Type.FILE_START, "");
-            Thread.Sleep(50);
+            Thread.Sleep(SEND_DELAY);
             sendMessage(Type.FILE_NAME, file.Name);
-            Thread.Sleep(50);
+            Thread.Sleep(SEND_DELAY);
             sendMessage(Type.FILE_SIZE, file.Length.ToString());
-            Thread.Sleep(50);
+            Thread.Sleep(SEND_DELAY);
 
             string text = File.ReadAllText(filePath);
             int packetNum = text.Length / PACKET_SIZE;
@@ -182,7 +184,7 @@ namespace TerminalProject.Source_files
                     return;
                 }
                 sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, PACKET_SIZE ));
-                Thread.Sleep(50);
+                Thread.Sleep(SEND_DELAY);
             }
 
 

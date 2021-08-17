@@ -35,7 +35,7 @@ namespace TerminalProject
             this.MinimumSize = this.Size;
             this.MaximumSize = this.Size;
 
-            //tabControl1.Height = this.Height- 150;
+            tabControl1.Width = this.Width;
 
             this.dataRecieveLabel.Parent = this.dataRecievePanel;
             this.dataRecieveLabel.Text = "";

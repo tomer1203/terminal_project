@@ -91,7 +91,7 @@ namespace TerminalProject
                 if (mSerialPort.IsOpen){
                     mSerialPort.Close();
                     // Delay is needed befor opening the port again
-                    Thread.Sleep(50);
+                    Thread.Sleep(CustomSerialPort.CONFIGURE_DELAY);
                 }
                 mSerialPort.PortName = port;
                 try
@@ -100,7 +100,7 @@ namespace TerminalProject
                     mSerialPort.sendMessage(CustomSerialPort.Type.BAUDRATE, baudrate.ToString());
                     mSerialPort.Close();
                     // Delay is needed befor opening the port again
-                    Thread.Sleep(50);
+                    Thread.Sleep(CustomSerialPort.CONFIGURE_DELAY);
                 }
                 catch (Exception) { }
                 mSerialPort.clearMyBuffer();

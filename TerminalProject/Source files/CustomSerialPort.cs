@@ -17,7 +17,7 @@ namespace TerminalProject.Source_files
         public const string customFormat = "$[{0}]{1}|{2}|{3}";
         public const int customFormatLength = 11; 
         public const int PACKET_SIZE = 128;
-        public const int SEND_DELAY = 30;
+        public const int SEND_DELAY = 50;
         public const int CONFIGURE_DELAY = 30;
         // Message types
         public static class Type {

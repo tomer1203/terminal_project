@@ -86,7 +86,7 @@ namespace TerminalProject
             
             if (status_ok) // user chose both baudrate and port
             {
-                string data = "";
+               
                 // close opened serial port
                 if (mSerialPort.IsOpen){
                     mSerialPort.Close();

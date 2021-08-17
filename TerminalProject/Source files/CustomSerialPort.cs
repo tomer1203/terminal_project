@@ -164,6 +164,7 @@ namespace TerminalProject.Source_files
             int leftovers = text.Length % PACKET_SIZE;
             packetNum += leftovers > 0 ? 1 : 0;
 
+            // Send Packets of File Data
             for(int i = 0 ; i < packetNum ; i ++)
             {
                 if(i == packetNum - 1)
@@ -214,7 +215,9 @@ namespace TerminalProject.Source_files
             return checksum == 0;
         }
 
-       
+       /*
+        * Clears MyBuffer
+        */ 
         public void clearMyBuffer()
         {
             this.myBuffer = "";

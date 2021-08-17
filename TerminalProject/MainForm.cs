@@ -37,6 +37,7 @@ namespace TerminalProject
             this.dataRecieveLabel.Parent = this.dataRecievePanel;
             this.dataRecieveLabel.Text = "";
 
+            // Serial Port
             serialPort = new CustomSerialPort();
             serialPort.DataReceived += new SerialDataReceivedEventHandler(DataRecievedHandler);
 
@@ -45,10 +46,11 @@ namespace TerminalProject
                 serialPort.Open();
                 setConnectingLabel(CustomSerialPort.STATUS_OK);
             }
-            catch (Exception) { setConnectingLabel(CustomSerialPort.STATUS_CHECKSUM_ERROR); }
+            catch (Exception) { setConnectingLabel(CustomSerialPort.STATUS_PORT_ERROR); }
 
             EventHub.saveConfigurationsHandler += onConfighrationsChanged;
 
+            // List View Initialization
             initializeFilesListView();
 
         } // END MainForm
@@ -63,7 +65,7 @@ namespace TerminalProject
         private void DataRecievedHandler(Object sender, SerialDataReceivedEventArgs e)
         {
             CustomSerialPort sp = (CustomSerialPort)sender;
-            try
+            try 
             {
                 inData = sp.readMessage();
 
@@ -71,7 +73,7 @@ namespace TerminalProject
             catch (Exception exception)
             {
                 serialPort.Close();
-                updateUI("", exception.ToString(), CustomSerialPort.STATUS_CHECKSUM_ERROR);
+                updateChatUI("", exception.ToString(), CustomSerialPort.STATUS_PORT_ERROR);
                 
             }
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
@@ -91,53 +93,72 @@ namespace TerminalProject
             // Checksum check
             if (checksumStatus == CustomSerialPort.STATUS_CHECKSUM_ERROR)
             {
-                updateUI("STATUS_CHECKSUM_ERROR", serialPort.lastMessage, -1);
+                updateChatUI("STATUS_CHECKSUM_ERROR", serialPort.lastMessage, -1);
                 return;
             }
 
-
+            // Check opc
             switch (opc)
             {
                 // get Baudrate
                 case CustomSerialPort.Type.BAUDRATE:
                     break;
 
+                // Text Message Recieved
                 case CustomSerialPort.Type.TEXT:
-                    updateUI( "TEXT_RECIEVED", val, -1);    
+                    updateChatUI( "TEXT_RECIEVED", val, -1);    
                     break;
 
-                // get MCU Serial Port Status
+                // Get MCU Serial Port Status
                 case CustomSerialPort.Type.STATUS:
-                    if (int.Parse(val) == CustomSerialPort.STATUS_RECIEVING)
-                    {
-                        updateUI("STATUS_RECIEVING", "Fetching Data...", -1);
-                        break;
-                    }
-                    else if (int.Parse(val) == CustomSerialPort.STATUS_BUFFER_ERROR)
-                    {
-                        updateUI("STATUS_BUFFER_ERROR", "Buffer Error. Send Again", -1);
-                        break;
-                    }
-                    else if (int.Parse(val) == CustomSerialPort.STATUS_OK)
-                    {
-                        updateUI("STATUS_OK", "", -1);
-                    }
-                    
-                    updateUI("", "", int.Parse(val));
+                    handleStatusMessage(int.Parse(val));
                     break;
+
+                // File recieved ok 
+                case CustomSerialPort.Type.FILE_END:
+                    updateFileTransferUI("File Sent Successfully");
+                    break;
+
+
+
             }
        
         } // END handleMessage
 
         /*
-         * Update UI labels
+         * Handle Status Type Message
          */ 
-        private void updateUI(string statusLabelString, string dataRecievedLabelString, int setConnectionLabelWithStatus)
+        private void handleStatusMessage(int status)
+        {
+            switch (status)
+            {
+                case CustomSerialPort.STATUS_RECIEVING:
+                    updateChatUI("STATUS_RECIEVING", "Fetching Data...", status);
+                    break;
+
+                case CustomSerialPort.STATUS_BUFFER_ERROR:
+                    updateChatUI("STATUS_BUFFER_ERROR", "Buffer Error. Send Again", status);
+                    break;
+
+                case CustomSerialPort.STATUS_OK:
+                    updateChatUI("STATUS_OK", "", status);
+                    break;
+
+                    
+            }
+
+        }
+
+        /*
+         * Update Chat UI labels
+         */ 
+        private void updateChatUI(string statusLabelString, string dataRecievedLabelString, int setConnectionLabelWithStatus)
         {
             this.Invoke((MethodInvoker)delegate
             {
+                // update Status Label
                 if (!statusLabel.Equals(""))
-                { // update Status Label
+                { 
                     statusLabel.Text = statusLabelString;
                     Console.Write(statusLabelString);
                 }
@@ -146,10 +167,60 @@ namespace TerminalProject
                 if(!dataRecievedLabelString.Equals(""))
                     dataRecieveLabel.Text = dataRecievedLabelString;
 
+                // update Connecting Label
                 if (setConnectionLabelWithStatus != -1)
                     setConnectingLabel(setConnectionLabelWithStatus);
 
             });
+        }
+
+        private void updateFileTransferUI(string fileStatusLabelString )
+        {
+            this.Invoke((MethodInvoker)delegate
+            {
+                // update Status Label
+                if (!fileStatusLabelString.Equals(""))
+                {
+                    fileStatusLabel.Text = fileStatusLabelString;
+                    Console.Write(fileStatusLabelString);
+                }
+
+            });
+        }
+
+        /*
+        * Dispaly connectingt label
+        */
+        private void setConnectingLabel(int status)
+        {
+            Brush brush = Brushes.Red;
+            switch (status)
+            {
+                case CustomSerialPort.STATUS_OK:
+                    brush = Brushes.Green;
+                    this.connectingLabel.Text = "Connected to " + serialPort.PortName + " with Baudrate " + serialPort.BaudRate + " BPS";
+                    break;
+
+                case CustomSerialPort.STATUS_PORT_ERROR:
+                    brush = Brushes.Red;
+                    this.connectingLabel.Text = "Configure Serial Port";
+                    break;
+
+            }
+            int nSize = 8;
+            int x = (panel1.Size.Width - connectingLabel.Size.Width) / 2;
+            int y = (panel1.Size.Height - connectingLabel.Size.Height) / 2; ;
+            connectingLabel.Location = new Point(x, y);
+            connectingPictureBox.Location = new Point(connectingLabel.Location.X - 13, connectingLabel.Location.Y + 3);
+            Bitmap bm = new Bitmap(connectingPictureBox.Width, connectingPictureBox.Height);
+            using (Graphics gr = Graphics.FromImage(bm))
+            {
+                gr.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                gr.FillEllipse(brush, Convert.ToInt32((connectingPictureBox.Width - nSize) / 2), Convert.ToInt32((connectingPictureBox.Height - nSize) / 2), nSize, nSize);
+            }
+
+            connectingPictureBox.Image = bm;
+
         }
 
 
@@ -233,40 +304,6 @@ namespace TerminalProject
             setConnectingLabel(CustomSerialPort.STATUS_OK);
         }
 
-        /*
-         * Dispaly connectingt label
-         */
-        private void setConnectingLabel(int status)
-        {
-            Brush brush = Brushes.Red;
-            switch (status)
-            {
-                case CustomSerialPort.STATUS_OK:
-                    brush = Brushes.Green;
-                    this.connectingLabel.Text = "Connected to " + serialPort.PortName + " with Baudrate " + serialPort.BaudRate + " BPS";
-                    break;
-
-                case CustomSerialPort.STATUS_CHECKSUM_ERROR:
-                    brush = Brushes.Red;
-                    this.connectingLabel.Text = "Configure Serial Port";
-                    break;
-
-            }
-            int nSize = 8;
-            int x = (panel1.Size.Width - connectingLabel.Size.Width) / 2;
-            int y = (panel1.Size.Height - connectingLabel.Size.Height) / 2; ;
-            connectingLabel.Location = new Point(x, y);
-            connectingPictureBox.Location = new Point(connectingLabel.Location.X - 13, connectingLabel.Location.Y + 3);
-            Bitmap bm = new Bitmap(connectingPictureBox.Width, connectingPictureBox.Height);
-            using (Graphics gr = Graphics.FromImage(bm))
-            {
-                gr.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                gr.FillEllipse(brush, Convert.ToInt32((connectingPictureBox.Width - nSize) / 2), Convert.ToInt32((connectingPictureBox.Height - nSize) / 2), nSize, nSize);
-            }
-
-            connectingPictureBox.Image = bm;
-
-        }
 
         /*
          * NFB Button click to send data using Write method

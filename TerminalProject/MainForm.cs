@@ -10,6 +10,7 @@ using System.Windows.Forms;
 
 using TerminalProject.Source_files;
 using System.IO.Ports;
+using System.IO;
 using System.Threading;
 
 namespace TerminalProject
@@ -17,12 +18,16 @@ namespace TerminalProject
     public partial class MainForm : Form
     {
 
-        static CustomSerialPort serialPort;
+        private static CustomSerialPort serialPort;
         private ValueTuple<string, string, int> inData = new ValueTuple<string, string, int>();
+
+        // For Files
+        private string filesToSendPath = "C:/Users/טל/Desktop/Terminal Project Files/Files to send";
+        private string selectedFilePath = "";
 
         /*
          * Construstor
-         */ 
+         */
         public MainForm()
         {
             InitializeComponent();
@@ -43,19 +48,7 @@ namespace TerminalProject
 
             EventHub.saveConfigurationsHandler += onConfighrationsChanged;
 
-            string row = "File1.txt";
-            var listViewItem = new ListViewItem(row);
-            string row2 = "File2.txt";
-            var listViewItem2 = new ListViewItem(row2);
-
-            //Controls.Add(filesListView);
-            filesListView.View = View.List;
-            filesListView.GridLines = true;
-            filesListView.FullRowSelect = true;
-            filesListView.Columns.Add("File Name");
-            filesListView.Items.Add(listViewItem);
-            filesListView.Items.Add(listViewItem2);
-            
+            initializeFilesListView();
 
         } // END MainForm
 
@@ -65,31 +58,26 @@ namespace TerminalProject
 
         /*
          * Listens to UART interrupts
-         */ 
+         */
         private void DataRecievedHandler(Object sender, SerialDataReceivedEventArgs e)
         {
             CustomSerialPort sp = (CustomSerialPort)sender;
-            try {
-                 inData = sp.readMessage();
-                
-            }catch (Exception exception)
+            try
+            {
+                inData = sp.readMessage();
+
+            }
+            catch (Exception exception)
             {
                 serialPort.Close();
-                this.Invoke((MethodInvoker)delegate {
-                    setConnectingLabel(CustomSerialPort.STATUS_CHECKSUM_ERROR);
-                });
-                // update UI
-                dataRecieveLabel.Invoke((MethodInvoker)delegate
-                {
-                    dataRecieveLabel.Text = exception.ToString();
-                });
-               
+                updateUI("", exception.ToString(), CustomSerialPort.STATUS_CHECKSUM_ERROR);
+                
             }
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
             handleMessage(inData.Item1, inData.Item2, inData.Item3);
 
         }
-        
+
 
         /// <summary>
         /// Handle Message
@@ -99,96 +87,83 @@ namespace TerminalProject
         /// <param name="checksumStatus">check sum</param>
         private void handleMessage(string opc, string val, int checksumStatus)
         {
-
-            if(checksumStatus == CustomSerialPort.STATUS_CHECKSUM_ERROR)
+            // Checksum check
+            if (checksumStatus == CustomSerialPort.STATUS_CHECKSUM_ERROR)
             {
-                // update UI
-                dataRecieveLabel.Invoke((MethodInvoker)delegate
-                {
-                    dataRecieveLabel.Text = "STATUS_CHECKSUM_ERROR" + serialPort.lastMessage;
-                });
+                updateUI("STATUS_CHECKSUM_ERROR", serialPort.lastMessage, -1);
                 return;
             }
 
-            
+
             switch (opc)
             {
                 // get Baudrate
-                case CustomSerialPort.TYPE_BAUDRATE: 
+                case CustomSerialPort.Type.BAUDRATE:
                     break;
 
-                case CustomSerialPort.TYPE_TEXT:
-                    // update UI
-                    dataRecieveLabel.Invoke((MethodInvoker)delegate
-                    {
-                        dataRecieveLabel.Text = val;
-                    });
+                case CustomSerialPort.Type.TEXT:
+                    updateUI( "TEXT_RECIEVED", val, -1);    
                     break;
-                
+
                 // get MCU Serial Port Status
-                case CustomSerialPort.TYPE_STATUS: 
-                    if(int.Parse(val) == CustomSerialPort.STATUS_RECIEVING)
+                case CustomSerialPort.Type.STATUS:
+                    if (int.Parse(val) == CustomSerialPort.STATUS_RECIEVING)
                     {
-                        // update UI
-                        dataRecieveLabel.Invoke((MethodInvoker)delegate
-                        {
-                            dataRecieveLabel.Text = "Fetching Data...";
-                            statusLabel.Text = "STATUS_RECIEVING";
-                        });
+                        updateUI("STATUS_RECIEVING", "Fetching Data...", -1);
                         break;
-                    }else if (int.Parse(val) == CustomSerialPort.STATUS_BUFFER_ERROR)
-                    {
-                        // update UI
-                        dataRecieveLabel.Invoke((MethodInvoker)delegate
-                        {
-                            dataRecieveLabel.Text = "Buffer Error. Send Again";
-                            statusLabel.Text = "STATUS_BUFFER_ERROR";
-                        });
-                        break;
-                    }else if(int.Parse(val) == CustomSerialPort.STATUS_OK)
-                    {
-                        // update UI
-                        dataRecieveLabel.Invoke((MethodInvoker)delegate
-                        {
-                            statusLabel.Text = "STATUS_OK";
-                        });
                     }
-
-                    // update UI connecting label
-                    this.Invoke((MethodInvoker)delegate {
-                        System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("en-us");
-                        setConnectingLabel(int.Parse(val));
-
-                    });
+                    else if (int.Parse(val) == CustomSerialPort.STATUS_BUFFER_ERROR)
+                    {
+                        updateUI("STATUS_BUFFER_ERROR", "Buffer Error. Send Again", -1);
+                        break;
+                    }
+                    else if (int.Parse(val) == CustomSerialPort.STATUS_OK)
+                    {
+                        updateUI("STATUS_OK", "", -1);
+                    }
+                    
+                    updateUI("", "", int.Parse(val));
                     break;
-
-                
             }
+       
+        } // END handleMessage
 
-        } 
-
-        private void updateDataRecieveLabel(Func<int> p)
+        /*
+         * Update UI labels
+         */ 
+        private void updateUI(string statusLabelString, string dataRecievedLabelString, int setConnectionLabelWithStatus)
         {
+            this.Invoke((MethodInvoker)delegate
+            {
+                if (!statusLabel.Equals(""))
+                { // update Status Label
+                    statusLabel.Text = statusLabelString;
+                    Console.Write(statusLabelString);
+                }
 
+                // update Data Recieved Label 
+                if(!dataRecievedLabelString.Equals(""))
+                    dataRecieveLabel.Text = dataRecievedLabelString;
+
+                if (setConnectionLabelWithStatus != -1)
+                    setConnectingLabel(setConnectionLabelWithStatus);
+
+            });
         }
 
 
         /*
          * On Send Button Click 
          */
-        private void sendButton_Click(object sender, EventArgs e)
+        private void sendMessageButton_Click(object sender, EventArgs e)
         {
-            sendStringToSerialPost();
-        }
-        
-        /*
-         * Send Data to MCU 
-         */
-        private void sendStringToSerialPost()
-        {
+            if (dataToSendTextBox.Text.Equals(""))
+                return;
+
+            // Send Message to MCU
             try
-            {
-                serialPort.sendMessage(CustomSerialPort.TYPE_TEXT, dataToSendTextBox.Text);
+            {   
+                serialPort.sendMessage(CustomSerialPort.Type.TEXT, dataToSendTextBox.Text);
                 dataToSendTextBox.Text = "";
             }
             catch (Exception)
@@ -197,10 +172,11 @@ namespace TerminalProject
             }
         }
 
+
         /*
          * Set Configuretions
-         */ 
-       private void configurationButton_click(object sender, EventArgs e)
+         */
+        private void configurationButton_click(object sender, EventArgs e)
         {
             // start configuration window
             if ((Application.OpenForms["ConfigurationsForm"] as ConfigurationsForm) != null)
@@ -208,7 +184,7 @@ namespace TerminalProject
                 //Form is already open
                 Application.OpenForms["ConfigurationsForm"].Close();
             }
-           
+
             ConfigurationsForm configurationsForm = new ConfigurationsForm(ref serialPort);
             configurationsForm.MinimizeBox = false;
             configurationsForm.MaximizeBox = false;
@@ -217,18 +193,21 @@ namespace TerminalProject
 
         /*
          * Listen to EnterKey to send data
-         */ 
-        private void dataToSendTextBox_KeyDown(Object sender, KeyEventArgs keyEvent)
+         */
+        private void mainForm_KeyDown(Object sender, KeyEventArgs keyEvent)
         {
-            if(keyEvent.KeyCode == Keys.Enter)
+            if (keyEvent.KeyCode == Keys.Enter)
             {
-                sendButton_Click(sender, new EventArgs());
+                if (tabControl1.SelectedTab == tabControl1.TabPages["tabPage1"])
+                    sendMessageButton_Click(sender, new EventArgs());
+                else if (tabControl1.SelectedTab == tabControl1.TabPages["tabPage2"])
+                    sendFileButton_Click(sender, new EventArgs());
             }
         }
 
         /*
          * Settings Button Mouse Hover
-         */ 
+         */
         private void settingsPanel_MouseHover(Object sender, EventArgs e)
         {
             this.settingsPanel.BackColor = Color.LightSeaGreen;
@@ -242,7 +221,7 @@ namespace TerminalProject
             this.settingsPanel.BackColor = Color.Transparent;
         }
 
-        private void Form1_Load(object sender, EventArgs e){}
+        private void Form1_Load(object sender, EventArgs e) { }
 
 
         /*
@@ -255,7 +234,7 @@ namespace TerminalProject
 
         /*
          * Dispaly connectingt label
-         */ 
+         */
         private void setConnectingLabel(int status)
         {
             Brush brush = Brushes.Red;
@@ -283,11 +262,14 @@ namespace TerminalProject
                 gr.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                 gr.FillEllipse(brush, Convert.ToInt32((connectingPictureBox.Width - nSize) / 2), Convert.ToInt32((connectingPictureBox.Height - nSize) / 2), nSize, nSize);
             }
-           
+
             connectingPictureBox.Image = bm;
 
         }
 
+        /*
+         * NFB Button click to send data using Write method
+         */ 
         private void nonFormatButon_Click(object sender, EventArgs e)
         {
             serialPort.Write(dataToSendTextBox.Text);
@@ -295,16 +277,80 @@ namespace TerminalProject
 
         /*
          * On List View Item Click
-         */ 
+         */
         private void filesListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (filesListView.SelectedItems.Count >= 1)
             {
-                ListViewItem item = filesListView.SelectedItems[0];
+                string selectedFile = filesListView.SelectedItems[0].Text;
+                string[] fileEntries = Directory.GetFiles(filesToSendPath);
+                foreach (string filePath in fileEntries)
+                {
+                    if (Path.GetFileName(filePath).Equals(selectedFile) && Path.GetExtension(filePath) == ".txt")
+                    {
+                        selectedFilePath = filePath;
+                    }
+                }
 
-                item.Text = "Picked";
             }
         }
-    }
 
+        /*
+         * Initialize Files Text View with files 
+         */
+        private void initializeFilesListView()
+        {
+            this.filesListView.Scrollable = true;
+            // Set Column
+            this.filesListView.Columns.Add("Name", 600, HorizontalAlignment.Left);
+            this.filesListView.Columns.Add("Size", -2, HorizontalAlignment.Left);
+
+            if (Directory.Exists(filesToSendPath))
+            {
+                string currentDirectoryPath = Environment.CurrentDirectory;
+                string dataFilesPath = Path.Combine(currentDirectoryPath, );
+                // Process the list of files found in the directory.
+                ListViewItem listViewItem;
+                string[] fileEntries = Directory.GetFiles(filesToSendPath);
+                foreach (string filePath in fileEntries)
+                {
+                    FileInfo file = new FileInfo(filePath);
+                    if (file.Extension.Equals(".txt"))
+                    {
+                        string[] row = { file.Name, file.Length.ToString() + " Bytes" };
+                        listViewItem = new ListViewItem(row);
+                        filesListView.Items.Add(listViewItem);
+                    }
+                }
+            }
+           
+            filesListView.Focus();
+        }
+
+        /*
+         * Send File Button Click
+         */ 
+        private void sendFileButton_Click(object sender, EventArgs e)
+        {
+            if (selectedFilePath.Equals(""))
+                return;
+
+            // Send File to MCU
+            try
+            {   
+                serialPort.sendFile(selectedFilePath);
+                fileStatusLabel.Text = "Sending File";
+            }
+            catch (Exception) { }
+        }
+
+        /*
+         * Prevent column resize
+         */ 
+        private void filesListView_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+        {
+            e.Cancel = true;
+            e.NewWidth = filesListView.Columns[e.ColumnIndex].Width;
+        }
+    }
 }

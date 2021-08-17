@@ -123,9 +123,9 @@ void UART0_IRQHandler(){
 					main_menu[3][1][10] = baudRate[3];
 					main_menu[3][1][11] = baudRate[4];
 					Print_two_lines("Baud Rate:", strip_command(string_buffer));
-					change_Baud_config(baud_config);
-
+					
 					send2pc("Tx", "028", "changed baud rate, status ok");
+					change_Baud_config(baud_config);
 
 					// normal chat
 				}

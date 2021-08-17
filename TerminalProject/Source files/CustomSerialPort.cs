@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
+using System.IO;
 using System.IO.Ports;
 
 namespace TerminalProject.Source_files
@@ -17,9 +17,20 @@ namespace TerminalProject.Source_files
         // Our Format
         public const string customFormat = "$[{0}]{1}|{2}|{3}";
         // Message types
-        public const string TYPE_TEXT = "Tx";
-        public const string TYPE_BAUDRATE = "Br";
-        public const string TYPE_STATUS = "St"; 
+        public static class Type {
+            // Messages
+            public const string TEXT = "Tx";
+            // Baudrate
+            public const string BAUDRATE = "Br";
+            // Communication Status
+            public const string STATUS = "St";
+            // Files 
+            public const string FILE_START = "Wf";
+            public const string FILE_NAME  = "Na";
+            public const string FILE_SIZE  = "Sz";
+            public const string FILE_DATA  = "Wd";
+
+        }
 
         private const int defaultBaudrate = 9600;
         public string dafaultPort;
@@ -63,7 +74,7 @@ namespace TerminalProject.Source_files
             // Send
             this.Write(message);
           
-        }
+        } // END sendMessage
 
         /*
          * Read message from MCU
@@ -86,7 +97,7 @@ namespace TerminalProject.Source_files
                     // get ready for next transaction
                     myBuffer = "";
                     dataLen = pollCnt = 0;
-                    return (TYPE_STATUS, STATUS_BUFFER_ERROR.ToString(), -1);
+                    return (Type.STATUS, STATUS_BUFFER_ERROR.ToString(), -1);
                 }
                 // Check if data len ok
                 if (dataLen == myBuffer.Length - 11)
@@ -100,10 +111,10 @@ namespace TerminalProject.Source_files
                     // get ready for next transaction
                     myBuffer = "";
                     dataLen = pollCnt = 0;
-                    return (TYPE_STATUS, STATUS_BUFFER_ERROR.ToString(), -1);
+                    return (Type.STATUS, STATUS_BUFFER_ERROR.ToString(), -1);
                 }
                 // Still Receiving 
-                else { return (TYPE_STATUS, STATUS_RECIEVING.ToString(), -1); }
+                else { return (Type.STATUS, STATUS_RECIEVING.ToString(), -1); }
 
             } // Error receiving data
             else if (myBuffer.Length > 11)
@@ -111,9 +122,9 @@ namespace TerminalProject.Source_files
                 // get ready for next transaction
                 myBuffer = "";
                 dataLen = pollCnt = 0;
-                return (TYPE_STATUS, STATUS_BUFFER_ERROR.ToString(), -1);
+                return (Type.STATUS, STATUS_BUFFER_ERROR.ToString(), -1);
             }
-            else { return (TYPE_STATUS, STATUS_RECIEVING.ToString(), -1); }
+            else { return (Type.STATUS, STATUS_RECIEVING.ToString(), -1); }
 
 
             // Format of Data: $[--]#|___|__ while # is checksum, -- is 2 chars opc
@@ -130,7 +141,20 @@ namespace TerminalProject.Source_files
 
             return (opc, val, checksumStatus);
 
-        }
+        } // END readMessage
+
+        /*
+         * Sends a file to MCU
+         */ 
+        public void sendFile(string filePath)
+        {
+            FileInfo file = new FileInfo(filePath);
+            sendMessage(Type.FILE_START, "");
+            sendMessage(Type.FILE_NAME, file.Name);
+            sendMessage(Type.FILE_SIZE, file.Length.ToString());
+
+
+        } // END sendFile
 
         /*
          * Checksum generator

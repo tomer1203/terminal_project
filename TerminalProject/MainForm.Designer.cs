@@ -41,6 +41,7 @@
             this.dataRecievePanel = new System.Windows.Forms.Panel();
             this.dataRecieveLabel = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.sendFileButton = new System.Windows.Forms.Button();
             this.filesListView = new System.Windows.Forms.ListView();
             this.fileNamePanel = new System.Windows.Forms.Panel();
             this.fileNameLabel = new System.Windows.Forms.Label();
@@ -49,7 +50,7 @@
             this.connectingPictureBox = new System.Windows.Forms.PictureBox();
             this.configurationsLabel = new System.Windows.Forms.Label();
             this.settingsPanel = new System.Windows.Forms.Panel();
-            this.sendFileButton = new System.Windows.Forms.Button();
+            this.fileStatusLabel = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.dataRecievePanel.SuspendLayout();
@@ -71,7 +72,7 @@
             this.sendButton.TabIndex = 0;
             this.sendButton.Text = "Send";
             this.sendButton.UseVisualStyleBackColor = true;
-            this.sendButton.Click += new System.EventHandler(this.sendButton_Click);
+            this.sendButton.Click += new System.EventHandler(this.sendMessageButton_Click);
             // 
             // dataToSendTextBox
             // 
@@ -81,7 +82,6 @@
             this.dataToSendTextBox.Name = "dataToSendTextBox";
             this.dataToSendTextBox.Size = new System.Drawing.Size(703, 30);
             this.dataToSendTextBox.TabIndex = 0;
-            this.dataToSendTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dataToSendTextBox_KeyDown);
             // 
             // enterStringLabel
             // 
@@ -128,12 +128,14 @@
             // 
             // statusLabel
             // 
-            this.statusLabel.AutoSize = true;
-            this.statusLabel.Location = new System.Drawing.Point(378, 386);
+            this.statusLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.statusLabel.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.statusLabel.Location = new System.Drawing.Point(3, 434);
             this.statusLabel.Name = "statusLabel";
-            this.statusLabel.Size = new System.Drawing.Size(53, 20);
+            this.statusLabel.Size = new System.Drawing.Size(843, 20);
             this.statusLabel.TabIndex = 4;
             this.statusLabel.Text = "status";
+            this.statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // nonFormatButon
             // 
@@ -170,6 +172,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.fileStatusLabel);
             this.tabPage2.Controls.Add(this.sendFileButton);
             this.tabPage2.Controls.Add(this.filesListView);
             this.tabPage2.Controls.Add(this.fileNamePanel);
@@ -181,15 +184,32 @@
             this.tabPage2.Text = "File Transfer";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // sendFileButton
+            // 
+            this.sendFileButton.ForeColor = System.Drawing.Color.Teal;
+            this.sendFileButton.Location = new System.Drawing.Point(391, 370);
+            this.sendFileButton.Name = "sendFileButton";
+            this.sendFileButton.Size = new System.Drawing.Size(75, 27);
+            this.sendFileButton.TabIndex = 2;
+            this.sendFileButton.Text = "Send";
+            this.sendFileButton.UseVisualStyleBackColor = true;
+            this.sendFileButton.Click += new System.EventHandler(this.sendFileButton_Click);
+            // 
             // filesListView
             // 
             this.filesListView.BackColor = System.Drawing.SystemColors.MenuBar;
+            this.filesListView.FullRowSelect = true;
+            this.filesListView.GridLines = true;
             this.filesListView.HideSelection = false;
             this.filesListView.Location = new System.Drawing.Point(33, 90);
+            this.filesListView.MultiSelect = false;
             this.filesListView.Name = "filesListView";
+            this.filesListView.Scrollable = false;
             this.filesListView.Size = new System.Drawing.Size(770, 218);
             this.filesListView.TabIndex = 1;
             this.filesListView.UseCompatibleStateImageBehavior = false;
+            this.filesListView.View = System.Windows.Forms.View.Details;
+            this.filesListView.ColumnWidthChanging += new System.Windows.Forms.ColumnWidthChangingEventHandler(this.filesListView_ColumnWidthChanging);
             this.filesListView.SelectedIndexChanged += new System.EventHandler(this.filesListView_SelectedIndexChanged);
             // 
             // fileNamePanel
@@ -246,11 +266,11 @@
             this.configurationsLabel.BackColor = System.Drawing.Color.Transparent;
             this.configurationsLabel.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.configurationsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.configurationsLabel.Location = new System.Drawing.Point(3, 8);
+            this.configurationsLabel.Location = new System.Drawing.Point(11, 8);
             this.configurationsLabel.Name = "configurationsLabel";
-            this.configurationsLabel.Size = new System.Drawing.Size(94, 29);
+            this.configurationsLabel.Size = new System.Drawing.Size(63, 29);
             this.configurationsLabel.TabIndex = 3;
-            this.configurationsLabel.Text = "Settings";
+            this.configurationsLabel.Text = "Serial";
             this.configurationsLabel.Click += new System.EventHandler(this.configurationButton_click);
             this.configurationsLabel.MouseLeave += new System.EventHandler(this.settingsPanel_MouseLeave);
             this.configurationsLabel.MouseHover += new System.EventHandler(this.settingsPanel_MouseHover);
@@ -262,20 +282,21 @@
             this.settingsPanel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.settingsPanel.Location = new System.Drawing.Point(1, 6);
             this.settingsPanel.Name = "settingsPanel";
-            this.settingsPanel.Size = new System.Drawing.Size(88, 37);
+            this.settingsPanel.Size = new System.Drawing.Size(76, 37);
             this.settingsPanel.TabIndex = 2;
             this.settingsPanel.MouseLeave += new System.EventHandler(this.settingsPanel_MouseLeave);
             this.settingsPanel.MouseHover += new System.EventHandler(this.settingsPanel_MouseHover);
             // 
-            // sendFileButton
+            // fileStatusLabel
             // 
-            this.sendFileButton.ForeColor = System.Drawing.Color.Teal;
-            this.sendFileButton.Location = new System.Drawing.Point(370, 365);
-            this.sendFileButton.Name = "sendFileButton";
-            this.sendFileButton.Size = new System.Drawing.Size(75, 27);
-            this.sendFileButton.TabIndex = 2;
-            this.sendFileButton.Text = "Send";
-            this.sendFileButton.UseVisualStyleBackColor = true;
+            this.fileStatusLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.fileStatusLabel.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.fileStatusLabel.Location = new System.Drawing.Point(3, 434);
+            this.fileStatusLabel.Name = "fileStatusLabel";
+            this.fileStatusLabel.Size = new System.Drawing.Size(843, 20);
+            this.fileStatusLabel.TabIndex = 5;
+            this.fileStatusLabel.Text = "file status";
+            this.fileStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // MainForm
             // 
@@ -287,10 +308,12 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.tabControl1);
             this.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.KeyPreview = true;
             this.MinimumSize = new System.Drawing.Size(515, 400);
             this.Name = "MainForm";
             this.Text = "Terminal Project";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mainForm_KeyDown);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
@@ -331,6 +354,7 @@
         private System.Windows.Forms.Label statusLabel;
         private System.Windows.Forms.ListView filesListView;
         private System.Windows.Forms.Button sendFileButton;
+        private System.Windows.Forms.Label fileStatusLabel;
     }
 }
 

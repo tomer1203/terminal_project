@@ -85,7 +85,7 @@ void UART0_IRQHandler(){
 		}
 		
 		// if message is finished		
-		if (input_string_length<=0 && string_index >= 11){
+		if (input_string_length<=0 && string_index >= 10){
 			// CHECKSUM Check //
 			if (!validate_checksum(string_buffer, string_index + 1)) {
 				send2pc("St", "001", STATUS_CHECKSUM_ERROR);
@@ -96,7 +96,7 @@ void UART0_IRQHandler(){
 				send2pc("St", "001", STATUS_OK);
 			}
 			if (state == WRITING_FILE_INIT_E) {
-				function_return_value = write_file_init_message(string_buffer)
+				function_return_value = write_file_init_message(string_buffer);
 					if (function_return_value == 1) {
 						state = WRITING_FILE;
 					}

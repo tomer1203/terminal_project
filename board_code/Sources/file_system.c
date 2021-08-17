@@ -158,11 +158,12 @@ int write_file_init_message(char* message){
 			return -3;
 		}
 		initialize_file_desc(&file_system.temp_file_desc);
-		strcpy(&file_system.temp_file_desc.name,message);
+		strcpy(&file_system.temp_file_desc.name,strip_command(message));
 		file_system.temp_file_desc.start_pointer = 
 				file_system.file_list[file_system.last_file].start_pointer + 
 				file_system.file_list[file_system.last_file].size;
 		file_system.temp_file_desc.valid = 0;
+		file_system.state = WRITE_SIZE_FS;
 		return 0;
 	}
 }
@@ -209,7 +210,7 @@ int file_index_plusplus_with_menu(int file_index) {
 	if (file_index == file_system.last_file+1) {
 		return file_system.first_file+1;
 	}
-	return index_cyclic_plusplus(file_index)+1;
+	return index_cyclic_plusplus(file_index);
 }
 
 int file_index_plusplus(int file_index){

@@ -5,6 +5,7 @@
  *      Author: tomer
  */
 # include "TFC.h"
+const char back[16] = "<-Back";
 const char chat_lines[5][20] =  {
 		"hello\r\n",
 		"world!\r\n",
@@ -50,13 +51,14 @@ void print_ui(){
 	if (state == DISPLAY_FILE_E) {
 		Print_two_lines(last_read_line, current_read_line);
 	} else if (state == READ_FILE_E) {
-		if (line_select == 0) {
-			Print_two_lines("<-Back", current_file_desc->name);
+		if (line_select == file_system.first_file-1) {
+			Print_two_lines(back, current_file_desc->name);
 		}
-		else if (line_select == file_system.last_file) {
-			Print_two_lines(last_file_descriptor->name, "<-Back");
+		else if (line_select == file_system.last_file-1) {
+			Print_two_lines(last_file_descriptor->name, back);
 		}
-		Print_two_lines(last_file_descriptor->name,current_file_desc->name);
+		else
+			Print_two_lines(last_file_descriptor->name,current_file_desc->name);
 	} else {
 		Print_two_lines(main_menu[menu_select][line_select],
 			main_menu[menu_select][get_next_line(line_select)]);

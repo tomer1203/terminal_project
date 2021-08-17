@@ -19,6 +19,7 @@ int menu_size;
 
 char last_read_line[16];
 char current_read_line[16];
+extern const char back[16];
 
 File_descriptor *last_file_descriptor;
 File_descriptor *current_file_desc;

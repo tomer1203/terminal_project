@@ -308,7 +308,7 @@ namespace TerminalProject
             if (Directory.Exists(filesToSendPath))
             {
                 string currentDirectoryPath = Environment.CurrentDirectory;
-                string dataFilesPath = Path.Combine(currentDirectoryPath, );
+                //string dataFilesPath = Path.Combine(currentDirectoryPath, );
                 // Process the list of files found in the directory.
                 ListViewItem listViewItem;
                 string[] fileEntries = Directory.GetFiles(filesToSendPath);

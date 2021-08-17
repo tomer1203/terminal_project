@@ -31,6 +31,9 @@ char main_menu[4][6][20] = {
 	{// 3-Configuration menu
 	 "<-Back",
 	 "Brate:      "} };
+void chat_action();
+void read_action();
+
 void copy_16chars(char* to, char* from) {
 	int i = 0;
 	for (i = 0;i < 16; i++) {
@@ -48,43 +51,62 @@ void initialize_ui(){
 	menu_size   = MAIN_MENU_SIZE;
 }
 void print_ui(){
-	if (state == DISPLAY_FILE_E) {    // view contents of a file
+	switch(state){
+	
+	case DISPLAY_FILE_E:     // view contents of a file
 		Print_two_lines(last_read_line, current_read_line);
-	} else if (state == READ_FILE_E) {// view file list
-		if (line_select == file_system.first_file-1) {
+		break;
+		
+	case READ_FILE_E:// view file list
+		if (line_select == 0) {
 			Print_two_lines(back, current_file_desc->name);
 		}
-		else if (line_select == file_system.last_file-1) {
+		else if (line_select == menu_size-1) {
 			Print_two_lines(last_file_descriptor->name, back);
 		}
 		else
 			Print_two_lines(last_file_descriptor->name,current_file_desc->name);
-	} else {
+		break;
+		
+	default: 
 		Print_two_lines(main_menu[menu_select][line_select],
 			main_menu[menu_select][get_next_line(line_select)]);
+		break;
 	}
 	
 }
 void scroll_down(){
-	if (state == DISPLAY_FILE_E) {
+	switch(state){
+	
+	case DISPLAY_FILE_E: 
 		read_line();
 		copy_16chars(last_read_line, current_read_line);
 		copy_16chars(current_read_line, reading_Line);
-	} else if (state == READ_FILE_E) {
-		line_select = file_index_plusplus_with_menu(line_select); // -1 is for back
-		last_file_descriptor = current_file_desc;
-		current_file_desc = file_info(line_select-1);
-	} else {
+		break;
+		
+	case READ_FILE_E: 
+		if (line_select != menu_size-1) {
+			file_select = file_index_plusplus(file_select); // -1 is for back
+			last_file_descriptor = current_file_desc;
+			current_file_desc = file_info(file_select);
+		}
 		line_select = get_next_line(line_select);
+		break;
+		
+	default:
+		line_select = get_next_line(line_select);
+		break;
 	}
 }
 StateModes enter(){
 	StateModes next_state = IDLE_E;
-	char Length[3];
-	char Length_final[3];
+
 	int switched_menu = 0;
 	// choose next state
-	if (state == IDLE_E){
+	switch(state){
+	
+	// main menu
+	case IDLE_E:
 		switch(line_select){
 		case 0:
 			next_state = CHAT_E;
@@ -102,7 +124,10 @@ StateModes enter(){
 			next_state = IDLE_E;
 			switched_menu = 1;
 		}
-	} else if (state == FILE_TRANSFER_E) {
+		break;
+	
+	// choose file transfer option(read/send)
+	case FILE_TRANSFER_E:
 		switch (line_select) {
 		case 0:
 			next_state = IDLE_E;
@@ -110,8 +135,8 @@ StateModes enter(){
 			break;
 		case 1:
 			next_state = READ_FILE_E;
-			line_select = file_system.first_file;
-			current_file_desc = file_info(line_select);
+			file_select = file_system.first_file;
+			current_file_desc = file_info(file_select);
 			switched_menu = 1;
 			break;
 		case 2:
@@ -121,47 +146,47 @@ StateModes enter(){
 		default:
 			next_state = IDLE_E;
 			switched_menu = 1;
+			break;
 		}
-	} else {
+		break;
+	
+	// choose which file to read
+	case READ_FILE_E:
+		if (line_select == 0){
+			next_state = FILE_TRANSFER_E;
+			switched_menu = 1;
+		} else {
+			read_action();
+			next_state = DISPLAY_FILE_E;
+			switched_menu = 1;
+		}
+		break;
+	
+	// look at the pretty text
+	case DISPLAY_FILE_E:
+		next_state = READ_FILE_E;
+		switched_menu = 1;
+		break;
+		
+	// all other states which don't need special attention
+	default: 
 		if (line_select == 0){
 			next_state = IDLE_E;
+			switched_menu = 1;
 		} else {
 			next_state = state;
 			
 			// ACTIONS //
 			if (state == CHAT_E){
-				char* line = getChatLine(line_select);
-				sprintf(Length,"%d",strlen(line));
-				if (strlen(line) < 10){
-					strcpy(Length_final, "00");
-					strcat(Length_final,Length);
-				} else if (strlen(line) < 100){
-					strcpy(Length_final, "0");
-					strcat(Length_final,Length);
-				}
-				send2pc("Tx",Length_final,line);
+				chat_action();
 			}
-			if (state == READ_FILE_E) {
-				read_file_init(line_select - 1);
-				read_line();
-				copy_16chars(last_read_line, reading_Line);
-				read_line();
-				copy_16chars(current_read_line, reading_Line);
-				next_state = DISPLAY_FILE_E;
-				switched_menu = 1;
-			}
-			if (state == DISPLAY_FILE_E) {
-				next_state = READ_FILE_E;
-				switched_menu = 1;
-			}
+			
 			if (state == SEND_FILE_E){
 				// TODO: SEND FILE 2 PC
 				state = IDLE_E;
 				switched_menu = 1;
 			}
-			
 		}
-		
 	}
 	
 	// update menu selection
@@ -187,19 +212,40 @@ StateModes enter(){
 		menu_size = CONFIGURATION_MENU_SIZE;
 		break;
 	}
+	
 	// when switching to new menu, reset line number
-	if (switched_menu == 1 && state != READ_FILE_E){
+	if (switched_menu == 1){
 		line_select = 0;
 	}
-	
+	state = next_state;
 	return next_state;
 	
 } // END enter
 void chat_action(){
+	char Length[3];
+	char Length_final[3];
+	char* line = getChatLine(line_select);
+	sprintf(Length,"%d",strlen(line));
+	if (strlen(line) < 10){
+		strcpy(Length_final, "00");
+		strcat(Length_final,Length);
+	} else if (strlen(line) < 100){
+		strcpy(Length_final, "0");
+		strcat(Length_final,Length);
+	}
+	send2pc("Tx",Length_final,line);
+}
+
+void read_action(){
+	read_file_init(line_select - 1);
+	read_line();
+	copy_16chars(last_read_line, reading_Line);
+	read_line();
+	copy_16chars(current_read_line, reading_Line);
 }
 
 int get_next_line(int line){
-	if (line+1 >= menu_size){
+	if (line >= menu_size-1){
 		return 0;
 	}
 	return line+1;

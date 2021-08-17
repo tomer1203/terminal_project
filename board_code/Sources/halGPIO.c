@@ -22,7 +22,7 @@ void PORTD_IRQHandler(void){
 	}
 	if(PORTD_ISFR & PTD_6){
 		if(!(GPIOD_PDIR & PTD_6)){
-			state = enter();
+			enter();
 			BLUE_LED_TOGGLE;
 		}
 	}
@@ -96,26 +96,34 @@ void UART0_IRQHandler(){
 			else {
 				send2pc("St", "001", STATUS_OK);
 			}
-			if (state == WRITING_FILE_INIT_E) {
+			switch (state) {
+			
+			case WRITING_FILE_INIT_E:
 				function_return_value = write_file_init_message(string_buffer);
-					if (function_return_value == 1) {
-						state = WRITING_FILE;
-					}
-					if (function_return_value<0){
-						sprintf(text,"%d",function_return_value);
-						send2pc("Fe", "001", abs(function_return_value));
-					}
-			} else if (state == WRITING_FILE) {
-				function_return_value = write_file_chunck(string_buffer, string_index-10);
 				if (function_return_value == 1) {
-					send2pc("Fe", "001", STATUS_OK);
-					state = IDLE_E;
+					state = WRITING_FILE;
 				}
 				if (function_return_value<0){
 					sprintf(text,"%d",function_return_value);
 					send2pc("Fe", "001", abs(function_return_value));
 				}
-			} else {
+				break;
+				
+			case WRITING_FILE:
+				function_return_value = write_file_chunck(string_buffer, string_index-10);
+				if (function_return_value == 1) {
+					// File written successfully 
+					send2pc("Fe", "001", STATUS_OK);
+					state = IDLE_E;
+					initialize_ui();
+				}
+				if (function_return_value<0){
+					sprintf(text,"%d",function_return_value);
+					send2pc("Fe", "001", abs(function_return_value));
+				}
+				break;
+				
+			default:
 				// ACTIONS //
 				// change Baud rate
 				if (is_chat_command(string_buffer)) {
@@ -142,6 +150,7 @@ void UART0_IRQHandler(){
 				else if (is_chat_command(string_buffer)) {
 					Print(strip_command(string_buffer));
 				}
+				break;
 			}
 			
 			

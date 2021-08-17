@@ -17,6 +17,8 @@ int menu_select;
 int line_select;
 int menu_size;
 
+int file_select;
+
 char last_read_line[16];
 char current_read_line[16];
 extern const char back[16];

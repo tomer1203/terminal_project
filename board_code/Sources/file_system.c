@@ -239,12 +239,12 @@ char* address_cyclic_add(char* address,int added_value){
 	
 }
 
-int file_index_plusplus_with_menu(int file_index) {
-	if (file_index == file_system.last_file+1) {
-		return file_system.first_file+1;
-	}
-	return index_cyclic_plusplus(file_index);
-}
+//int file_index_plusplus_with_menu(int file_index) {
+//	if (file_index == file_system.last_file+1) {
+//		return file_system.first_file+1;
+//	}
+//	return index_cyclic_plusplus(file_index);
+//}
 
 int file_index_plusplus(int file_index){
 	if (file_index == file_system.last_file){

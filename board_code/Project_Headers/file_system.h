@@ -19,7 +19,7 @@
 
 // the file system's memory
 extern uint8_t  fs_memory[SIZE_OF_FILE_SYSTEM];
-extern char     reading_Line[LINE_LENGTH];
+extern char     reading_Line[LINE_LENGTH+1];
 
 // File System States
 typedef enum FS_StateModes{IDLE_FS,READ_FILE_FS,WRITE_SIZE_FS,WRITE_DATA_FS} FS_StateModes;

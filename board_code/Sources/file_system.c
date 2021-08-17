@@ -92,7 +92,10 @@ int read_line(){
 
 	//** TODO READ 16 BYTES FROM DMA TODO **//
 	//reading_Line = value here;
-
+	for (i = 0;i < read_amount;i++) {
+		reading_Line = file_system.read_pointer[i];
+	}
+	reading_Line[i] = '\0'
 
 	return read_amount;
 }
@@ -177,16 +180,19 @@ int write_file_init_message(char* message){
 // send chunk to dma for sending to memory
 // check if we finished the message and if so turn the valid into true.
 int write_file_chunck(char* write_data, int size){
+	int i = 0;
 	if (file_system.state != WRITE_DATA_FS){
 		return -1; // entered in wrong state
 	}
 	if (size > file_system.size_remaining){
 		return -2; // space allocated to file is done
 	}
-	
+
+	file_system.size_remaining -= size;
 	//** TODO SEND TO DMA TODO **//
-	
-	file_system.size_remaining-=size;
+	for (i = 0;i < size;i++) {
+		file_system.write_pointer[i] = write_data[i];
+	}
 	
 	// finished reading the file
 	if (file_system.size_remaining == 0){

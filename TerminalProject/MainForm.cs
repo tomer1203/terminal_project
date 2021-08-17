@@ -124,7 +124,7 @@ namespace TerminalProject
                     if(int.Parse(val) == CustomSerialPort.STATUS.OK)
                         updateFileTransferUI("File Sent Successfully");
                     else
-                        updateFileTransferUI("File didnot Sent Successfully");
+                        updateFileTransferUI("File did not Sent Successfully");
                     break;
 
                 // Recieving file
@@ -202,8 +202,9 @@ namespace TerminalProject
                     break;
 
                 default:
-                    brush = Brushes.Orange;
-                    this.connectingLabel.Text = "Unrecognized Status: " + CustomSerialPort.STATUS.ToString(status);
+                    brush = Brushes.Green;
+                    //brush = Brushes.Orange;
+                    //this.connectingLabel.Text = "Unrecognized Status: " + CustomSerialPort.STATUS.ToString(status);
                     break;
 
             }

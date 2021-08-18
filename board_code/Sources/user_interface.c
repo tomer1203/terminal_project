@@ -50,14 +50,22 @@ void initialize_ui(){
 	line_select = 0;
 	menu_size   = MAIN_MENU_SIZE;
 }
+
+
+/////////////////////////////////
+//		Print UI
+////////////////////////////////
 void print_ui(){
 	switch(state){
 	
-	case DISPLAY_FILE_E:     // view contents of a file
+	// view contents of a file
+	case DISPLAY_FILE_E:     
 		Print_two_lines(last_read_line, current_read_line);
 		break;
-		
-	case READ_FILE_E:// view file list
+	
+	// view file list
+	case SEND_FILE_E:
+	case READ_FILE_E:
 		if (line_select == 0) {
 			Print_two_lines(back, current_file_desc->name);
 		}
@@ -75,7 +83,13 @@ void print_ui(){
 	}
 	
 }
+
+
+/////////////////////////////////
+//		Scroll Down
+////////////////////////////////
 void scroll_down(){
+	
 	switch(state){
 	
 	case DISPLAY_FILE_E: 
@@ -84,6 +98,7 @@ void scroll_down(){
 		copy_16chars(current_read_line, reading_Line);
 		break;
 		
+	case SEND_FILE_E:
 	case READ_FILE_E: 
 		if (line_select != menu_size-1) {
 			file_select = file_index_plusplus(file_select); // -1 is for back
@@ -98,6 +113,10 @@ void scroll_down(){
 		break;
 	}
 }
+
+/////////////////////////////////
+//		Enter
+////////////////////////////////
 StateModes enter(){
 	StateModes next_state = IDLE_E;
 
@@ -125,41 +144,44 @@ StateModes enter(){
 			switched_menu = 1;
 		}
 		break;
+		
+	// Send a message to pc
+	case CHAT_E:
+		chat_action();
+		break;
 	
 	// choose file transfer option(read/send)
 	case FILE_TRANSFER_E:
 		switch (line_select) {
 		case 0:
 			next_state = IDLE_E;
-			switched_menu = 1;
 			break;
 		case 1:
 			next_state = READ_FILE_E;
 			file_select = file_system.first_file;
 			current_file_desc = file_info(file_select);
-			switched_menu = 1;
 			break;
 		case 2:
 			next_state = SEND_FILE_E;
-			switched_menu = 1;
+			file_select = file_system.first_file;
+			current_file_desc = file_info(file_select);
 			break;
 		default:
 			next_state = IDLE_E;
-			switched_menu = 1;
 			break;
 		}
+		switched_menu = 1;
 		break;
 	
 	// choose which file to read
 	case READ_FILE_E:
 		if (line_select == 0){
 			next_state = FILE_TRANSFER_E;
-			switched_menu = 1;
 		} else {
 			read_action();
 			next_state = DISPLAY_FILE_E;
-			switched_menu = 1;
 		}
+		switched_menu = 1;
 		break;
 	
 	// look at the pretty text
@@ -167,14 +189,18 @@ StateModes enter(){
 		next_state = READ_FILE_E;
 		switched_menu = 1;
 		break;
+		
+	// sends a file to pc
 	case SEND_FILE_E:
 		if (line_select == 0){
 			next_state = FILE_TRANSFER_E;
 			switched_menu = 1;
 		} else {
 			send_file_action();
+			next_state = state;
 		}
 		break;
+		
 	// all other states which don't need special attention
 	default: 
 		if (line_select == 0){
@@ -182,13 +208,6 @@ StateModes enter(){
 			switched_menu = 1;
 		} else {
 			next_state = state;
-			
-			// ACTIONS //
-			if (state == CHAT_E){
-				chat_action();
-			}
-			
-			
 		}
 	}
 	
@@ -225,19 +244,15 @@ StateModes enter(){
 	return next_state;
 	
 } // END enter
+
+
+/////////////////////////////////
+//		Actions
+////////////////////////////////
+
 void chat_action(){
-	char Length[3];
-	char Length_final[3];
 	char* line = getChatLine(line_select);
-	sprintf(Length,"%d",strlen(line));
-	if (strlen(line) < 10){
-		strcpy(Length_final, "00");
-		strcat(Length_final,Length);
-	} else if (strlen(line) < 100){
-		strcpy(Length_final, "0");
-		strcat(Length_final,Length);
-	}
-	send2pc("Tx",Length_final,line);
+	send2pc(TYPE.TEXT,line);
 }
 
 void read_action(){
@@ -247,10 +262,15 @@ void read_action(){
 	read_line();
 	copy_16chars(current_read_line, reading_Line);
 }
+
 void send_file_action(){
 	send_file2pc(file_select);
-	// TODO
 }
+
+
+/////////////////////////////////
+//		Get Next Line
+////////////////////////////////
 int get_next_line(int line){
 	if (line >= menu_size-1){
 		return 0;

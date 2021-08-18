@@ -23,7 +23,24 @@ void change_Baud_config(int Baud_rate);
 
 int validate_checksum(char* string, int len);
 char calc_checksum(char * string,int len);
-void send2pc(char* code,char* len,const char* message);
+void send2pc(char* code,const char* message);
 
+struct TYPE{
+	char TEXT[3];
+	char STATUS[3];
+	// Files 
+	char FILE_START[3];
+	char FILE_NAME[3];
+	char FILE_SIZE[3];
+	char FILE_DATA[3];
+	char FILE_END[3];
+};
+static const struct TYPE TYPE = {"Tx","St","Wf", "Na", "Sz", "Wd", "Fe"};
+
+struct STATUS{
+	char OK[2];
+	char CHECKSUM_ERROR[2];
+};
+static const struct STATUS STATUS = {"0" , "1"};
 
 #endif /* UART_FUNCTIONS_H_ */

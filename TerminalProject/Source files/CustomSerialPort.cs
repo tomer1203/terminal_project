@@ -19,6 +19,7 @@ namespace TerminalProject.Source_files
         public const int PACKET_SIZE = 128;
         public const int SEND_DELAY = 50;
         public const int CONFIGURE_DELAY = 30;
+
         // Message types
         public static class Type {
             // Messages
@@ -34,30 +35,56 @@ namespace TerminalProject.Source_files
             public const string FILE_DATA  = "Wd";
             public const string FILE_END   = "Fe";
         }
+
         // STATUS TYPE
         public static class STATUS
         {
-            private static readonly string[] STATUS_NAMES = {"OK", "CHECKSUM_ERROR", "RECIEVING", "BUFFER_ERROR", "PORT_ERROR" };
+            private static readonly string[] STATUS_NAMES = {"OK", "CHECKSUM_ERROR", "RECIEVING_MESSAGE", "BUFFER_ERROR", "PORT_ERROR", "PORT_OK" , "RECIEVING_FILE" };
             public static string ToString(int status) { return STATUS_NAMES[status]; }
             public const int OK = 0; 
             public const int CHECKSUM_ERROR = 1;
-            public const int RECIEVING = 2;
+            public const int RECIEVING_MESSAGE = 2;
             public const int BUFFER_ERROR = 3;
             public const int PORT_ERROR = 4;
+            public const int PORT_OK = 5;
+
+            // for files
+            public const int RECIEVING_OK = 0;
+            public const int RECIEVING_FILE = 1;
+            public const int RECIEVING_ERROR = 2;
         }
 
-        private const int defaultBaudrate = 9600;
-        public string dafaultPort;
+        // Recieving file handeling
+        public static class RFile
+        {
+            public static int Status = STATUS.RECIEVING_OK;
+            public static string Name = "";
+            public static int Size = 0;
+            public static string Data = "";
+            // clean fields
+            public static void clean()
+            {
+                RFile.Status = STATUS.RECIEVING_OK;
+                RFile.Name = "";
+                RFile.Size = 0;
+                RFile.Data = "";
+            }
+        }
 
+        // data handeling
         public string lastMessage = "";
         public static char sentChecksum;
         private string myBuffer = "";
         private int dataLen = 0;
         private int pollCnt = 0;
 
+        // Class Defaults
+        private const int defaultBaudrate = 9600;
+        public string dafaultPort;
+
         /*
          * Constructor to set Default values
-         */ 
+         */
         public CustomSerialPort()
         {
             string[] ports = CustomSerialPort.GetPortNames().Length > 0 ? 
@@ -122,7 +149,9 @@ namespace TerminalProject.Source_files
                 if (dataLen == myBuffer.Length - customFormatLength)
                 {
                     lastMessage = myBuffer;
-
+                    Console.WriteLine("=========================================================");
+                    Console.WriteLine("Message: " + myBuffer);
+                    Console.WriteLine("=========================================================");
                 }
                 // Buffer Length Error
                 else if(dataLen < myBuffer.Length - customFormatLength)
@@ -133,7 +162,7 @@ namespace TerminalProject.Source_files
                     return (Type.STATUS, STATUS.BUFFER_ERROR.ToString(), -1);
                 }
                 // Still Receiving 
-                else { return (Type.STATUS, STATUS.RECIEVING.ToString(), -1); }
+                else { return (Type.STATUS, STATUS.RECIEVING_MESSAGE.ToString(), -1); }
 
             } // Error receiving data
             else if (myBuffer.Length > customFormatLength)
@@ -143,7 +172,7 @@ namespace TerminalProject.Source_files
                 dataLen = pollCnt = 0;
                 return (Type.STATUS, STATUS.BUFFER_ERROR.ToString(), -1);
             }
-            else { return (Type.STATUS, STATUS.RECIEVING.ToString(), -1); }
+            else { return (Type.STATUS, STATUS.RECIEVING_MESSAGE.ToString(), -1); }
 
 
             // Format of Data: $[--]#|___|__ while # is checksum, -- is 2 chars opc
@@ -179,7 +208,7 @@ namespace TerminalProject.Source_files
             packetNum += leftovers > 0 ? 1 : 0;
 
             // Send Packets of File Data
-            for(int i = 0 ; i < packetNum ; i ++)
+            for(int i = 0 ; i < packetNum ; i++)
             {
                 // if last packet
                 if(i == packetNum - 1)

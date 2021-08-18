@@ -13,6 +13,7 @@ char* address_cyclic_add(char* address,int added_value);
 
 char     reading_Line[LINE_LENGTH+1];
 char  fs_memory[SIZE_OF_FILE_SYSTEM];
+#define DELAY_FILE 500 
 
 void initialize_file_system(){
 	int i=0;
@@ -62,11 +63,55 @@ int read_file_init(int file_num){
 	return 0;
 }
 
-void send_file2pc(int indx){
-	// to work with you have file_system.
-	// to send2pc use send2pc
-	// to get information on the file_system you have file_system
-	// to move the data pointer through the filesystem use address_cyclic_add
+// send_file2pc //
+// Sends a file chunk by chunk  
+//
+void send_file2pc(int index){
+	
+	int packetNum, leftovers, i,j;
+	char fileSizeString[10] = {0};
+	char packet[PACKET_SIZE+1] = {0};
+		
+	// No files to send / index error
+	if(file_system.number_of_files <= 0 || file_system.number_of_files < index)
+		return;
+	
+	// get file
+	File_descriptor file2send = file_system.file_list[index];
+	
+	Print_two_lines("Sending File", file2send.name);
+		
+	// Send File Descriptors
+	send2pc(TYPE.FILE_START,"");
+	DelayMs(DELAY_FILE);
+	send2pc(TYPE.FILE_NAME, file2send.name);
+	DelayMs(DELAY_FILE);
+	sprintf(fileSizeString, "%d", file2send.size);
+	send2pc(TYPE.FILE_SIZE , fileSizeString);
+	DelayMs(DELAY_FILE);
+	
+	packetNum = file2send.size / PACKET_SIZE;
+	leftovers = file2send.size % PACKET_SIZE;
+	packetNum += leftovers > 0 ? 1 : 0;
+	
+	// Send Packets of File Data
+	for(i = 0 ; i < packetNum ; i++)
+	{
+		// if last packet
+		if(i == packetNum - 1)
+		{
+			for(j=0 ; j < PACKET_SIZE+1 ; j++)
+				packet[j] = 0;
+			strncpy(packet, file2send.start_pointer + i*PACKET_SIZE, leftovers);
+			send2pc(TYPE.FILE_DATA, packet);
+			return;
+		}
+		strncpy(packet, file2send.start_pointer + i*PACKET_SIZE, PACKET_SIZE);
+		send2pc(TYPE.FILE_DATA, packet);
+		DelayMs(DELAY_FILE);
+	}
+	
+
 }
 
 // read_line         //
@@ -129,7 +174,7 @@ int read_line(){
 	}
 	
 	// if you are less than 16 bytes from the end of the file
-	if (end_line_address > imaginary_end_file_address){
+	if (file_system.read_pointer+16 > imaginary_end_file_address){
 		read_amount = imaginary_end_file_address - file_system.read_pointer;
 		
 		//** TODO READ 16 BYTES FROM DMA TODO **//

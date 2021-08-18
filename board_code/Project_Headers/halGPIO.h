@@ -9,6 +9,7 @@
 #define HALGPIO_H_
 // 1/2 KB
 #define MAX_STRING 524
+#define PACKET_SIZE 128
 
 void DelayUs(unsigned int cnt);
 void DelayMs(unsigned int cnt);

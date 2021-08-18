@@ -87,25 +87,33 @@ char calc_checksum(char * string,int len){
 	return checksum;
 }
 
-void send2pc(char* code,char* len,const char* message){
-	char output[MAX_STRING];
-	char dummy_checksum[2] = "a";
-	char checksum;
-	char tmp[MAX_STRING];
+void send2pc(char* code,const char* message){
+	char output[MAX_STRING] = {0}, tmp[MAX_STRING] = {0}, 
+			Length[3] = {0}, Length_final[3] = {0};
+	char checksum, dummy_checksum[2] = "a";
+	int  length_int;
 	strcpy(tmp,message);
-	int i = 0,length_int;
-	for (i = 0;i < MAX_STRING;i++){
-		output[i] = 0;
+	
+	sprintf(Length,"%d",strlen(tmp));
+	if (strlen(tmp) < 10){
+		strcpy(Length_final, "00");
+		strcat(Length_final,Length);
+	} else if (strlen(tmp) < 100){
+		strcpy(Length_final, "0");
+		strcat(Length_final,Length);
+	}else{
+		strcpy(Length_final,Length);
 	}
+
 	strcpy(output,"$[");
 	strcat(output,code);
 	strcat(output,"]");
 	strcat(output,dummy_checksum);
 	strcat(output,"|");
-	strcat(output,len);
+	strcat(output,Length_final);
 	strcat(output,"|");
 	strcat(output,tmp);
-	length_int = atoi(len)+11;
+	length_int = strlen(tmp)+11;
 	checksum = calc_checksum(output,length_int);
 	checksum = checksum ^ 'a'; // get rid of the dummy checksum effect
 	if(checksum == 0)

@@ -89,12 +89,12 @@ void UART0_IRQHandler(){
 		if (input_string_length<=0 && string_index >= 10){
 			// CHECKSUM Check //
 			if (!validate_checksum(string_buffer, string_index + 1)) {
-				send2pc("St", "001", STATUS_CHECKSUM_ERROR);
+				send2pc(TYPE.STATUS, STATUS.CHECKSUM_ERROR);
 				clear_string_buffer();
 				return;
 			}
 			else {
-				send2pc("St", "001", STATUS_OK);
+				send2pc(TYPE.STATUS, STATUS.OK);
 			}
 			switch (state) {
 			
@@ -105,7 +105,7 @@ void UART0_IRQHandler(){
 				}
 				if (function_return_value<0){
 					sprintf(text,"%d",function_return_value);
-					send2pc("Fe", "001", abs(function_return_value));
+					send2pc(TYPE.FILE_END, abs(function_return_value));
 				}
 				break;
 				
@@ -113,13 +113,13 @@ void UART0_IRQHandler(){
 				function_return_value = write_file_chunck(string_buffer, string_index-10);
 				if (function_return_value == 1) {
 					// File written successfully 
-					send2pc("Fe", "001", STATUS_OK);
+					send2pc(TYPE.FILE_END, STATUS.OK);
 					state = IDLE_E;
 					initialize_ui();
 				}
 				if (function_return_value<0){
 					sprintf(text,"%d",function_return_value);
-					send2pc("Fe", "001", abs(function_return_value));
+					send2pc(TYPE.FILE_END, abs(function_return_value));
 				}
 				break;
 				
@@ -142,7 +142,7 @@ void UART0_IRQHandler(){
 					main_menu[3][1][11] = baudRate[4];
 					Print_two_lines("Baud Rate:", strip_command(string_buffer));
 					
-					send2pc("Tx", "028", "changed baud rate, status ok");
+					send2pc(TYPE.TEXT, "changed baud rate, status ok");
 					change_Baud_config(baud_config);
 
 					// normal chat
@@ -258,7 +258,7 @@ void PrintVolt(const char * s){
 //******************************************************************
 void DelayUs(unsigned int cnt){
   
-	unsigned char i;
+	unsigned int i;
         for(i=cnt ; i>0 ; i--)
         		asm("nop"); // tha command asm("nop") takes raphly 1usec
         
@@ -269,7 +269,7 @@ void DelayUs(unsigned int cnt){
 //******************************************************************
 void DelayMs(unsigned int cnt){
   
-	unsigned char i;
+	unsigned int i;
         for(i=cnt ; i>0 ; i--)
         	DelayUs(1000); // tha command asm("nop") takes raphly 1usec
         

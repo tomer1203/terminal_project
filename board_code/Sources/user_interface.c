@@ -101,6 +101,7 @@ void scroll_down(){
 	case SEND_FILE_E:
 	case READ_FILE_E: 
 		if (line_select != menu_size-1) {
+			last_file_select = file_select;
 			file_select = file_index_plusplus(file_select); // -1 is for back
 			last_file_descriptor = current_file_desc;
 			current_file_desc = file_info(file_select);
@@ -229,6 +230,10 @@ StateModes enter(){
 		menu_select = 4;
 		menu_size = file_system.number_of_files+1;// +1 is for back
 		break;
+	case(SEND_FILE_E):
+		menu_select = -1;
+		menu_size = file_system.number_of_files+1;// +1 is for back
+		break;
 	case(CONFIGURATION_E):
 		menu_select=3;
 		menu_size = CONFIGURATION_MENU_SIZE;
@@ -239,6 +244,7 @@ StateModes enter(){
 	if (switched_menu == 1){
 		file_select = file_system.first_file;
 		line_select = 0;
+		current_file_desc = file_info(file_select);
 	}
 	state = next_state;
 	return next_state;
@@ -256,7 +262,7 @@ void chat_action(){
 }
 
 void read_action(){
-	read_file_init(file_select);
+	read_file_init(last_file_select);
 	read_line();
 	copy_16chars(last_read_line, reading_Line);
 	read_line();
@@ -264,7 +270,7 @@ void read_action(){
 }
 
 void send_file_action(){
-	send_file2pc(file_select);
+	send_file2pc(last_file_select);
 }
 
 

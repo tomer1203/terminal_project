@@ -117,7 +117,7 @@ namespace TerminalProject
                 updateChatUI("STATUS_CHECKSUM_ERROR", serialPort.lastMessage);
                 return;
             }
-
+            int a;
             // Check opc
             switch (opc)
             {
@@ -140,6 +140,7 @@ namespace TerminalProject
                     if (int.Parse(val) == CustomSerialPort.STATUS.OK)
                     {
                         updateFileTransferUI("File Sent Successfully");
+                        Console.WriteLine("file Sent Successfully");
                         Console.WriteLine("======================================================");
                     }
                     else
@@ -197,10 +198,14 @@ namespace TerminalProject
                         Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         break;
                     }
-                    Console.WriteLine("receiving file data: " + val);
                     CustomSerialPort.RFile.Data += val;
+                    if (CustomSerialPort.RFile.Data.Length > 8527)
+                       a=0;
+                    Console.WriteLine(val);
+                    //Console.WriteLine("receiving file data: " + val);
+                   // Console.WriteLine(CustomSerialPort.RFile.Data.Length + "/" + CustomSerialPort.RFile.Size);
                     updateFileTransferUI("Received " + CustomSerialPort.RFile.Data.Length + "/" + CustomSerialPort.RFile.Size + "Bytes");
-                    Console.WriteLine(CustomSerialPort.RFile.Data.Length + "/" + CustomSerialPort.RFile.Size);
+
                     if(CustomSerialPort.RFile.Data.Length == CustomSerialPort.RFile.Size)
                     {
                        

@@ -10,6 +10,8 @@
 int index_cyclic_plusplus(int old_index);
 int index_cyclic_minusminus(int old_index);
 char* address_cyclic_add(char* address,int added_value);
+char* copy_string_cyclic(char* target_p,char* source_p,int size);
+
 
 char     reading_Line[LINE_LENGTH+1];
 char  fs_memory[SIZE_OF_FILE_SYSTEM];
@@ -73,8 +75,10 @@ void send_file2pc(int index){
 	char packet[PACKET_SIZE+1] = {0};
 		
 	// No files to send / index error
-	if(file_system.number_of_files <= 0 || file_system.number_of_files < index)
+	if(file_system.number_of_files <= 0){
+		Print("No Files");
 		return;
+	}
 	
 	// get file
 	File_descriptor file2send = file_system.file_list[index];
@@ -102,11 +106,14 @@ void send_file2pc(int index){
 		{
 			for(j=0 ; j < PACKET_SIZE+1 ; j++)
 				packet[j] = 0;
-			strncpy(packet, file2send.start_pointer + i*PACKET_SIZE, leftovers);
+			copy_string_cyclic(packet,file2send.start_pointer + i*PACKET_SIZE,leftovers);
+			//strncpy(packet, file2send.start_pointer + i*PACKET_SIZE, leftovers);
+			
 			send2pc(TYPE.FILE_DATA, packet);
 			return;
 		}
-		strncpy(packet, file2send.start_pointer + i*PACKET_SIZE, PACKET_SIZE);
+		copy_string_cyclic(packet,file2send.start_pointer + i*PACKET_SIZE,PACKET_SIZE);
+		//strncpy(packet, file2send.start_pointer + i*PACKET_SIZE, PACKET_SIZE);
 		send2pc(TYPE.FILE_DATA, packet);
 		DelayMs(DELAY_FILE);
 	}
@@ -179,26 +186,16 @@ int read_line(){
 		
 		//** TODO READ 16 BYTES FROM DMA TODO **//
 		//reading_Line = value here;
-		for (i = 0;i < read_amount;i++) {
-			read_address = address_cyclic_add(file_system.read_pointer,i);
-			reading_Line[i] = *read_address;
-		}
+		copy_string_cyclic(reading_Line,file_system.read_pointer,read_amount);
 		file_system.read_pointer = file_system.file_list[file_system.read_file].start_pointer;
 		
 	}
 	else {
 		//** TODO READ 16 BYTES FROM DMA TODO **//
 		//reading_Line = value here;
-		for (i = 0;i < read_amount;i++) {
-			read_address = address_cyclic_add(file_system.read_pointer,i);
-			reading_Line[i] = *read_address;
-		}
+		copy_string_cyclic(reading_Line,file_system.read_pointer,read_amount);
 		file_system.read_pointer += 16;
 	}
-
-	
-	reading_Line[i] = '\0';
-
 	return read_amount;
 }
 
@@ -321,7 +318,16 @@ int remove_last_file(){
 	file_system.last_file = index_cyclic_minusminus(file_system.last_file);
 	return 0;
 }
-
+char* copy_string_cyclic(char* target_p,char* source_p,int size){
+	char* source_cyclic;
+	int i;
+	for (i=0;i<size;i++){
+		source_cyclic = address_cyclic_add(source_p,i);
+		target_p[i] = *source_cyclic;
+	}
+	target_p[i] = '\0';
+	return target_p;
+}
 char* address_cyclic_add(char* address,int added_value){
 	int Temp;
 	Temp = (int)(address-(FILE_SYSTEM_START_ADDRESS)+added_value);

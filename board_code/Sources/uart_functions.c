@@ -56,8 +56,10 @@ char* strip_command(char* string){
 
 void change_Baud_config(int Baud_rate){
 	UART0_C2 &= (~UARTLP_C2_RE_MASK) & (~UARTLP_C2_TE_MASK) & (~UART_C2_RIE_MASK);
+	DelayMs(10);
 	Uart0_Br_Sbr(CORE_CLOCK/2/1000, Baud_rate);
 	UART0_C2 = UARTLP_C2_RE_MASK | UARTLP_C2_TE_MASK | UART_C2_RIE_MASK;
+	DelayMs(10);
 }
 
 int validate_checksum(char* string, int len) {

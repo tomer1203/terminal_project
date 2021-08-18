@@ -30,7 +30,7 @@ char main_menu[4][6][20] = {
 	 "Send File"},
 	{// 3-Configuration menu
 	 "<-Back",
-	 "Brate:      "} };
+	 "Brate: 9600 "} };
 void chat_action();
 void read_action();
 
@@ -148,7 +148,13 @@ StateModes enter(){
 		
 	// Send a message to pc
 	case CHAT_E:
-		chat_action();
+		if (line_select == 0){
+			next_state = IDLE_E;
+			switched_menu = 1;
+		} else {
+			chat_action();
+			next_state = state;
+		}
 		break;
 	
 	// choose file transfer option(read/send)

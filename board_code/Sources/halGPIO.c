@@ -134,16 +134,16 @@ void UART0_IRQHandler(){
 				}
 				else if (is_br_command(string_buffer)) {
 					baud_config = atoi(strip_command(string_buffer));
+					send2pc(TYPE.TEXT, "changed baud rate, status ok");
+					change_Baud_config(baud_config);
+					
+					Print_two_lines("Baud Rate:", strip_command(string_buffer));
 					sprintf(baudRate, "%5d", baud_config);
 					main_menu[3][1][7] = baudRate[0];
 					main_menu[3][1][8] = baudRate[1];
 					main_menu[3][1][9] = baudRate[2];
 					main_menu[3][1][10] = baudRate[3];
 					main_menu[3][1][11] = baudRate[4];
-					Print_two_lines("Baud Rate:", strip_command(string_buffer));
-					
-					send2pc(TYPE.TEXT, "changed baud rate, status ok");
-					change_Baud_config(baud_config);
 
 					// normal chat
 				}

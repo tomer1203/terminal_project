@@ -18,7 +18,7 @@ namespace TerminalProject.Source_files
         public const int customFormatLength = 11; 
         public const int PACKET_SIZE = 128;
         public const int SEND_DELAY = 50;
-        public const int CONFIGURE_DELAY = 30;
+        public const int CONFIGURE_DELAY = 80;
 
         // Message types
         public static class Type {
@@ -114,7 +114,6 @@ namespace TerminalProject.Source_files
 
             // Send
             this.Write(message);
-            Thread.Sleep(SEND_DELAY);
 
         } // END sendMessage
 
@@ -196,8 +195,11 @@ namespace TerminalProject.Source_files
             FileInfo file = new FileInfo(filePath);
             // File descriptors
             sendMessage(Type.FILE_START, "");
+            Thread.Sleep(SEND_DELAY);
             sendMessage(Type.FILE_NAME, file.Name);
+            Thread.Sleep(SEND_DELAY);
             sendMessage(Type.FILE_SIZE, file.Length.ToString());
+            Thread.Sleep(SEND_DELAY);
 
             string text = File.ReadAllText(filePath);
             int packetNum = text.Length / PACKET_SIZE;
@@ -213,14 +215,19 @@ namespace TerminalProject.Source_files
                 // if last packet
                 if (i == packetNum - 1)
                 {
+                   
+                    Console.WriteLine("data sent: " + text.Substring(i * PACKET_SIZE, leftovers));
+                    sizeSent += text.Substring(i * PACKET_SIZE, leftovers).Length;
+                    Console.WriteLine("sent: " + sizeSent + "/" + file.Length.ToString());
                     sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, leftovers));
                     return;
                 }
-                //Console.WriteLine("data sent: " + text.Substring(i * PACKET_SIZE, PACKET_SIZE));
+                Console.WriteLine("data sent: " + text.Substring(i * PACKET_SIZE, PACKET_SIZE));
                 sizeSent += text.Substring(i * PACKET_SIZE, PACKET_SIZE).Length;
                 //outsideUpdateFileTransferUI();
                 Console.WriteLine("sent: " + sizeSent + "/" + file.Length.ToString());
                 sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, PACKET_SIZE ));
+                Thread.Sleep(SEND_DELAY);
             }
 
 

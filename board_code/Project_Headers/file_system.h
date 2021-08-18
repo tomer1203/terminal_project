@@ -8,7 +8,7 @@
 #ifndef FILE_SYSTEM_H_
 #define FILE_SYSTEM_H_
 
-#define SIZE_OF_FILE_SYSTEM 10000
+#define SIZE_OF_FILE_SYSTEM 11000
 #define MAX_NUMBER_OF_FILES 20
 #define MAX_NAME_SIZE       20
 #define LINE_LENGTH         16

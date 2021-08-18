@@ -37,10 +37,10 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.statusLabel = new System.Windows.Forms.Label();
-            this.nonFormatButon = new System.Windows.Forms.Button();
             this.dataRecievePanel = new System.Windows.Forms.Panel();
             this.dataRecieveLabel = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.fileStatusLabel = new System.Windows.Forms.Label();
             this.sendFileButton = new System.Windows.Forms.Button();
             this.filesListView = new System.Windows.Forms.ListView();
             this.fileNamePanel = new System.Windows.Forms.Panel();
@@ -50,7 +50,6 @@
             this.connectingPictureBox = new System.Windows.Forms.PictureBox();
             this.configurationsLabel = new System.Windows.Forms.Label();
             this.settingsPanel = new System.Windows.Forms.Panel();
-            this.fileStatusLabel = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.dataRecievePanel.SuspendLayout();
@@ -95,7 +94,6 @@
             // 
             // tabControl1
             // 
-            //this.tabControl1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -114,7 +112,6 @@
             // tabPage1
             // 
             this.tabPage1.Controls.Add(this.statusLabel);
-            this.tabPage1.Controls.Add(this.nonFormatButon);
             this.tabPage1.Controls.Add(this.dataRecievePanel);
             this.tabPage1.Controls.Add(this.sendButton);
             this.tabPage1.Controls.Add(this.enterStringLabel);
@@ -129,28 +126,13 @@
             // 
             // statusLabel
             // 
-            this.statusLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.statusLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.statusLabel.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.statusLabel.Location = new System.Drawing.Point(3, 434);
             this.statusLabel.Name = "statusLabel";
             this.statusLabel.Size = new System.Drawing.Size(843, 20);
             this.statusLabel.TabIndex = 4;
-            this.statusLabel.Text = "status";
             this.statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // nonFormatButon
-            // 
-            this.nonFormatButon.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.nonFormatButon.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.nonFormatButon.ForeColor = System.Drawing.Color.Teal;
-            this.nonFormatButon.Location = new System.Drawing.Point(748, 6);
-            this.nonFormatButon.Name = "nonFormatButon";
-            this.nonFormatButon.Size = new System.Drawing.Size(61, 36);
-            this.nonFormatButon.TabIndex = 3;
-            this.nonFormatButon.Text = "NFB";
-            this.nonFormatButon.UseVisualStyleBackColor = true;
-            this.nonFormatButon.Click += new System.EventHandler(this.nonFormatButon_Click);
             // 
             // dataRecievePanel
             // 
@@ -163,7 +145,6 @@
             // 
             // dataRecieveLabel
             // 
-            this.dataRecieveLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.dataRecieveLabel.BackColor = System.Drawing.SystemColors.MenuBar;
             this.dataRecieveLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataRecieveLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
@@ -187,6 +168,16 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "File Transfer";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // fileStatusLabel
+            // 
+            this.fileStatusLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.fileStatusLabel.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.fileStatusLabel.Location = new System.Drawing.Point(3, 434);
+            this.fileStatusLabel.Name = "fileStatusLabel";
+            this.fileStatusLabel.Size = new System.Drawing.Size(843, 20);
+            this.fileStatusLabel.TabIndex = 5;
+            this.fileStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // sendFileButton
             // 
@@ -229,7 +220,6 @@
             // 
             // fileNameLabel
             // 
-            this.fileNameLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.fileNameLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fileNameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.fileNameLabel.Location = new System.Drawing.Point(0, 0);
@@ -298,18 +288,6 @@
             this.settingsPanel.MouseLeave += new System.EventHandler(this.settingsPanel_MouseLeave);
             this.settingsPanel.MouseHover += new System.EventHandler(this.settingsPanel_MouseHover);
             // 
-            // fileStatusLabel
-            // 
-            this.fileStatusLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.fileStatusLabel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.fileStatusLabel.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.fileStatusLabel.Location = new System.Drawing.Point(3, 434);
-            this.fileStatusLabel.Name = "fileStatusLabel";
-            this.fileStatusLabel.Size = new System.Drawing.Size(843, 20);
-            this.fileStatusLabel.TabIndex = 5;
-            this.fileStatusLabel.Text = "file status";
-            this.fileStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -362,7 +340,6 @@
         private System.Windows.Forms.Label dataRecieveLabel;
         private System.Windows.Forms.Panel fileNamePanel;
         private System.Windows.Forms.Label fileNameLabel;
-        private System.Windows.Forms.Button nonFormatButon;
         private System.Windows.Forms.Label statusLabel;
         private System.Windows.Forms.ListView filesListView;
         private System.Windows.Forms.Button sendFileButton;

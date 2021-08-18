@@ -62,6 +62,7 @@ namespace TerminalProject
             catch (Exception) { setConnectingLabel(CustomSerialPort.STATUS.PORT_ERROR); }
 
             EventHub.saveConfigurationsHandler += onSerialConfigurationsChanged;
+            EventHub.fileSendingProgressHandler += onFileSendingProgress;
 
             // List View Initialization
             initializeFilesListView();
@@ -86,10 +87,10 @@ namespace TerminalProject
                 inData = sp.readMessage();
 
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 serialPort.Close();
-                updateChatUI("PORT_ERROR", exception.ToString());
+                updateChatStatusLabel(CustomSerialPort.STATUS.ToString(CustomSerialPort.STATUS.PORT_ERROR));
                 this.Invoke((MethodInvoker)delegate
                 {
                     setConnectingLabel(CustomSerialPort.STATUS.PORT_ERROR);
@@ -114,10 +115,11 @@ namespace TerminalProject
             // Checksum check
             if (checksumStatus == CustomSerialPort.STATUS.CHECKSUM_ERROR)
             {
-                updateChatUI("STATUS_CHECKSUM_ERROR", serialPort.lastMessage);
+                updateChatStatusLabel(CustomSerialPort.STATUS.ToString(CustomSerialPort.STATUS.CHECKSUM_ERROR));
+                updateChatDataLabel("");
                 return;
             }
-            int a;
+            
             // Check opc
             switch (opc)
             {
@@ -127,7 +129,8 @@ namespace TerminalProject
 
                 // Text Message Recieved
                 case CustomSerialPort.Type.TEXT:
-                    updateChatUI("TEXT_RECIEVED", val);
+                    selectTab(0);
+                    updateChatDataLabel(val);
                     break;
 
                 // Get MCU Serial Port Status
@@ -135,37 +138,22 @@ namespace TerminalProject
                     handleStatusMessage(int.Parse(val));
                     break;
 
-                // File recieved ok 
-                case CustomSerialPort.Type.FILE_END:
-                    if (int.Parse(val) == CustomSerialPort.STATUS.OK)
-                    {
-                        updateFileTransferUI("File Sent Successfully");
-                        Console.WriteLine("file Sent Successfully");
-                        Console.WriteLine("======================================================");
-                    }
-                    else
-                    {
-                        Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                        updateFileTransferUI("File did not Sent Successfully");
-                        Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                    }
-                    break;
-
                 // Recieving file
                 case CustomSerialPort.Type.FILE_START:
+                    selectTab(1);
                     if (CustomSerialPort.RFile.Status == CustomSerialPort.STATUS.RECIEVING_OK)
                     {
                         CustomSerialPort.RFile.Status = CustomSerialPort.STATUS.RECIEVING_FILE;
-                        updateFileTransferUI("Recieving a file...");
                         Console.WriteLine("======================================================");
                         Console.WriteLine("recieving a file...");
-                      
+                        updateFileTransferStatusLabel("recieving a file...");
+
                     }
                     else {
                         CustomSerialPort.RFile.Status = CustomSerialPort.STATUS.RECIEVING_ERROR;
                         CustomSerialPort.RFile.Status = CustomSerialPort.STATUS.RECIEVING_OK;
-                        updateFileTransferUI("ERROR Recieving file");
                         Console.WriteLine("ERROR - trying to send a new file when already recieving a file");
+                        updateFileTransferStatusLabel("ERROR - trying to send a new file when already recieving a file");
                     }
                     break;
 
@@ -173,19 +161,20 @@ namespace TerminalProject
                 case CustomSerialPort.Type.FILE_NAME:
                     if (CustomSerialPort.RFile.Status == CustomSerialPort.STATUS.RECIEVING_ERROR)
                         break;
-                    Console.WriteLine("file name: " + val);
                     CustomSerialPort.RFile.Name = val;
-                    updateFileTransferUI("Recieving file name: " + val);
-                    
+                    Console.WriteLine("recieving \"" + val + "\"");
+                    updateFileTransferStatusLabel("recieving \"" + val + "\"");
+
+
                     break;
 
                 // Recieving file's Size
                 case CustomSerialPort.Type.FILE_SIZE:
                     if (CustomSerialPort.RFile.Status == CustomSerialPort.STATUS.RECIEVING_ERROR)
                         break;
-                    Console.WriteLine("file size: " + val);
                     CustomSerialPort.RFile.Size = int.Parse(val);
-                    updateFileTransferUI("Receiving file size: " + val);
+                    Console.WriteLine("file size: " + val);
+                    updateFileTransferStatusLabel("file size: " + val);
                     
                     break;
 
@@ -198,30 +187,42 @@ namespace TerminalProject
                         Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         break;
                     }
-                    CustomSerialPort.RFile.Data += val;
-                    if (CustomSerialPort.RFile.Data.Length > 8527)
-                       a=0;
+                    CustomSerialPort.RFile.Data += val;                       
                     Console.WriteLine(val);
-                    //Console.WriteLine("receiving file data: " + val);
-                   // Console.WriteLine(CustomSerialPort.RFile.Data.Length + "/" + CustomSerialPort.RFile.Size);
-                    updateFileTransferUI("Received " + CustomSerialPort.RFile.Data.Length + "/" + CustomSerialPort.RFile.Size + "Bytes");
+                    updateFileTransferStatusLabel("received " + CustomSerialPort.RFile.Data.Length + " / " + CustomSerialPort.RFile.Size + " bytes");
 
                     if(CustomSerialPort.RFile.Data.Length == CustomSerialPort.RFile.Size)
                     {
-                       
-                        Console.WriteLine("file received successfully");
-                        Console.WriteLine("======================================================");
                         string path = Path.Combine(currentDirectoryPath, filesRecievedDirectory, CustomSerialPort.RFile.Name);
                         File.WriteAllText(path, CustomSerialPort.RFile.Data);
-                        updateFileTransferUI("File Recieved Successfully");
+                        Console.WriteLine("\"" + CustomSerialPort.RFile.Name + "\" received successfully");
+                        Console.WriteLine("======================================================");
+                        updateFileTransferStatusLabel("\"" + CustomSerialPort.RFile.Name + "\" received successfully");
                         CustomSerialPort.RFile.clean();
                     }
                     break;
 
+                // File recieved ok 
+                case CustomSerialPort.Type.FILE_END:
+                    if (int.Parse(val) == CustomSerialPort.STATUS.OK)
+                    {
+                        updateFileTransferStatusLabel("\"" + Path.GetFileName(selectedFilePath) + "\" sent successfully");
+                        Console.WriteLine("\"" + Path.GetFileName(selectedFilePath) + "\" sent successfully");
+                        Console.WriteLine("======================================================");
+                    }
+                    else
+                    {
+                        Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                        Console.WriteLine("\"" + CustomSerialPort.RFile.Name + "\" did not send successfully");
+                        Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                        updateFileTransferStatusLabel("\"" + CustomSerialPort.RFile.Name + "\" did not send successfully");
+                    }
+                    break;
 
                 // Unknown
                 default:
-                    updateFileTransferUI("Unreccognized type");
+                    Console.WriteLine("unreccognized type");
+                    updateFileTransferStatusLabel("unreccognized type");
                     break;
 
 
@@ -237,15 +238,15 @@ namespace TerminalProject
             switch (status)
             {
                 case CustomSerialPort.STATUS.RECIEVING_MESSAGE:
-                    updateChatUI(CustomSerialPort.STATUS.ToString(status), "Fetching Data...");
+                    updateChatStatusLabel(CustomSerialPort.STATUS.ToString(status));
                     break;
 
                 case CustomSerialPort.STATUS.BUFFER_ERROR:
-                    updateChatUI(CustomSerialPort.STATUS.ToString(status), "Buffer Error. Send Again");
+                    updateChatStatusLabel(CustomSerialPort.STATUS.ToString(status));
                     break;
 
                 case CustomSerialPort.STATUS.OK:
-                    updateChatUI(CustomSerialPort.STATUS.ToString(status), "");
+                    updateChatStatusLabel(CustomSerialPort.STATUS.ToString(status));
                     break;
                 default:
                     // TODO: maybe UI change
@@ -271,11 +272,6 @@ namespace TerminalProject
                 case CustomSerialPort.STATUS.PORT_ERROR:
                     brush = Brushes.Red;
                     this.connectingLabel.Text = "Configure Serial Port";
-                    break;
-
-                default:
-                    //brush = Brushes.Orange;
-                    //this.connectingLabel.Text = "Unrecognized Status: " + CustomSerialPort.STATUS.ToString(status);
                     break;
 
             }
@@ -351,29 +347,63 @@ namespace TerminalProject
             setConnectingLabel(CustomSerialPort.STATUS.OK);
         }
 
+        /*
+         * File Sending Progress updater
+         */ 
+        private void onFileSendingProgress(object sender, EventArgs e)
+        {
+            updateFileTransferStatusLabel(sender.ToString());
+        }
+
+        /*
+         * Select Tab
+         */
+        private void selectTab(int index)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    tabControl1.SelectTab(index);
+                });
+            }
+        }
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                Chat Tab
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
         /*
-         * Update Chat UI labels
+         * Update Chat Status labels
          */
-        private void updateChatUI(string statusLabelString, string dataRecievedLabelString)
+        private void updateChatStatusLabel(string statusLabelString)
         {
-            this.Invoke((MethodInvoker)delegate
+            if (this.InvokeRequired)
             {
-                // update Status Label
-                if (!statusLabel.Equals(""))
-                { 
+                this.Invoke((MethodInvoker)delegate
+                {
                     statusLabel.Text = statusLabelString;
-                }
+                });
+            }
+            else
+                statusLabel.Text = statusLabelString;
+        }
 
-                // update Data Recieved Label 
-                if(!dataRecievedLabelString.Equals(""))
+        /*
+        * Update Chat Data Recieved Label
+        */
+        private void updateChatDataLabel(string dataRecievedLabelString)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
                     dataRecieveLabel.Text = dataRecievedLabelString;
-
-            });
+                });
+            }
+            else
+                dataRecieveLabel.Text = dataRecievedLabelString;
+           
         }
 
 
@@ -393,7 +423,7 @@ namespace TerminalProject
             }
             catch (Exception)
             {
-                setConnectingLabel(CustomSerialPort.STATUS.CHECKSUM_ERROR);
+                setConnectingLabel(CustomSerialPort.STATUS.PORT_OK);
             }
         }
 
@@ -413,24 +443,17 @@ namespace TerminalProject
        /*
         * Updates File Transfer UI Labels
         */
-        public void updateFileTransferUI(string fileStatusLabelString)
+        public void updateFileTransferStatusLabel(string fileStatusLabelString)
         {
             this.Invoke((MethodInvoker)delegate
             {
-                // update Status Label
-                if (!fileStatusLabelString.Equals(""))
-                {
-                    fileStatusLabel.Text = fileStatusLabelString;
-                    
-                }
-
+                fileStatusLabel.Text = fileStatusLabelString;
             });
         }
 
         public void outsideUpdateFileTransferUI(string fileStatusLabelString)
         {
             fileStatusLabel.Invoke(new MethodInvoker(() => fileStatusLabel.Text = fileStatusLabelString));
-            
         }
 
         /*
@@ -492,14 +515,15 @@ namespace TerminalProject
         {
             if (selectedFilePath.Equals(""))
                 return;
+           
 
             // Send File to MCU
             try
             {
                 CustomSerialPort.RFile.clean();
-                fileStatusLabel.Text = "Sending " + Path.GetFileName(selectedFilePath);
+                fileStatusLabel.Text = "sending \"" + Path.GetFileName(selectedFilePath) + "\"";
                 Console.WriteLine("========================================================");
-                Console.WriteLine("Sending " + Path.GetFileName(selectedFilePath));
+                Console.WriteLine("sending \"" + Path.GetFileName(selectedFilePath) + "\"");
                 serialPort.sendFile(selectedFilePath);
             }
             catch (Exception) { }

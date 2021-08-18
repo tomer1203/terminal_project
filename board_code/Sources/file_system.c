@@ -83,7 +83,8 @@ void send_file2pc(int index){
 	// get file
 	File_descriptor file2send = file_system.file_list[index];
 	
-	Print_two_lines("Sending File", file2send.name);
+	Print_two_lines("Sending File:", file2send.name);
+	DelayMs(1000);
 		
 	// Send File Descriptors
 	send2pc(TYPE.FILE_START,"");

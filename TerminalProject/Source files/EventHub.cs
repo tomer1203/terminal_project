@@ -14,5 +14,13 @@ namespace TerminalProject.Source_files
         {
             saveConfigurationsHandler?.Invoke(sender, e);
         }
+
+        public static event EventHandler<EventArgs> fileSendingProgressHandler;
+
+        public static void OnFileSendingProgress(object sender, EventArgs e)
+        {
+            fileSendingProgressHandler?.Invoke(sender, e);
+        }
+
     }
 }

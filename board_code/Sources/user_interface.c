@@ -14,9 +14,10 @@ const char chat_lines[5][20] =  {
 		"more text\r\n"};
 char main_menu[4][6][20] = {
 	{// 0-main menu
-	 "-chat mode",
-	 "-transfer mode",
-	 "-config mode"},
+	 "Main Menu",	
+	 "1.Chat mode",
+	 "2.Transfer mode",
+	 "3.Config mode"},
 	{// 1-chat menu
 	 "<-Back",
 	 "hello",
@@ -128,22 +129,21 @@ StateModes enter(){
 	// main menu
 	case IDLE_E:
 		switch(line_select){
-		case 0:
-			next_state = CHAT_E;
-			switched_menu = 1;
+		case 0:next_state = IDLE_E;
 			break;
 		case 1:
-			next_state = FILE_TRANSFER_E;
-			switched_menu = 1;
+			next_state = CHAT_E;
 			break;
 		case 2:
+			next_state = FILE_TRANSFER_E;
+			break;
+		case 3:
 			next_state = CONFIGURATION_E;
-			switched_menu = 1;
 			break;
 		default:
 			next_state = IDLE_E;
-			switched_menu = 1;
 		}
+		switched_menu = 1;
 		break;
 		
 	// Send a message to pc

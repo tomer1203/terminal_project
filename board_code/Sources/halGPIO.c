@@ -74,10 +74,9 @@ void UART0_IRQHandler(){
 		
 		string_buffer[string_index] = Char;
 		input_string_length--;
-//		Print(string_buffer);
+
 		// read the input string length
 		if (string_index == 10){
-//			strcpy_s(length,3,&string_buffer[7]);
 			length[0] = string_buffer[7];
 			length[1] = string_buffer[8];
 			length[2] = string_buffer[9];
@@ -96,11 +95,13 @@ void UART0_IRQHandler(){
 			else {
 				send2pc(TYPE.STATUS, STATUS.OK);
 			}
+			
 			switch (state) {
 			
 			case WRITING_FILE_INIT_E:
 				function_return_value = write_file_init_message(string_buffer);
 				if (function_return_value == 1) {
+					Print("Receiving a File");
 					state = WRITING_FILE;
 				}
 				if (function_return_value<0){
@@ -114,6 +115,7 @@ void UART0_IRQHandler(){
 				if (function_return_value == 1) {
 					// File written successfully 
 					send2pc(TYPE.FILE_END, STATUS.OK);
+					Print_two_lines("Received", "Successfully");
 					state = IDLE_E;
 					initialize_ui();
 				}

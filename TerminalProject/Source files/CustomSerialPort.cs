@@ -192,7 +192,19 @@ namespace TerminalProject.Source_files
          */ 
         public void sendFile(string filePath)
         {
+
             FileInfo file = new FileInfo(filePath);
+
+            if (file.Length == 0)
+            {
+                EventHub.OnFileSendingProgress("empty file", EventArgs.Empty);
+                Console.WriteLine("empty file");
+                Console.WriteLine("canceled");
+                Console.WriteLine("========================================================");
+                return;
+            }
+
+
             // File descriptors
             sendMessage(Type.FILE_START, "");
             Thread.Sleep(SEND_DELAY);
@@ -215,17 +227,16 @@ namespace TerminalProject.Source_files
                 // if last packet
                 if (i == packetNum - 1)
                 {
-                   
-                    Console.WriteLine("data sent: " + text.Substring(i * PACKET_SIZE, leftovers));
                     sizeSent += text.Substring(i * PACKET_SIZE, leftovers).Length;
-                    Console.WriteLine("sent: " + sizeSent + "/" + file.Length.ToString());
+                    Console.WriteLine(text.Substring(i * PACKET_SIZE, leftovers));
+                    EventHub.OnFileSendingProgress("sent " + sizeSent + "/" + file.Length.ToString() + " bytes", EventArgs.Empty);
                     sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, leftovers));
                     return;
                 }
-                Console.WriteLine("data sent: " + text.Substring(i * PACKET_SIZE, PACKET_SIZE));
+
                 sizeSent += text.Substring(i * PACKET_SIZE, PACKET_SIZE).Length;
-                //outsideUpdateFileTransferUI();
-                Console.WriteLine("sent: " + sizeSent + "/" + file.Length.ToString());
+                Console.WriteLine(text.Substring(i * PACKET_SIZE, PACKET_SIZE));
+                EventHub.OnFileSendingProgress("sent " + sizeSent + " / " + file.Length.ToString() + " bytes", EventArgs.Empty);
                 sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, PACKET_SIZE ));
                 Thread.Sleep(SEND_DELAY);
             }

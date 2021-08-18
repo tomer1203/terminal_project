@@ -149,9 +149,6 @@ namespace TerminalProject.Source_files
                 if (dataLen == myBuffer.Length - customFormatLength)
                 {
                     lastMessage = myBuffer;
-                    Console.WriteLine("=========================================================");
-                    Console.WriteLine("Message: " + myBuffer);
-                    Console.WriteLine("=========================================================");
                 }
                 // Buffer Length Error
                 else if(dataLen < myBuffer.Length - customFormatLength)
@@ -210,12 +207,15 @@ namespace TerminalProject.Source_files
             // Send Packets of File Data
             for(int i = 0 ; i < packetNum ; i++)
             {
+
                 // if last packet
-                if(i == packetNum - 1)
+                if (i == packetNum - 1)
                 {
                     sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, leftovers));
                     return;
                 }
+                Console.WriteLine("data sent: " + text.Substring(i * PACKET_SIZE, PACKET_SIZE));
+                Console.WriteLine(text.Substring(i * PACKET_SIZE, PACKET_SIZE).Length + "/" + file.Length.ToString());
                 sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, PACKET_SIZE ));
             }
 

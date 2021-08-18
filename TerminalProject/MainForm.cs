@@ -137,11 +137,17 @@ namespace TerminalProject
 
                 // File recieved ok 
                 case CustomSerialPort.Type.FILE_END:
-                    if (int.Parse(val) == CustomSerialPort.STATUS.OK) 
+                    if (int.Parse(val) == CustomSerialPort.STATUS.OK)
+                    {
                         updateFileTransferUI("File Sent Successfully");
+                        Console.WriteLine("======================================================");
+                    }
                     else
+                    {
+                        Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         updateFileTransferUI("File did not Sent Successfully");
-                    Console.WriteLine("=========================================================");
+                        Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                    }
                     break;
 
                 // Recieving file
@@ -149,9 +155,10 @@ namespace TerminalProject
                     if (CustomSerialPort.RFile.Status == CustomSerialPort.STATUS.RECIEVING_OK)
                     {
                         CustomSerialPort.RFile.Status = CustomSerialPort.STATUS.RECIEVING_FILE;
-                        updateFileTransferUI("Recieving file...");
-                        Console.WriteLine("=========================================================");
-                        Console.WriteLine("recieving file...");
+                        updateFileTransferUI("Recieving a file...");
+                        Console.WriteLine("======================================================");
+                        Console.WriteLine("recieving a file...");
+                      
                     }
                     else {
                         CustomSerialPort.RFile.Status = CustomSerialPort.STATUS.RECIEVING_ERROR;
@@ -185,16 +192,20 @@ namespace TerminalProject
                 case CustomSerialPort.Type.FILE_DATA:
                     if (CustomSerialPort.RFile.Status == CustomSerialPort.STATUS.RECIEVING_ERROR)
                     {
+                        Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         Console.WriteLine("writing file data ERROR");
-                        Console.WriteLine("=========================================================");
+                        Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         break;
                     }
-                    Console.WriteLine("writing file data: " + val);
-                    Console.WriteLine(CustomSerialPort.RFile.Data.Length + "/" + CustomSerialPort.RFile.Size);
+                    Console.WriteLine("receiving file data: " + val);
                     CustomSerialPort.RFile.Data += val;
+                    updateFileTransferUI("Received " + CustomSerialPort.RFile.Data.Length + "/" + CustomSerialPort.RFile.Size + "Bytes");
+                    Console.WriteLine(CustomSerialPort.RFile.Data.Length + "/" + CustomSerialPort.RFile.Size);
                     if(CustomSerialPort.RFile.Data.Length == CustomSerialPort.RFile.Size)
                     {
+                       
                         Console.WriteLine("file received successfully");
+                        Console.WriteLine("======================================================");
                         string path = Path.Combine(currentDirectoryPath, filesRecievedDirectory, CustomSerialPort.RFile.Name);
                         File.WriteAllText(path, CustomSerialPort.RFile.Data);
                         updateFileTransferUI("File Recieved Successfully");
@@ -397,7 +408,7 @@ namespace TerminalProject
        /*
         * Updates File Transfer UI Labels
         */
-        private void updateFileTransferUI(string fileStatusLabelString)
+        public void updateFileTransferUI(string fileStatusLabelString)
         {
             this.Invoke((MethodInvoker)delegate
             {
@@ -405,7 +416,7 @@ namespace TerminalProject
                 if (!fileStatusLabelString.Equals(""))
                 {
                     fileStatusLabel.Text = fileStatusLabelString;
-                    //Console.Write(fileStatusLabelString);
+                    
                 }
 
             });
@@ -476,6 +487,8 @@ namespace TerminalProject
             {
                 CustomSerialPort.RFile.clean();
                 fileStatusLabel.Text = "Sending " + Path.GetFileName(selectedFilePath);
+                Console.WriteLine("========================================================");
+                Console.WriteLine("Sending " + Path.GetFileName(selectedFilePath));
                 serialPort.sendFile(selectedFilePath);
             }
             catch (Exception) { }

@@ -204,18 +204,22 @@ namespace TerminalProject.Source_files
             int leftovers = text.Length % PACKET_SIZE;
             packetNum += leftovers > 0 ? 1 : 0;
 
+            int sizeSent = 0;
+
             // Send Packets of File Data
             for(int i = 0 ; i < packetNum ; i++)
             {
-
+                
                 // if last packet
                 if (i == packetNum - 1)
                 {
                     sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, leftovers));
                     return;
                 }
-                Console.WriteLine("data sent: " + text.Substring(i * PACKET_SIZE, PACKET_SIZE));
-                Console.WriteLine(text.Substring(i * PACKET_SIZE, PACKET_SIZE).Length + "/" + file.Length.ToString());
+                //Console.WriteLine("data sent: " + text.Substring(i * PACKET_SIZE, PACKET_SIZE));
+                sizeSent += text.Substring(i * PACKET_SIZE, PACKET_SIZE).Length;
+                //outsideUpdateFileTransferUI();
+                Console.WriteLine("sent: " + sizeSent + "/" + file.Length.ToString());
                 sendMessage(Type.FILE_DATA, text.Substring(i * PACKET_SIZE, PACKET_SIZE ));
             }
 

@@ -422,9 +422,15 @@ namespace TerminalProject
             });
         }
 
-       /*
-        * On List View Item Click
-        */
+        public void outsideUpdateFileTransferUI(string fileStatusLabelString)
+        {
+            fileStatusLabel.Invoke(new MethodInvoker(() => fileStatusLabel.Text = fileStatusLabelString));
+            
+        }
+
+        /*
+         * On List View Item Click
+         */
         private void filesListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (filesListView.SelectedItems.Count >= 1)

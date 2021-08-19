@@ -27,8 +27,8 @@ char main_menu[4][6][20] = {
 	 "more text"},
 	{// 2-file transfer menu
 	 "<-Back",
-	 "Read File",
-	 "Send File"},
+	 "1.Read File",
+	 "2.Send File"},
 	{// 3-Configuration menu
 	 "<-Back",
 	 "Brate: 9600 "} };

@@ -11,20 +11,16 @@
 #define MAX_STRING 524
 #define PACKET_SIZE 128
 
-void DelayUs(unsigned int cnt);
-void DelayMs(unsigned int cnt);
-
 char string_buffer[MAX_STRING];
 int string_index;
 int input_string_length;
 int baud_config;
 
-void Print_two_lines(const char *s1,const char *s2);
-void InitTimers();
-int translate_config_command(char* string);
-
 void Print(const char * s);
-void PrintVolt(const char * s);
-void change_color();
+void Print_two_lines(const char *s1,const char *s2);
+int translate_config_command(char* string);
+void DelayUs(unsigned int cnt);
+void DelayMs(unsigned int cnt);
+
 
 #endif /* HALGPIO_H_ */

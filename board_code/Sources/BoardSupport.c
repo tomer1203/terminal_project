@@ -65,81 +65,8 @@ void ClockSetup() {
 	// TPM_clock = 24MHz , PIT_clock = 48MHz
 
 }
-//-----------------------------------------------------------------
-// PIT - Initialisation
-//-----------------------------------------------------------------
-void InitPIT() {
-	SIM_SCGC6 |= SIM_SCGC6_PIT_MASK; //Enable the Clock to the PIT Modules
-	// Timer 0
-	PIT_LDVAL0 = 0x000FBB80; // setup timer 0 for 1msec counting period
-	//PIT_TCTRL0 = PIT_TCTRL_TEN_MASK | PIT_TCTRL_TIE_MASK; //enable PIT0 and its interrupt
 
-	// Timer 1
-	PIT_LDVAL1 = 0x00DFBB80; // setup timer 0 for 1msec counting period
-	//PIT_TCTRL1 = PIT_TCTRL_TEN_MASK ;//| PIT_TCTRL_TIE_MASK; //enable PIT0 and its interrupt
 
-	PIT_MCR |= PIT_MCR_FRZ_MASK; // stop the pit when in debug mode
 
-	enable_irq(INT_PIT - 16); //  //Enable PIT IRQ on the NVIC
-	set_irq_priority(INT_PIT - 16, 0);  // Interrupt priority = 0 = max
-}
 
-/*
- * Sets PIT's counter 
- */
-void setPITInterval(unsigned int interval) {
-	PIT_LDVAL0 = interval;
-}
 
-/*
- * Enable PIT
- */
-void enablePIT() {
-	PIT_MCR &= ~PIT_MCR_MDIS_MASK; // Enables the PIT module	
-}
-
-/*
- * Disable PIT
- */
-void disablePIT() {
-	PIT_MCR |= PIT_MCR_MDIS_MASK; // Disables the PIT module	
-
-}
-
-/*
- * Enable PIT x
- */
-void enablePITx(int x) {
-	if (x == 1) {
-		PIT_TCTRL1 |= PIT_TCTRL_TIE_MASK | PIT_TCTRL_TEN_MASK;
-	} else if (x == 0) {
-		PIT_TCTRL0 |= PIT_TCTRL_TIE_MASK | PIT_TCTRL_TEN_MASK;
-	}
-}
-
-/*
- * Disable PIT x
- */
-void disablePITx(int x) {
-	if (x == 1) {
-		PIT_TCTRL1 &= ~(PIT_TCTRL_TIE_MASK | PIT_TCTRL_TEN_MASK);
-	} else if (x == 0) {
-		PIT_TCTRL0 &= ~(PIT_TCTRL_TIE_MASK | PIT_TCTRL_TEN_MASK);
-	}
-}
-
-/*
- * Enables ADC 0 (POT channel is SE0)
- */
-void enableADC0() {
-	//POT channel is SE0 , ADC interrupt is enabled.
-	ADC0_SC1A = POT_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
-}
-
-/*
- * Disable ADC 0
- */
-void disableADC0() {
-	ADC0_SC1A &= ~ADC_SC1_AIEN_MASK;
-	// ADC0_SC1B =0x01; 
-}

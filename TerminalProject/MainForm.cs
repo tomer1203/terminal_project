@@ -447,7 +447,7 @@ namespace TerminalProject
             }
             catch (Exception)
             {
-                setConnectingLabel(CustomSerialPort.STATUS.PORT_OK);
+                setConnectingLabel(CustomSerialPort.STATUS.PORT_ERROR);
             }
         }
 

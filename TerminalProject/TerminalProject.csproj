@@ -61,15 +61,14 @@
     <Compile Include="ConfigurationsForm.Designer.cs">
       <DependentUpon>ConfigurationsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainForm.cs">
+	<Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Source files\CustomSerialPort.cs">
+    <Compile Include="Properties\AssemblyInfo.cs" /><Compile Include="Source files\CustomSerialPort.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Source files\DisabledRichTextBox.cs">
@@ -91,7 +90,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <None Include="app.manifest" />
+	<None Include="app.manifest" />
     <None Include="nuget.config">
       <SubType>Designer</SubType>
     </None>

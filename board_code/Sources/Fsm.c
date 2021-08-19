@@ -23,8 +23,6 @@ void Fsm(void){
 		switch (state){
 		
 		case IDLE_E:
-			disablePITx(0);
-			//RGB_LED_OFF;
 			wait(); 
 			break;
 		

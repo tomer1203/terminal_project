@@ -77,14 +77,6 @@
 
 void  InitGPIO();
 void ClockSetup();
-void InitPIT();
 
-void setPITInterval(unsigned int interval);
-void enablePIT();
-void disablePIT();
-void enablePITx(int x);
-void disablePITx(int x);
-void disableADC0();
-void enableADC0();
 
 #endif /* BOARDSUPPORT_H_ */

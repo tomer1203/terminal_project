@@ -38,22 +38,6 @@ void PORTD_IRQHandler(void){
 	PORTD_ISFR |= PTD_6;  // clear interrupt flag bit of PTD6
 }
 
-//-----------------------------------------------------------------
-// PIT - ISR = Interrupt Service Routine
-//-----------------------------------------------------------------
-void PIT_IRQHandler(){
-	
-	if(PIT_TFLG0 & PIT_TFLG_TIF_MASK){
-		change_color();
-		PIT_TFLG0 = PIT_TFLG_TIF_MASK; //clear the Pit 0 Irq flag 
-	}
-	
-	if(PIT_TFLG1 & PIT_TFLG_TIF_MASK){
-		enableADC0();
-		PIT_TFLG1 = PIT_TFLG_TIF_MASK; //clear the Pit 1 Irq flag
-	}
-}
-
 
 // format:
 // "$[Br]9600\0"
@@ -66,9 +50,6 @@ void PIT_IRQHandler(){
 void UART0_IRQHandler(){
 	uint8_t Char;
 	char length[4];
-	char baudRate[6];
-	int function_return_value;
-	char text[2];
 	
 	
 	if(UART0_S1 & UART_S1_RDRF_MASK){ // RX buffer is full and ready for reading
@@ -89,83 +70,7 @@ void UART0_IRQHandler(){
 		
 		// if message is finished		
 		if (input_string_length<=0 && string_index >= 10){
-			// CHECKSUM Check //
-			if (!validate_checksum(string_buffer, string_index + 1)) {
-				send2pc(TYPE.STATUS, STATUS.CHECKSUM_ERROR);
-				clear_string_buffer();
-				return;
-			}
-			else {
-				//send2pc(TYPE.STATUS, STATUS.OK);
-			}
-			
-			switch (state) {
-			
-			case WRITING_FILE_INIT_E:
-				function_return_value = write_file_init_message(string_buffer);
-				if (function_return_value == 1) {
-					Print("Receiving a File");
-					state = WRITING_FILE;
-				}
-				if (function_return_value<0){
-					sprintf(text,"%d",function_return_value);
-					send2pc(TYPE.FILE_END, abs(function_return_value));
-				}
-				break;
-				
-			case WRITING_FILE:
-				function_return_value = write_file_chunck(string_buffer, string_index-10);
-				if (function_return_value == 1) {
-					// File written successfully 
-					send2pc(TYPE.FILE_END, STATUS.OK);
-					Print_two_lines("Received", "Successfully");
-					state = IDLE_E;
-					initialize_ui();
-				}
-				if (function_return_value<0){
-					sprintf(text,"%d",function_return_value);
-					send2pc(TYPE.FILE_END, abs(function_return_value));
-				}
-				break;
-				
-			default:
-				// ACTIONS //
-				
-				// print message to chat
-				if (is_chat_command(string_buffer)) {
-					Print(strip_command(string_buffer));
-				}
-				// receiving a file
-				else if (is_write_file_transfer_command(string_buffer)) {
-					state = WRITING_FILE_INIT_E;
-				}
-				// change Baud rate
-				else if (is_br_command(string_buffer)) {
-					baud_config = atoi(strip_command(string_buffer));
-					send2pc(TYPE.BAUDRATE, strip_command(string_buffer));
-					DelayMs(500);
-					change_Baud_config(baud_config);
-					DelayMs(500);
-					send2pc(TYPE.STATUS, STATUS.OK);
-					Print_two_lines("Baud Rate:", strip_command(string_buffer));
-					sprintf(baudRate, "%5d", baud_config);
-					main_menu[3][1][7] = baudRate[0];
-					main_menu[3][1][8] = baudRate[1];
-					main_menu[3][1][9] = baudRate[2];
-					main_menu[3][1][10] = baudRate[3];
-					main_menu[3][1][11] = baudRate[4];
-
-				}
-				break;
-			}
-			
-			
-			
-			
-			
-			
-			// when finished reading message, clean the buffer.
-			clear_string_buffer();
+			handleMessage();
 			return;
 		}
 		string_index++;
@@ -173,57 +78,99 @@ void UART0_IRQHandler(){
 	
 }// END UART_IRQ
 
-//-----------------------------------------------------------------
-// ADC0 - ISR = Interrupt Service Routine
-//-----------------------------------------------------------------
-void ADC0_IRQHandler(){
-	int intData;
-	float data;
-	char data_string[10];
+//////////////////////////////
+//    Handle Message
+//////////////////////////////
+void handleMessage(){
 	
-	intData = ADC0_RA;
-	data = (float)intData; // 4000
+	int function_return_value;
+	char text[2];
 	
-	data = (data*3.3)/(4095.0);
-	ftoa(data, data_string, 3);
-	//	uint8_t data_LSB = 0xFF & data;
-	//uint8_t data_MSB = (0x0F00 & data) >> 8;
+	// CHECKSUM Check //
+	if (!validate_checksum(string_buffer, string_index + 1)) {
+		send2pc(TYPE.STATUS, STATUS.CHECKSUM_ERROR);
+		clear_string_buffer();
+		return;
+	}
+	else {
+		//send2pc(TYPE.STATUS, STATUS.OK);
+	}
 	
-	//itoa( data ,data_string ,10);
+	switch (state) {
 	
-	PrintVolt(data_string);
-	//Print(data_string);
-	
-}
-
-
-//-----------------------------------------------------------------
-//  OUR RGB Serial Show function
-//-----------------------------------------------------------------
-void change_color(){
-	
-	static uint8_t counter= 0;
+	case WRITING_FILE_INIT_E:
+		function_return_value = write_file_init_message(string_buffer);
+		if (function_return_value == 1) {
+			Print("Receiving a File");
+			state = WRITING_FILE;
+		}
+		if (function_return_value<0){
+			sprintf(text,"%d",function_return_value);
+			send2pc(TYPE.FILE_END, abs(function_return_value));
+		}
+		break;
 		
-	if(counter & 0x01) BLUE_LED_ON;
-	else BLUE_LED_OFF;
+	case WRITING_FILE:
+		function_return_value = write_file_chunck(string_buffer, string_index-10);
+		if (function_return_value == 1) {
+			// File written successfully 
+			send2pc(TYPE.FILE_END, STATUS.OK);
+			Print_two_lines("Received", "Successfully");
+			state = IDLE_E;
+			initialize_ui();
+		}
+		if (function_return_value<0){
+			sprintf(text,"%d",function_return_value);
+			send2pc(TYPE.FILE_END, abs(function_return_value));
+		}
+		break;
+		
+	default:
+		// ACTIONS //
+		
+		// print message to chat
+		if (is_chat_command(string_buffer)) {
+			Print(strip_command(string_buffer));
+		}
+		// receiving a file
+		else if (is_write_file_transfer_command(string_buffer)) {
+			state = WRITING_FILE_INIT_E;
+		}
+		// change Baud rate
+		else if (is_br_command(string_buffer)) {
+			changeBaudrate();
+		}
+		break;
+	}
 	
-	if(counter & 0x02)RED_LED_ON;
-	else RED_LED_OFF;
 	
-	if(counter & 0x04)GREEN_LED_ON;
-	else GREEN_LED_OFF;
+	// when finished reading message, clean the buffer.
+	clear_string_buffer();
 	
-	counter++;
+} // Handle Message
 
+
+///////////////////////////////////////
+// Changes baudrate & sends STATUS OK
+///////////////////////////////////////
+void changeBaudrate(){
+	char baudRate[6];
+	
+	baud_config = atoi(strip_command(string_buffer));
+	send2pc(TYPE.BAUDRATE, strip_command(string_buffer));
+	DelayMs(500);
+	change_Baud_config(baud_config);
+	DelayMs(500);
+	send2pc(TYPE.STATUS, STATUS.OK);
+	Print_two_lines("Baud Rate:", strip_command(string_buffer));
+	sprintf(baudRate, "%5d", baud_config);
+	main_menu[3][1][7] = baudRate[0];
+	main_menu[3][1][8] = baudRate[1];
+	main_menu[3][1][9] = baudRate[2];
+	main_menu[3][1][10] = baudRate[3];
+	main_menu[3][1][11] = baudRate[4];
 }
 
-
-/*
- * Inits Timers
- */
-void InitTimers(){
-	InitPIT();
-}
 
 /*
  * Print to LCD
@@ -245,19 +192,6 @@ void Print_two_lines(const char *s1,const char *s2){
 	lcd_puts(s1);
 	lcd_new_line;
 	lcd_puts(s2);
-}
-
-void PrintVolt(const char * s){
-	
-	cursor_off;
-	lcd_clear();
-	lcd_goto(0);
-	lcd_puts("  Volt: ");
-	DelayMs(5);
-	
-	lcd_puts(s);
-	
-	lcd_puts(" [V]");
 }
 
 //******************************************************************

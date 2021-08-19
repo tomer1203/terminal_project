@@ -23,7 +23,6 @@
 #include "file_system.h"
 #include "halGPIO.h"
 #include "user_interface.h"
-#include "ADCandDAC.h"
 #include "halLCD.h"
 
 

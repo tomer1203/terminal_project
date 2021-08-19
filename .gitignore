@@ -9,6 +9,9 @@
 *.o
 *.map
 *.elf
+*.d
+*.args
+*.local
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

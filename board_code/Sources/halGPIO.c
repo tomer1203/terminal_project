@@ -69,9 +69,12 @@ void UART0_IRQHandler(){
 	char baudRate[6];
 	int function_return_value;
 	char text[2];
+	
+	
 	if(UART0_S1 & UART_S1_RDRF_MASK){ // RX buffer is full and ready for reading
 		Char = UART0_D;
 		
+		// insert read char to buffer
 		string_buffer[string_index] = Char;
 		input_string_length--;
 
@@ -81,7 +84,7 @@ void UART0_IRQHandler(){
 			length[1] = string_buffer[8];
 			length[2] = string_buffer[9];
 			length[3] = '\0';
-			input_string_length = atoi(length); // the +1 is for the closing |
+			input_string_length = atoi(length); 
 		}
 		
 		// if message is finished		
@@ -93,7 +96,7 @@ void UART0_IRQHandler(){
 				return;
 			}
 			else {
-				send2pc(TYPE.STATUS, STATUS.OK);
+				//send2pc(TYPE.STATUS, STATUS.OK);
 			}
 			
 			switch (state) {
@@ -127,18 +130,23 @@ void UART0_IRQHandler(){
 				
 			default:
 				// ACTIONS //
-				// change Baud rate
+				
+				// print message to chat
 				if (is_chat_command(string_buffer)) {
 					Print(strip_command(string_buffer));
 				}
+				// receiving a file
 				else if (is_write_file_transfer_command(string_buffer)) {
 					state = WRITING_FILE_INIT_E;
 				}
+				// change Baud rate
 				else if (is_br_command(string_buffer)) {
 					baud_config = atoi(strip_command(string_buffer));
-					send2pc(TYPE.TEXT, "changed baud rate, status ok");
+					send2pc(TYPE.BAUDRATE, strip_command(string_buffer));
+					DelayMs(500);
 					change_Baud_config(baud_config);
-					
+					DelayMs(500);
+					send2pc(TYPE.STATUS, STATUS.OK);
 					Print_two_lines("Baud Rate:", strip_command(string_buffer));
 					sprintf(baudRate, "%5d", baud_config);
 					main_menu[3][1][7] = baudRate[0];
@@ -147,10 +155,6 @@ void UART0_IRQHandler(){
 					main_menu[3][1][10] = baudRate[3];
 					main_menu[3][1][11] = baudRate[4];
 
-					// normal chat
-				}
-				else if (is_chat_command(string_buffer)) {
-					Print(strip_command(string_buffer));
 				}
 				break;
 			}
@@ -166,7 +170,8 @@ void UART0_IRQHandler(){
 		}
 		string_index++;
 	}
-}
+	
+}// END UART_IRQ
 
 //-----------------------------------------------------------------
 // ADC0 - ISR = Interrupt Service Routine

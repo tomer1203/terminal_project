@@ -48,6 +48,10 @@ namespace TerminalProject.Source_files
             public const int PORT_ERROR = 4;
             public const int PORT_OK = 5;
 
+            // for buffer error
+            public const int BUFFER_ERROR_OVERFLOW = 5;
+            public static int bufferErrorCounter = 0;
+
             // for files
             public const int RECIEVING_OK = 0;
             public const int RECIEVING_FILE = 1;

@@ -35,6 +35,7 @@
             this.setBaudratecomboBox = new System.Windows.Forms.ComboBox();
             this.saveConfButton = new System.Windows.Forms.Button();
             this.saveConfErrorLabel = new System.Windows.Forms.Label();
+            this.sendToMcucheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // setBaudrateLabel
@@ -89,7 +90,7 @@
             this.saveConfButton.BackColor = System.Drawing.SystemColors.MenuBar;
             this.saveConfButton.Cursor = System.Windows.Forms.Cursors.VSplit;
             this.saveConfButton.ForeColor = System.Drawing.Color.Teal;
-            this.saveConfButton.Location = new System.Drawing.Point(94, 188);
+            this.saveConfButton.Location = new System.Drawing.Point(90, 206);
             this.saveConfButton.Name = "saveConfButton";
             this.saveConfButton.Size = new System.Drawing.Size(81, 35);
             this.saveConfButton.TabIndex = 5;
@@ -106,12 +107,26 @@
             this.saveConfErrorLabel.TabIndex = 7;
             this.saveConfErrorLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // sendToMcucheckBox
+            // 
+            this.sendToMcucheckBox.AutoSize = true;
+            this.sendToMcucheckBox.Checked = true;
+            this.sendToMcucheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.sendToMcucheckBox.Location = new System.Drawing.Point(66, 167);
+            this.sendToMcucheckBox.Name = "sendToMcucheckBox";
+            this.sendToMcucheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.sendToMcucheckBox.Size = new System.Drawing.Size(128, 24);
+            this.sendToMcucheckBox.TabIndex = 8;
+            this.sendToMcucheckBox.Text = "send to MCU\r\n";
+            this.sendToMcucheckBox.UseVisualStyleBackColor = true;
+            // 
             // ConfigurationsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.MenuBar;
             this.ClientSize = new System.Drawing.Size(274, 283);
+            this.Controls.Add(this.sendToMcucheckBox);
             this.Controls.Add(this.saveConfErrorLabel);
             this.Controls.Add(this.saveConfButton);
             this.Controls.Add(this.setBaudratecomboBox);
@@ -138,5 +153,6 @@
         private System.Windows.Forms.ComboBox setBaudratecomboBox;
         private System.Windows.Forms.Button saveConfButton;
         private System.Windows.Forms.Label saveConfErrorLabel;
+        private System.Windows.Forms.CheckBox sendToMcucheckBox;
     }
 }

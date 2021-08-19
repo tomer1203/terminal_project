@@ -125,6 +125,19 @@ namespace TerminalProject
             {
                 // not in use
                 case CustomSerialPort.Type.BAUDRATE:
+                    try
+                    {
+                        serialPort.Close();
+                        Thread.Sleep(CustomSerialPort.CONFIGURE_DELAY);
+                        serialPort.BaudRate = int.Parse(val);
+                        serialPort.Open();
+                        this.Invoke((MethodInvoker)delegate
+                        {
+                            setConnectingLabel(CustomSerialPort.STATUS.PORT_OK);
+                        });
+                        
+                    }
+                    catch (Exception) { setConnectingLabel(CustomSerialPort.STATUS.PORT_ERROR); }
                     break;
 
                 // Text Message Recieved
@@ -243,6 +256,15 @@ namespace TerminalProject
 
                 case CustomSerialPort.STATUS.BUFFER_ERROR:
                     updateChatStatusLabel(CustomSerialPort.STATUS.ToString(status));
+                    CustomSerialPort.STATUS.bufferErrorCounter++;
+                    if(CustomSerialPort.STATUS.bufferErrorCounter > CustomSerialPort.STATUS.BUFFER_ERROR_OVERFLOW)
+                    {
+                        CustomSerialPort.STATUS.bufferErrorCounter = 0;
+                        this.Invoke((MethodInvoker)delegate
+                        {
+                            setConnectingLabel(CustomSerialPort.STATUS.PORT_ERROR);
+                        });
+                    }
                     break;
 
                 case CustomSerialPort.STATUS.OK:
@@ -288,7 +310,6 @@ namespace TerminalProject
             }
 
             connectingPictureBox.Image = bm;
-
         }
 
         /*
@@ -344,7 +365,10 @@ namespace TerminalProject
         */
         private void onSerialConfigurationsChanged(object sender, EventArgs e)
         {
-            setConnectingLabel(CustomSerialPort.STATUS.OK);
+            this.Invoke((MethodInvoker)delegate
+            {
+                setConnectingLabel(CustomSerialPort.STATUS.OK);
+            });
         }
 
         /*
@@ -526,7 +550,13 @@ namespace TerminalProject
                 Console.WriteLine("sending \"" + Path.GetFileName(selectedFilePath) + "\"");
                 serialPort.sendFile(selectedFilePath);
             }
-            catch (Exception) { }
+            catch (Exception exception) {
+                Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                Console.WriteLine("error sending \"" + Path.GetFileName(selectedFilePath) + "\"" + exception.ToString());
+                Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                fileStatusLabel.Text = "error sending \"" + Path.GetFileName(selectedFilePath) + "\"";
+                setConnectingLabel(CustomSerialPort.STATUS.PORT_ERROR);
+            }
         }
 
         /*

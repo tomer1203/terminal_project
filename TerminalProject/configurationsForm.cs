@@ -86,7 +86,19 @@ namespace TerminalProject
             
             if (status_ok) // user chose both baudrate and port
             {
-               
+                // if checkbox not checked - change only self 
+                if (!sendToMcucheckBox.Checked)
+                {
+                    mSerialPort.Close();
+                    Thread.Sleep(CustomSerialPort.CONFIGURE_DELAY);
+                    mSerialPort.PortName = port;
+                    mSerialPort.BaudRate = baudrate;
+                    mSerialPort.Open();
+                    EventHub.OnSaveConfigurations(mSerialPort, EventArgs.Empty);
+                    this.Close();
+                    return;
+                }
+
                 // close opened serial port
                 if (mSerialPort.IsOpen){
                     mSerialPort.Close();
@@ -98,11 +110,14 @@ namespace TerminalProject
                 {
                     mSerialPort.Open();
                     mSerialPort.sendMessage(CustomSerialPort.Type.BAUDRATE, baudrate.ToString());
-                    mSerialPort.Close();
+                    // mSerialPort.Close();
                     // Delay is needed befor opening the port again
-                    Thread.Sleep(CustomSerialPort.CONFIGURE_DELAY);
+                    //Thread.Sleep(CustomSerialPort.CONFIGURE_DELAY);
+                    EventHub.OnSaveConfigurations(mSerialPort, EventArgs.Empty);
+                    this.Close();
+                    return;
                 }
-                catch (Exception) { }
+                catch (Exception) { saveConfErrorLabel.Text = "error opening gate"; }
                 mSerialPort.clearMyBuffer();
                 mSerialPort.BaudRate = baudrate;
                 try

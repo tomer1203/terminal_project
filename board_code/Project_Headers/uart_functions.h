@@ -28,6 +28,7 @@ void send2pc(char* code,const char* message);
 struct TYPE{
 	char TEXT[3];
 	char STATUS[3];
+	char BAUDRATE[3];
 	// Files 
 	char FILE_START[3];
 	char FILE_NAME[3];
@@ -35,7 +36,7 @@ struct TYPE{
 	char FILE_DATA[3];
 	char FILE_END[3];
 };
-static const struct TYPE TYPE = {"Tx","St","Wf", "Na", "Sz", "Wd", "Fe"};
+static const struct TYPE TYPE = {"Tx","St","Br","Wf", "Na", "Sz", "Wd", "Fe"};
 
 struct STATUS{
 	char OK[2];

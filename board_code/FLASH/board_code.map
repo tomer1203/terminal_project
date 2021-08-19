@@ -139,7 +139,7 @@ last_read_line      0x10              ./Sources/user_interface.o
 menu_select         0x4               ./Sources/user_interface.o
 first_time          0x4               ./Sources/user_interface.o
 file_system         0x2d4             ./Sources/user_interface.o
-fs_memory           0x2af8            ./Sources/file_system.o
+fs_memory           0x2710            ./Sources/file_system.o
 interval            0x4               ./Sources/user_interface.o
 file_select         0x4               ./Sources/user_interface.o
 menu_size           0x4               ./Sources/user_interface.o
@@ -1233,9 +1233,10 @@ END GROUP
                 0x1ffff528                last_file_select
                 0x1ffff52c                string_buffer
                 0x1ffff738                current_file_desc
- COMMON         0x1ffff73c     0x2b0c ./Sources/file_system.o
+ COMMON         0x1ffff73c     0x2724 ./Sources/file_system.o
                 0x1ffff73c                reading_Line
                 0x1ffff750                fs_memory
+<<<<<<< Updated upstream
  COMMON         0x20002248        0x4 C:/CodeWarrior/CW MCU v10.6/MCU/ARM_GCC_Support/ewl/lib/armv6-m\libc.a(errno.o)
                 0x20002248                errno
                 0x2000224c                . = ALIGN (0x4)
@@ -1263,6 +1264,35 @@ END GROUP
                 0x20002a64                . = (. + __stack_size)
  *fill*         0x20002664      0x400 00
                 0x20002a64                . = ALIGN (0x4)
+=======
+ COMMON         0x20001e60        0x4 C:/Freescale/CW MCU v10.6/MCU/ARM_GCC_Support/ewl/lib/armv6-m\libc.a(errno.o)
+                0x20001e60                errno
+                0x20001e64                . = ALIGN (0x4)
+                0x20001e64                __END_BSS = .
+                0x20001e64                PROVIDE (__bss_end__, __END_BSS)
+                0x000080d0                _romp_at = (___ROM_AT + SIZEOF (.data))
+
+.romp           0x20001e64       0x18 load address 0x000080d0
+                0x000080d0                __S_romp = _romp_at
+                0x20001e64        0x4 LONG 0x7ee8 ___ROM_AT
+                0x20001e68        0x4 LONG 0x1ffff000 _sdata
+                0x20001e6c        0x4 LONG 0x1e8 ___data_size
+                0x20001e70        0x4 LONG 0x0
+                0x20001e74        0x4 LONG 0x0
+                0x20001e78        0x4 LONG 0x0
+
+._user_heap_stack
+                0x20001e7c      0x800 load address 0x000080e8
+                0x20001e7c                . = ALIGN (0x4)
+                0x20001e7c                PROVIDE (end, .)
+                0x20001e7c                PROVIDE (_end, .)
+                0x20001e7c                __heap_addr = .
+                0x2000227c                . = (. + __heap_size)
+ *fill*         0x20001e7c      0x400 00
+                0x2000267c                . = (. + __stack_size)
+ *fill*         0x2000227c      0x400 00
+                0x2000267c                . = ALIGN (0x4)
+>>>>>>> Stashed changes
 
 .ARM.attributes
                 0x00000000       0x31

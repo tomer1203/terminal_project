@@ -45,6 +45,24 @@ void PORTD_IRQHandler(void){
 // Br -Baud rate configuration
 
 //-----------------------------------------------------------------
+//  DMA - ISR
+//-----------------------------------------------------------------
+
+void DMA0_IRQHandler(void)
+{
+	//disable_irq(INT_DMA0 - 16);
+	DMA_DSR_BCR0 |= DMA_DSR_BCR_DONE_MASK;			// Clear Done Flag
+	DMAMUX0_CHCFG0 &= ~DMAMUX_CHCFG_ENBL_MASK;	    // Disable DMA Channel 0
+	UART0_C5 &= ~UART0_C5_RDMAE_MASK; 				// Disabling DMA using UART
+	enable_irq(INT_UART0-16);						// Enable UART0 interrupt
+	RED_LED_ON;
+	int j;
+	handleMessage();
+	for (j=1000000; j>0; j--);	                    // Delay
+	RED_LED_OFF;                   // Delay
+}
+
+//-----------------------------------------------------------------
 //  UART0 - ISR
 //-----------------------------------------------------------------
 void UART0_IRQHandler(){
@@ -57,7 +75,9 @@ void UART0_IRQHandler(){
 		
 		// insert read char to buffer
 		string_buffer[string_index] = Char;
-		input_string_length--;
+		
+		// WHEN NOT USING THE DMA THIS LINE SHOULD BE BROUHGT BACK
+		//input_string_length--;
 
 		// read the input string length
 		if (string_index == 10){
@@ -66,8 +86,15 @@ void UART0_IRQHandler(){
 			length[2] = string_buffer[9];
 			length[3] = '\0';
 			input_string_length = atoi(length); 
+			// DMA CONFIGURATION!
+			//DMA_DAR0 = (uint32_t)hd_file_Ptr[index];       			//destination
+			DMA_DSR_BCR0 = DMA_DSR_BCR_BCR(input_string_length);       // number of bytes to transfer
+			DMAMUX0_CHCFG0 |= DMAMUX_CHCFG_ENBL_MASK; 				// Enable DMA channel 
+			disable_irq(INT_UART0-16);               			    // Disable UART0 interrupt
+			UART0_C5 |= UART0_C5_RDMAE_MASK;          				// Enable DMA request for UART0 receiver
 		}
 		
+		// THIS MIGHT NEED TO BE DELETED
 		// if message is finished		
 		if (input_string_length<=0 && string_index >= 10){
 			handleMessage();
@@ -87,7 +114,7 @@ void handleMessage(){
 	char text[2];
 	
 	// CHECKSUM Check //
-	if (!validate_checksum(string_buffer, string_index + 1)) {
+	if (!validate_checksum(string_buffer, input_string_length + 11)) {// string index +1
 		send2pc(TYPE.STATUS, STATUS.CHECKSUM_ERROR);
 		clear_string_buffer();
 		return;
@@ -111,7 +138,7 @@ void handleMessage(){
 		break;
 		
 	case WRITING_FILE:
-		function_return_value = write_file_chunck(string_buffer, string_index-10);
+		function_return_value = write_file_chunck(string_buffer, input_string_length); // string_index - 10
 		if (function_return_value == 1) {
 			// File written successfully 
 			send2pc(TYPE.FILE_END, STATUS.OK);

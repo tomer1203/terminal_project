@@ -66,7 +66,7 @@ void dma0_init(void)
 					 DMA_DCR_CS_MASK  |		// Cycle Steal
 					 DMA_DCR_SSIZE(1) |		// Set source size to 8 bits //CHANGED FROM 2(16)
 					 DMA_DCR_DINC_MASK|		// Set increments to destination address
-					 DMA_DCR_DMOD(15)  |     // Destination address modulo of 2Kb
+					 DMA_DCR_DMOD(15)  |    // Destination address modulo of 2Kb
 					 DMA_DCR_DSIZE(1));		// Set destination size of 8 bits // CHANGED FROM 2(16)
 					 
 		

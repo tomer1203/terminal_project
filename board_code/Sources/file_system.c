@@ -290,6 +290,9 @@ int write_file_chunck(char* write_data, int size){
 	char data[MAX_STRING]={0};
 	char* write_address;
 	strcpy(data,strip_command(write_data));
+	if (!is_write_data_command(write_data)){
+		return -3;
+	}
 	if (file_system.state != WRITE_DATA_FS){
 		return -1; // entered in wrong state
 	}

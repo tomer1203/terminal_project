@@ -31,6 +31,7 @@ MEMORY
 /* Define output sections */
 SECTIONS
 {
+  string_buffer = 0x20001000;
   /* The startup code goes first into Flash */
   .interrupts :
   {

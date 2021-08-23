@@ -16,8 +16,8 @@ namespace TerminalProject.Source_files
         // Our Format
         public const string customFormat = "$[{0}]{1}|{2}|{3}";
         public const int customFormatLength = 11; 
-        public const int PACKET_SIZE = 128;
-        public const int SEND_DELAY = 50;
+        public const int PACKET_SIZE = 64;
+        public const int SEND_DELAY = 80;
         public const int CONFIGURE_DELAY = 80;
 
         // Message types
@@ -97,6 +97,7 @@ namespace TerminalProject.Source_files
             this.BaudRate = defaultBaudrate;
             this.ReadTimeout = 300;
             this.WriteTimeout = 300;
+            this.DtrEnable = true;
         }
 
         /*

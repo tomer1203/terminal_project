@@ -225,8 +225,9 @@ namespace TerminalProject
                     }
                     else
                     {
+                        // STOP SENDING FILE
                         Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                        Console.WriteLine("\"" + CustomSerialPort.RFile.Name + "\" did not send successfully");
+                        Console.WriteLine("\"" + CustomSerialPort.RFile.Name + "\" did not send successfully with status " + Enum.GetName(typeof(CustomSerialPort.STATUS.FILE_STATUS_NAMES),int.Parse(val)));
                         Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         updateFileTransferStatusLabel("\"" + CustomSerialPort.RFile.Name + "\" did not send successfully");
                     }

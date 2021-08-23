@@ -54,6 +54,7 @@ void DMA0_IRQHandler(void)
 	DMAMUX0_CHCFG0 &= ~DMAMUX_CHCFG_ENBL_MASK;	    
 	UART0_C5 &= ~UART0_C5_RDMAE_MASK; 				
 	enable_irq(INT_UART0-16);
+	DelayMs(10);
 	RED_LED_TOGGLE;
 	handleMessage();
 }
@@ -129,9 +130,9 @@ void handleMessage(){
 			Print("Receiving a File");
 			state = WRITING_FILE;
 		}
-		if (function_return_value<0){
-			sprintf(text,"%d",function_return_value);
-			send2pc(TYPE.FILE_END, abs(function_return_value));
+		if (function_return_value<0){ // File Receiving Error
+			sprintf(text,"%d",abs(function_return_value));
+			send2pc(TYPE.FILE_END, text);
 		}
 		break;
 		
@@ -144,9 +145,9 @@ void handleMessage(){
 			state = IDLE_E;
 			initialize_ui();
 		}
-		if (function_return_value<0){
-			sprintf(text,"%d",function_return_value);
-			send2pc(TYPE.FILE_END, abs(function_return_value));
+		if (function_return_value<0){ // File Receiving Error
+			sprintf(text,"%d",abs(function_return_value));
+			send2pc(TYPE.FILE_END, text);
 		}
 		break;
 		

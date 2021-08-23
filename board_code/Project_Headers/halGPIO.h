@@ -8,8 +8,8 @@
 #ifndef HALGPIO_H_
 #define HALGPIO_H_
 // 1/2 KB
-#define MAX_STRING 524
-#define PACKET_SIZE 32
+#define MAX_STRING 140
+#define PACKET_SIZE 64
 
 extern char string_buffer[MAX_STRING];
 int string_index;

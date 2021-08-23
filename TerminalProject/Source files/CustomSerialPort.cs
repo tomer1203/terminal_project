@@ -53,9 +53,20 @@ namespace TerminalProject.Source_files
             public static int bufferErrorCounter = 0;
 
             // for files
+            public enum FILE_STATUS_NAMES{
+                SIZE_FORMAT_WRONG = 11, 
+                FILE_SYSTEM_TOO_SMALL = 12,
+                NO_MORE_FILES_TO_DELETE = 112,
+                NAME_FORMAT_WRONG = 13,
+                WRITE_DATA_FORMAT_WRONG = 23,
+                WRITE_DATA_NOT_IN_CORRECT_STATE = 21,
+                WRITE_DATA_MESSAGE_OVERFLOW = 22
+            }
             public const int RECIEVING_OK = 0;
             public const int RECIEVING_FILE = 1;
             public const int RECIEVING_ERROR = 2;
+           
+            
         }
 
         // Recieving file handeling

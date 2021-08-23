@@ -45,6 +45,21 @@ void PORTD_IRQHandler(void){
 // Br -Baud rate configuration
 
 //-----------------------------------------------------------------
+//  DMA - ISR
+//-----------------------------------------------------------------
+
+void DMA0_IRQHandler(void)
+{
+	DMA_DSR_BCR0 |= DMA_DSR_BCR_DONE_MASK;			
+	DMAMUX0_CHCFG0 &= ~DMAMUX_CHCFG_ENBL_MASK;	    
+	UART0_C5 &= ~UART0_C5_RDMAE_MASK; 				
+	enable_irq(INT_UART0-16);
+	DelayMs(10);
+	RED_LED_TOGGLE;
+	handleMessage();
+}
+
+//-----------------------------------------------------------------
 //  UART0 - ISR
 //-----------------------------------------------------------------
 void UART0_IRQHandler(){
@@ -57,6 +72,8 @@ void UART0_IRQHandler(){
 		
 		// insert read char to buffer
 		string_buffer[string_index] = Char;
+		
+		// WHEN NOT USING THE DMA THIS LINE SHOULD BE BROUHGT BACK
 		input_string_length--;
 
 		// read the input string length
@@ -66,10 +83,21 @@ void UART0_IRQHandler(){
 			length[2] = string_buffer[9];
 			length[3] = '\0';
 			input_string_length = atoi(length); 
+			msg_length = input_string_length;
+			if (is_write_data_command(string_buffer)){
+				// DMA CONFIGURATION!
+				DMA_DAR0 = (uint32_t)&string_buffer[11];
+				DMA_DSR_BCR0 = DMA_DSR_BCR_BCR(input_string_length);       
+				disable_irq(INT_UART0-16);               			    
+				DMAMUX0_CHCFG0 |= DMAMUX_CHCFG_ENBL_MASK; 				 
+				UART0_C5 |= UART0_C5_RDMAE_MASK;        
+				return;
+			}
 		}
-		
+
 		// if message is finished		
 		if (input_string_length<=0 && string_index >= 10){
+			GREEN_LED_TOGGLE;
 			handleMessage();
 			return;
 		}
@@ -87,13 +115,11 @@ void handleMessage(){
 	char text[2];
 	
 	// CHECKSUM Check //
-	if (!validate_checksum(string_buffer, string_index + 1)) {
+	if (!validate_checksum(string_buffer, msg_length + 11)) {// string index +1
 		send2pc(TYPE.STATUS, STATUS.CHECKSUM_ERROR);
+		Print("Checksum ERROR");
 		clear_string_buffer();
 		return;
-	}
-	else {
-		//send2pc(TYPE.STATUS, STATUS.OK);
 	}
 	
 	switch (state) {
@@ -104,14 +130,14 @@ void handleMessage(){
 			Print("Receiving a File");
 			state = WRITING_FILE;
 		}
-		if (function_return_value<0){
-			sprintf(text,"%d",function_return_value);
-			send2pc(TYPE.FILE_END, abs(function_return_value));
+		if (function_return_value<0){ // File Receiving Error
+			sprintf(text,"%d",abs(function_return_value));
+			send2pc(TYPE.FILE_END, text);
 		}
 		break;
 		
 	case WRITING_FILE:
-		function_return_value = write_file_chunck(string_buffer, string_index-10);
+		function_return_value = write_file_chunck(string_buffer, msg_length); // string_index - 10
 		if (function_return_value == 1) {
 			// File written successfully 
 			send2pc(TYPE.FILE_END, STATUS.OK);
@@ -119,9 +145,9 @@ void handleMessage(){
 			state = IDLE_E;
 			initialize_ui();
 		}
-		if (function_return_value<0){
-			sprintf(text,"%d",function_return_value);
-			send2pc(TYPE.FILE_END, abs(function_return_value));
+		if (function_return_value<0){ // File Receiving Error
+			sprintf(text,"%d",abs(function_return_value));
+			send2pc(TYPE.FILE_END, text);
 		}
 		break;
 		

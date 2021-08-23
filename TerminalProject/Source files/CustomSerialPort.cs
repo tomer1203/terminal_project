@@ -16,8 +16,8 @@ namespace TerminalProject.Source_files
         // Our Format
         public const string customFormat = "$[{0}]{1}|{2}|{3}";
         public const int customFormatLength = 11; 
-        public const int PACKET_SIZE = 128;
-        public const int SEND_DELAY = 50;
+        public const int PACKET_SIZE = 64;
+        public const int SEND_DELAY = 80;
         public const int CONFIGURE_DELAY = 80;
 
         // Message types
@@ -53,9 +53,20 @@ namespace TerminalProject.Source_files
             public static int bufferErrorCounter = 0;
 
             // for files
+            public enum FILE_STATUS_NAMES{
+                SIZE_FORMAT_WRONG = 11, 
+                FILE_SYSTEM_TOO_SMALL = 12,
+                NO_MORE_FILES_TO_DELETE = 112,
+                NAME_FORMAT_WRONG = 13,
+                WRITE_DATA_FORMAT_WRONG = 23,
+                WRITE_DATA_NOT_IN_CORRECT_STATE = 21,
+                WRITE_DATA_MESSAGE_OVERFLOW = 22
+            }
             public const int RECIEVING_OK = 0;
             public const int RECIEVING_FILE = 1;
             public const int RECIEVING_ERROR = 2;
+           
+            
         }
 
         // Recieving file handeling
@@ -97,6 +108,7 @@ namespace TerminalProject.Source_files
             this.BaudRate = defaultBaudrate;
             this.ReadTimeout = 300;
             this.WriteTimeout = 300;
+            this.DtrEnable = true;
         }
 
         /*

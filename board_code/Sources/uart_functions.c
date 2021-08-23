@@ -49,7 +49,13 @@ int is_name_command(char* string){
 		return 0;
 	}
 }
-
+int is_write_data_command(char* string){
+	if (string[0]=='$' && string[1]=='[' && string[2]=='W' && string[3]=='d' && string[4]==']'){
+		return 1;
+	} else {
+		return 0;
+	}
+}
 char* strip_command(char* string){
 	return &string[11];
 }

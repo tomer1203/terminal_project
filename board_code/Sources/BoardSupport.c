@@ -46,6 +46,38 @@ void InitGPIO() {
 	lcd_init(); // init the LCD
 }
 
+void dma0_init(void)
+{
+	// Enable clocks
+		SIM_SCGC6 |= SIM_SCGC6_DMAMUX_MASK;
+		SIM_SCGC7 |= SIM_SCGC7_DMA_MASK;
+		
+		// Disable DMA Mux channel first
+		DMAMUX0_CHCFG0 = 0x00;
+		
+		// Configure DMA
+		DMA_SAR0 = (uint32_t)&UART0_D; // Read from ADC0 sample
+		DMA_DAR0 = (uint32_t)&string_buffer[11];
+		// number of bytes yet to be transferred for a given block - 2 bytes(16 bits)
+		DMA_DSR_BCR0 = DMA_DSR_BCR_DONE_MASK;  // REMOVED THE NUMBER OF BYTES(MOVED TO THE UART INTERRUPT)
+		
+		DMA_DCR0 |= (DMA_DCR_EINT_MASK|		// Enable interrupt
+					 DMA_DCR_ERQ_MASK |		// Enable peripheral request
+					 DMA_DCR_CS_MASK  |		// Cycle Steal
+					 DMA_DCR_SSIZE(1) |		// Set source size to 8 bits //CHANGED FROM 2(16)
+					 DMA_DCR_DINC_MASK|		// Set increments to destination address
+					 DMA_DCR_DMOD(15)  |    // Destination address modulo of 2Kb
+					 DMA_DCR_DSIZE(1));		// Set destination size of 8 bits // CHANGED FROM 2(16)
+					 
+		
+		//Config DMA Mux for UART0 operation, Enable DMA channel and source
+		DMAMUX0_CHCFG0 |=  DMAMUX_CHCFG_SOURCE(2) ; //CHANGED FROM 40(ADC) ,REMOVED: DMAMUX_CHCFG_ENBL_MASK
+		
+		// Enable interrupt
+		enable_irq(INT_DMA0 - 16);
+		
+}
+
 //-----------------------------------------------------------------
 // TPMx - Clock Setup
 //-----------------------------------------------------------------

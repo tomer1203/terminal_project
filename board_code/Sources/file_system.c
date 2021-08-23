@@ -137,38 +137,6 @@ int read_line(){
 	if (file_system.state != READ_FILE_FS){
 		return NULL;
 	}
-	//
-	//---- start of fs
-	//200-B
-	//-- end of file
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//-- readpointer
-	//---- end of fs
-	
-	
-	//---- start of fs
-	//
-	//
-	//-readpointer
-	//- end of file
-	//
-	//
-	//
-	//
-	//-start file
-	//
-	//---- end of fs
-	//
-	//-- Imaginary end file
-	//
-	//
-	//
 	// decide how much you can read
 	end_line_address    = address_cyclic_add(file_system.read_pointer,16);
 	end_of_file_address = address_cyclic_add(file_system.file_list[file_system.read_file].start_pointer,file_system.file_list[file_system.read_file].size);
@@ -185,17 +153,20 @@ int read_line(){
 	if (file_system.read_pointer+16 > imaginary_end_file_address){
 		read_amount = imaginary_end_file_address - file_system.read_pointer;
 		
-		//** TODO READ 16 BYTES FROM DMA TODO **//
 		//reading_Line = value here;
 		copy_string_cyclic(reading_Line,file_system.read_pointer,read_amount);
 		file_system.read_pointer = file_system.file_list[file_system.read_file].start_pointer;
 		
 	}
 	else {
-		//** TODO READ 16 BYTES FROM DMA TODO **//
 		//reading_Line = value here;
 		copy_string_cyclic(reading_Line,file_system.read_pointer,read_amount);
 		file_system.read_pointer += 16;
+	}
+	for (i = 0; i < read_amount;i++){
+		if (reading_Line[i]== '\r' || reading_Line[i] == '\n'){
+			reading_Line[i] = ' ';
+		}
 	}
 	return read_amount;
 }
@@ -222,7 +193,7 @@ int write_file_init_message(char* message){
 	if (file_system.state == WRITE_SIZE_FS){
 		// writing size
 		if (!is_size_command(message)){
-			return -1;
+			return -11;
 		}
 		// this is a valid size command
 		size_str = strip_command(message);
@@ -230,14 +201,14 @@ int write_file_init_message(char* message){
 		
 		// check that there is enough space for the new file
 		if (size > SIZE_OF_FILE_SYSTEM){
-			return -2;
+			return -12;
 		}
 		
 		// clear files to make space for the new file
 		while (file_system.system_size_remaining < size){
 			if (file_system.number_of_files == 0){
 				// this is tested earlier so should never happen
-				return -12;
+				return -112;
 			}
 			file_system.file_list[file_system.first_file].valid = 0;
 			file_system.system_size_remaining  += file_system.file_list[file_system.first_file].size;
@@ -264,13 +235,13 @@ int write_file_init_message(char* message){
 	} else {
 		// writing name
 		if (!is_name_command(message)){
-			return -3;
+			return -13;
 		}
 		initialize_file_desc(&file_system.temp_file_desc);
 		strcpy(&file_system.temp_file_desc.name,strip_command(message));
-		file_system.temp_file_desc.start_pointer = 
-				file_system.file_list[file_system.last_file].start_pointer + 
-				file_system.file_list[file_system.last_file].size;
+		file_system.temp_file_desc.start_pointer = address_cyclic_add(
+				file_system.file_list[file_system.last_file].start_pointer, 
+				file_system.file_list[file_system.last_file].size);
 		file_system.temp_file_desc.valid = 0;
 		file_system.state = WRITE_SIZE_FS;
 		return 0;
@@ -290,15 +261,17 @@ int write_file_chunck(char* write_data, int size){
 	char data[MAX_STRING]={0};
 	char* write_address;
 	strcpy(data,strip_command(write_data));
+	if (!is_write_data_command(write_data)){
+		return -23;
+	}
 	if (file_system.state != WRITE_DATA_FS){
-		return -1; // entered in wrong state
+		return -21; // entered in wrong state
 	}
 	if (size > file_system.size_remaining){
-		return -2; // space allocated to file is done
+		return -22; // space allocated to file is done
 	}
 
 	file_system.size_remaining -= size;
-	//** TODO SEND TO DMA TODO **//
 	for (i = 0;i < size;i++) {
 		write_address = address_cyclic_add(file_system.write_pointer,i);
 		*write_address = data[i];

@@ -8,12 +8,13 @@
 #ifndef HALGPIO_H_
 #define HALGPIO_H_
 // 1/2 KB
-#define MAX_STRING 524
-#define PACKET_SIZE 128
+#define MAX_STRING 140
+#define PACKET_SIZE 64
 
-char string_buffer[MAX_STRING];
+extern char string_buffer[MAX_STRING];
 int string_index;
 int input_string_length;
+int msg_length;
 int baud_config;
 
 void Print(const char * s);

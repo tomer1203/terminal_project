@@ -1,6 +1,6 @@
 ﻿namespace TerminalProject
 {
-    partial class ConfigurationsForm
+    partial class SerialConfigurationsForm
     {
         /// <summary>
         /// Required designer variable.

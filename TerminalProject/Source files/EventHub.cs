@@ -8,13 +8,29 @@ namespace TerminalProject.Source_files
 {
     public static class EventHub
     {
-        public static event EventHandler<EventArgs> saveConfigurationsHandler;
+        /////////////////////////////////
+        // Save Serial Configurations
+        ////////////////////////////////
+        public static event EventHandler<EventArgs> SaveSerialConfigurationsHandler;
 
-        public static void OnSaveConfigurations(object sender, EventArgs e)
+        public static void OnSaveSerialConfigurations(object sender, EventArgs e)
         {
-            saveConfigurationsHandler?.Invoke(sender, e);
+            SaveSerialConfigurationsHandler?.Invoke(sender, e);
         }
 
+        /////////////////////////////////
+        // Save File Configurations
+        ////////////////////////////////
+        public static event EventHandler<EventArgs> SaveFileConfigurationsHandler;
+
+        public static void OnSaveFileConfigurations(object sender, EventArgs e)
+        {
+            SaveFileConfigurationsHandler?.Invoke(sender, e);
+        }
+
+        ////////////////////////////////////
+        // File Sending Progress Handler
+        ///////////////////////////////////
         public static event EventHandler<EventArgs> fileSendingProgressHandler;
 
         public static void OnFileSendingProgress(object sender, EventArgs e)

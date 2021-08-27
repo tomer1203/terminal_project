@@ -49,6 +49,8 @@ namespace TerminalProject
 
             // Get Current Directory
             currentDirectoryPath = Environment.CurrentDirectory;
+            // Get Files Directory Path
+            dataFilesPath = Path.Combine(currentDirectoryPath, filesToSendDirectory);
 
             // Serial Port
             serialPort = new CustomSerialPort();
@@ -61,7 +63,9 @@ namespace TerminalProject
             }
             catch (Exception) { setConnectingLabel(CustomSerialPort.STATUS.PORT_ERROR); }
 
-            EventHub.saveConfigurationsHandler += onSerialConfigurationsChanged;
+            // Event Hub Handlers
+            EventHub.SaveSerialConfigurationsHandler += onSerialConfigurationsChanged;
+            EventHub.SaveFileConfigurationsHandler += onFilesConfigurationsChanged;
             EventHub.fileSendingProgressHandler += onFileSendingProgress;
 
             // List View Initialization
@@ -314,18 +318,18 @@ namespace TerminalProject
         }
 
         /*
-         * Set Configuretions
+         * Set Serial Configuretions
          */
-        private void configurationButton_click(object sender, EventArgs e)
+        private void SeriaConfigurationButton_click(object sender, EventArgs e)
         {
             // start configuration window
-            if ((Application.OpenForms["ConfigurationsForm"] as ConfigurationsForm) != null)
+            if ((Application.OpenForms["ConfigurationsForm"] as SerialConfigurationsForm) != null)
             {
                 //Form is already open
                 Application.OpenForms["ConfigurationsForm"].Close();
             }
 
-            ConfigurationsForm configurationsForm = new ConfigurationsForm(ref serialPort);
+            SerialConfigurationsForm configurationsForm = new SerialConfigurationsForm(ref serialPort);
             configurationsForm.MinimizeBox = false;
             configurationsForm.MaximizeBox = false;
             configurationsForm.Show();
@@ -343,6 +347,51 @@ namespace TerminalProject
                 else if (tabControl1.SelectedTab == tabControl1.TabPages["tabPage2"])
                     sendFileButton_Click(sender, new EventArgs());
             }
+        }
+
+        /*
+       * Set Files Configuretions
+       */
+        private void FilesConfigurationsButton_Click(object sender, EventArgs e)
+        {
+            // start configuration window
+            if ((Application.OpenForms["filesConfigurationsForm"] as FilesConfigurationsForm) != null)
+            {
+                //Form is already open
+                Application.OpenForms["filesConfigurationsForm"].Close();
+            }
+
+
+            FilesConfigurationsForm filesConfigurationsForm = new FilesConfigurationsForm(Path.Combine(currentDirectoryPath, filesToSendDirectory));
+            filesConfigurationsForm.MinimizeBox = false;
+            filesConfigurationsForm.MaximizeBox = false;
+            filesConfigurationsForm.Show();
+        }
+
+        /*
+        * Files Confighrations Change Listener
+        */
+        private void onFilesConfigurationsChanged(object sender, EventArgs e)
+        {
+            this.dataFilesPath = sender.ToString();
+            filesListView.Clear();
+            initializeFilesListView();
+        }
+
+        /*
+        * Files Configuration Button Mouse Hover
+        */
+        private void filesConfigurationPanel_MouseHover(Object sender, EventArgs e)
+        {
+            this.filesConfigurationPanel.BackColor = Color.LightSeaGreen;
+        }
+
+        /*
+         * Files Configuration Button Mouse Leave
+         */
+        private void filesConfigurationPanel_MouseLeave(Object sender, EventArgs e)
+        {
+            this.filesConfigurationPanel.BackColor = Color.Transparent;
         }
 
         /*
@@ -510,8 +559,6 @@ namespace TerminalProject
             // Set Column
             this.filesListView.Columns.Add("Name", 600, HorizontalAlignment.Left);
             this.filesListView.Columns.Add("Size", -2, HorizontalAlignment.Left);
-            // get Directory
-            dataFilesPath = Path.Combine(currentDirectoryPath, filesToSendDirectory);
 
             if (Directory.Exists(dataFilesPath))
             {
@@ -539,8 +586,17 @@ namespace TerminalProject
         private void sendFileButton_Click(object sender, EventArgs e)
         {
             if (selectedFilePath.Equals(""))
+            {
+                updateFileTransferStatusLabel("select a file");
                 return;
-           
+            }
+
+            if (!serialPort.IsOpen)
+            {
+                updateFileTransferStatusLabel("configure serial port");
+                return;
+            }
+
 
             // Send File to MCU
             try
@@ -568,5 +624,7 @@ namespace TerminalProject
             e.Cancel = true;
             e.NewWidth = filesListView.Columns[e.ColumnIndex].Width;
         }
+
+       
     }
 }

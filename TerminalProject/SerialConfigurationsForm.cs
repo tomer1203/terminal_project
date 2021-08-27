@@ -14,14 +14,14 @@ using System.Threading;
 
 namespace TerminalProject
 {
-    public partial class ConfigurationsForm : Form
+    public partial class SerialConfigurationsForm : Form
     {
         private CustomSerialPort mSerialPort;
 
         /*
          * Construstor
          */
-        public ConfigurationsForm(ref CustomSerialPort serialPort)
+        public SerialConfigurationsForm(ref CustomSerialPort serialPort)
         {
             
             InitializeComponent();
@@ -94,7 +94,7 @@ namespace TerminalProject
                     mSerialPort.PortName = port;
                     mSerialPort.BaudRate = baudrate;
                     mSerialPort.Open();
-                    EventHub.OnSaveConfigurations(mSerialPort, EventArgs.Empty);
+                    EventHub.OnSaveSerialConfigurations(mSerialPort, EventArgs.Empty);
                     this.Close();
                     return;
                 }
@@ -113,7 +113,7 @@ namespace TerminalProject
                     // mSerialPort.Close();
                     // Delay is needed befor opening the port again
                     //Thread.Sleep(CustomSerialPort.CONFIGURE_DELAY);
-                    EventHub.OnSaveConfigurations(mSerialPort, EventArgs.Empty);
+                    EventHub.OnSaveSerialConfigurations(mSerialPort, EventArgs.Empty);
                     this.Close();
                     return;
                 }
@@ -123,7 +123,7 @@ namespace TerminalProject
                 try
                 {
                     mSerialPort.Open();
-                    EventHub.OnSaveConfigurations(mSerialPort, EventArgs.Empty);
+                    EventHub.OnSaveSerialConfigurations(mSerialPort, EventArgs.Empty);
                     // Close window
                     this.Close();
                 }

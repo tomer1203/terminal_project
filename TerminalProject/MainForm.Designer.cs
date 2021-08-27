@@ -50,6 +50,8 @@
             this.connectingPictureBox = new System.Windows.Forms.PictureBox();
             this.configurationsLabel = new System.Windows.Forms.Label();
             this.settingsPanel = new System.Windows.Forms.Panel();
+            this.filesConfigurationPanel = new System.Windows.Forms.Panel();
+            this.filesConfigurationsButton = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.dataRecievePanel.SuspendLayout();
@@ -58,6 +60,7 @@
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.connectingPictureBox)).BeginInit();
             this.settingsPanel.SuspendLayout();
+            this.filesConfigurationPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // sendButton
@@ -271,7 +274,7 @@
             this.configurationsLabel.Size = new System.Drawing.Size(63, 29);
             this.configurationsLabel.TabIndex = 3;
             this.configurationsLabel.Text = "Serial";
-            this.configurationsLabel.Click += new System.EventHandler(this.configurationButton_click);
+            this.configurationsLabel.Click += new System.EventHandler(this.SeriaConfigurationButton_click);
             this.configurationsLabel.MouseLeave += new System.EventHandler(this.settingsPanel_MouseLeave);
             this.configurationsLabel.MouseHover += new System.EventHandler(this.settingsPanel_MouseHover);
             // 
@@ -288,12 +291,41 @@
             this.settingsPanel.MouseLeave += new System.EventHandler(this.settingsPanel_MouseLeave);
             this.settingsPanel.MouseHover += new System.EventHandler(this.settingsPanel_MouseHover);
             // 
+            // filesConfigurationPanel
+            // 
+            this.filesConfigurationPanel.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.filesConfigurationPanel.BackColor = System.Drawing.Color.Transparent;
+            this.filesConfigurationPanel.Controls.Add(this.filesConfigurationsButton);
+            this.filesConfigurationPanel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.filesConfigurationPanel.Location = new System.Drawing.Point(81, 6);
+            this.filesConfigurationPanel.Name = "filesConfigurationPanel";
+            this.filesConfigurationPanel.Size = new System.Drawing.Size(55, 37);
+            this.filesConfigurationPanel.TabIndex = 4;
+            this.filesConfigurationPanel.MouseLeave += new System.EventHandler(this.filesConfigurationPanel_MouseLeave);
+            this.filesConfigurationPanel.MouseHover += new System.EventHandler(this.filesConfigurationPanel_MouseHover);
+            // 
+            // filesConfigurationsButton
+            // 
+            this.filesConfigurationsButton.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.filesConfigurationsButton.BackColor = System.Drawing.Color.Transparent;
+            this.filesConfigurationsButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.filesConfigurationsButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.filesConfigurationsButton.Location = new System.Drawing.Point(0, 8);
+            this.filesConfigurationsButton.Name = "filesConfigurationsButton";
+            this.filesConfigurationsButton.Size = new System.Drawing.Size(53, 29);
+            this.filesConfigurationsButton.TabIndex = 3;
+            this.filesConfigurationsButton.Text = "Files";
+            this.filesConfigurationsButton.Click += new System.EventHandler(this.FilesConfigurationsButton_Click);
+            this.filesConfigurationsButton.MouseLeave += new System.EventHandler(this.filesConfigurationPanel_MouseLeave);
+            this.filesConfigurationsButton.MouseHover += new System.EventHandler(this.filesConfigurationPanel_MouseHover);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.MediumTurquoise;
             this.ClientSize = new System.Drawing.Size(841, 551);
+            this.Controls.Add(this.filesConfigurationPanel);
             this.Controls.Add(this.settingsPanel);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.tabControl1);
@@ -314,6 +346,7 @@
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.connectingPictureBox)).EndInit();
             this.settingsPanel.ResumeLayout(false);
+            this.filesConfigurationPanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -344,6 +377,8 @@
         private System.Windows.Forms.ListView filesListView;
         private System.Windows.Forms.Button sendFileButton;
         private System.Windows.Forms.Label fileStatusLabel;
+        private System.Windows.Forms.Panel filesConfigurationPanel;
+        private System.Windows.Forms.Label filesConfigurationsButton;
     }
 }
 

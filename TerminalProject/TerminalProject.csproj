@@ -55,28 +55,35 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationsForm.cs">
+    <Compile Include="FilesConfigurationsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ConfigurationsForm.Designer.cs">
-      <DependentUpon>ConfigurationsForm.cs</DependentUpon>
+    <Compile Include="FilesConfigurationsForm.Designer.cs">
+      <DependentUpon>FilesConfigurationsForm.cs</DependentUpon>
     </Compile>
-	<Compile Include="MainForm.cs">
+    <Compile Include="SerialConfigurationsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SerialConfigurationsForm.Designer.cs">
+      <DependentUpon>SerialConfigurationsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" /><Compile Include="Source files\CustomSerialPort.cs">
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source files\CustomSerialPort.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Source files\DisabledRichTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Source files\EventHub.cs" />
-    <EmbeddedResource Include="configurationsForm.resx">
-      <DependentUpon>ConfigurationsForm.cs</DependentUpon>
+    <EmbeddedResource Include="SerialConfigurationsForm.resx">
+      <DependentUpon>SerialConfigurationsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -90,7 +97,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-	<None Include="app.manifest" />
+    <None Include="app.manifest" />
     <None Include="nuget.config">
       <SubType>Designer</SubType>
     </None>

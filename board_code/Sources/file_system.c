@@ -108,8 +108,9 @@ void send_file2pc(int index){
 			for(j=0 ; j < PACKET_SIZE+1 ; j++)
 				packet[j] = 0;
 			copy_string_cyclic(packet,file2send.start_pointer + i*PACKET_SIZE,leftovers);
-			//strncpy(packet, file2send.start_pointer + i*PACKET_SIZE, leftovers);
 			
+			if(file2send.size < 20)
+				DelayMs(DELAY_FILE*2);
 			send2pc(TYPE.FILE_DATA, packet);
 			return;
 		}
